@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:mycelium/ui/widgets/app_bar.dart';
+import 'package:mycelium/ui/widgets/node_tree.dart';
 import 'package:mycelium/viewmodels/collections_viewmodel.dart';
+import 'package:mycelium/viewmodels/nodes_viewmodel.dart';
 import 'package:provider/provider.dart';
 import 'package:mycelium/viewmodels/home_viewmodel.dart';
 
@@ -30,8 +32,44 @@ class HomePage extends StatelessWidget {
       ),
       body: Text("placeholder"),
       drawer: Drawer(
-        child: Text("salut")
-      )
+        child: SafeArea(
+          child: Column(
+            children: [
+              const _DrawerHeader(),
+              const Divider(height: 1),
+              Expanded(
+                child: NodeTree(
+                  nodes: context.watch<NodesViewModel>().nodes,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _DrawerHeader extends StatelessWidget {
+  const _DrawerHeader();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            "Nodes",
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
