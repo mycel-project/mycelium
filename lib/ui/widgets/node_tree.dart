@@ -5,7 +5,15 @@ import "package:mycelium/data/models/node.dart";
 class NodeTree extends StatefulWidget {
   final List<Node> nodes;
 
-  const NodeTree({super.key, required this.nodes});
+  const NodeTree({
+    super.key,
+    required this.nodes,
+    this.isSpore,
+  });
+
+
+  final bool Function(Node node)? isSpore;
+
 
   @override
   State<NodeTree> createState() => _NodeTreeState();
@@ -29,7 +37,7 @@ class _NodeTreeState extends State<NodeTree> {
 
     if (!listEquals(oldWidget.nodes, widget.nodes)) {
       setState(() {
-        _tree = buildTree(widget.nodes);
+          _tree = buildTree(widget.nodes);
       });
     }
   }
@@ -50,30 +58,35 @@ class _NodeTreeState extends State<NodeTree> {
               final Node typedNode = node.content as Node;
               final isSelected = _selectedNode == typedNode;
               final hasChildren = node.children.isNotEmpty;
+              final isSporeNode = widget.isSpore?.call(typedNode) ?? false;
 
               return Row(
                 children: [
                   SizedBox(
                     width: 40,
                     child: hasChildren
-                        ? InkWell(
-                            borderRadius: BorderRadius.circular(20),
-                            onTap: () {
-                              setState(() {
-                                controller.toggleNode(node);
-                              });
-                            },
-                            child: const Center(
-                              child: Icon(Icons.chevron_right, size: 20),
-                            ),
-                          )
-                        : const SizedBox(),
+                    ? InkWell(
+                      borderRadius: BorderRadius.circular(20),
+                      onTap: () {
+                        setState(() {
+                            controller.toggleNode(node);
+                        });
+                      },
+                      child: Center(
+                        child: AnimatedRotation(
+                          turns: node.isExpanded ? 0.25 : 0, // 90°
+                          duration: const Duration(milliseconds: 200),
+                          child: const Icon(Icons.chevron_right, size: 20),
+                        ),
+                      ),
+                    )
+                    : const SizedBox(),
                   ),
                   Expanded(
                     child: GestureDetector(
                       onTap: () {
                         setState(() {
-                          _selectedNode = typedNode;
+                            _selectedNode = typedNode;
                         });
                       },
                       child: Container(
@@ -81,8 +94,16 @@ class _NodeTreeState extends State<NodeTree> {
                         padding: const EdgeInsets.symmetric(horizontal: 8),
                         decoration: BoxDecoration(
                           color: isSelected
-                              ? Colors.blue.shade100
+                          ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.2)
+                          : Colors.transparent,
+                          border: Border(
+                            left: BorderSide(
+                              color: isSporeNode
+                              ? Theme.of(context).colorScheme.primary
                               : Colors.transparent,
+                              width: 2,
+                            ),
+                          ),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(

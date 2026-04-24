@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mycelium/data/models/node_type.dart';
 import 'package:mycelium/ui/widgets/app_bar.dart';
 import 'package:mycelium/ui/widgets/node_tree.dart';
 import 'package:mycelium/viewmodels/collections_viewmodel.dart';
@@ -40,6 +41,14 @@ class HomePage extends StatelessWidget {
               Expanded(
                 child: NodeTree(
                   nodes: context.watch<NodesViewModel>().nodes,
+                  isSpore: (node) {
+                    final vm = context.read<NodesViewModel>();
+                    final type = vm.nodeTypes.firstWhere(
+                      (t) => t.key == node.type,
+                      orElse: () => NodeType(label: "", key: -1),
+                    );
+                    return type.label == "SPORE";
+                  },
                 ),
               ),
             ],
