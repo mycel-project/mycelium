@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:mycelium/ui/pages/widgets/app_bar.dart';
+import 'package:mycelium/ui/widgets/app_bar.dart';
 import 'package:mycelium/viewmodels/collections_viewmodel.dart';
 import 'package:provider/provider.dart';
 

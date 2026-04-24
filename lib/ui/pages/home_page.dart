@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:mycelium/ui/pages/widgets/app_bar.dart';
+import 'package:mycelium/ui/widgets/app_bar.dart';
 import 'package:mycelium/viewmodels/collections_viewmodel.dart';
 import 'package:provider/provider.dart';
 import 'package:mycelium/viewmodels/home_viewmodel.dart';
@@ -29,6 +29,9 @@ class HomePage extends StatelessWidget {
         ],
       ),
       body: Text("placeholder"),
+      drawer: Drawer(
+        child: Text("salut")
+      )
     );
   }
 }
