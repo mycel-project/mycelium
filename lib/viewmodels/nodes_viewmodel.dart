@@ -27,6 +27,11 @@ class NodesViewModel extends ChangeNotifier {
     } else if (result is ApiError) {
       print("Can't get node types: ${result.code}");
     }
+
+    final collectionId = collectionStore.currentCollection?.id;
+    if (collectionId != null) {
+      loadNodes(collectionId);
+    }
   }
 
   void _onCollectionChange() {
