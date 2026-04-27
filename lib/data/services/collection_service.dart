@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:mycelium/data/api_result.dart';
 import 'package:mycelium/data/models/collection.dart';
 import 'package:mycelium/data/services/api_service.dart';
 
@@ -6,28 +7,50 @@ class CollectionService {
   final ApiService api;
   CollectionService(this.api);
 
-  Future<List<Collection>> getCollections() async {
-    final response = await api.get("/collections");
-    if (response.statusCode != 200) throw Exception("Failed to load collections");
-    final List collectionsJson = jsonDecode(response.body)["collections"];
-    return collectionsJson.map((e) => Collection.fromJson(e)).toList();
+  Future<ApiResult<List<Collection>>> getCollections() async {
+    final result = await api.get("/collections");
+
+    if (result is ApiError) return result;
+
+    final success = result as ApiSuccess<String>;
+    final json = jsonDecode(success.data);
+
+    return ApiSuccess<List<Collection>>(
+      (json["collections"] as List)
+          .map((e) => Collection.fromJson(e))
+          .toList(),
+    );
   }
 
-  Future<Collection> createCollection(String name) async {
-    final response = await api.post("/collections", {"name": name});
-    if (response.statusCode != 200) throw Exception("Failed to create collection");
-    return Collection.fromJson(jsonDecode(response.body)["collection"]);
+  Future<ApiResult<Collection>> createCollection(String name) async {
+    final result = await api.post("/collections", {"name": name});
+
+    if (result is ApiError) return result;
+
+    final success = result as ApiSuccess<String>;
+    final json = jsonDecode(success.data);
+
+    return ApiSuccess<Collection>(
+      Collection.fromJson(json["collection"]),
+    );
   }
 
-  Future<void> deleteCollection(int id) async {
-    final response = await api.delete("/collections/$id");
-    if (response.statusCode != 200 && response.statusCode != 204) {
-      throw Exception("Failed to delete collection");
-    }
+  Future<ApiResult<void>> deleteCollection(int id) async {
+    final result = await api.delete("/collections/$id");
+
+    if (result is ApiError) return result;
+
+    return ApiSuccess<void>(null);
   }
 
-  Future<void> renameCollection(int id, String newName) async {
-    final response = await api.patch("/collections/$id", {"newName": newName});
-    if (response.statusCode != 200) throw Exception("Failed to rename collection");
+  Future<ApiResult<void>> renameCollection(int id, String newName) async {
+    final result = await api.patch(
+      "/collections/$id",
+      {"newName": newName},
+    );
+
+    if (result is ApiError) return result;
+
+    return ApiSuccess<void>(null);
   }
 }

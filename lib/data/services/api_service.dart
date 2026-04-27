@@ -1,47 +1,100 @@
+import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
+
 import 'package:http/http.dart' as http;
 import 'package:mycelium/core/stores/api_store.dart';
+import 'package:mycelium/data/api_result.dart';
 
 class ApiService {
   final ApiStore apiStore;
   final Duration timeout;
 
-  ApiService(this.apiStore, {this.timeout = const Duration(seconds: 5)});
+  ApiService(
+    this.apiStore, {
+    this.timeout = const Duration(seconds: 5),
+  });
 
-  Future<http.Response> get(String path) async {
-    return await http.get(
-      Uri.parse("${apiStore.baseUrl}$path"),
-    ).timeout(timeout);
+  Uri _uri(String path) => Uri.parse("${apiStore.baseUrl}$path");
+
+  Future<ApiResult<String>> get(String path) {
+    return _request(() async {
+      final response = await http
+          .get(_uri(path))
+          .timeout(timeout);
+
+      return response;
+    });
   }
 
-  Future<http.Response> post(String path, Map<String, dynamic> body) async {
-    return await http.post(
-      Uri.parse("${apiStore.baseUrl}$path"),
-      headers: {"Content-Type": "application/json"},
-      body: jsonEncode(body),
-    ).timeout(timeout);
+  Future<ApiResult<String>> post(String path, Map<String, dynamic> body) {
+    return _request(() async {
+      final response = await http
+          .post(
+            _uri(path),
+            headers: {"Content-Type": "application/json"},
+            body: jsonEncode(body),
+          )
+          .timeout(timeout);
+
+      return response;
+    });
   }
 
-  Future<http.Response> patch(String path, Map<String, dynamic> body) async {
-    return await http.patch(
-      Uri.parse("${apiStore.baseUrl}$path"),
-      headers: {"Content-Type": "application/json"},
-      body: jsonEncode(body),
-    ).timeout(timeout);
+  Future<ApiResult<String>> patch(String path, Map<String, dynamic> body) {
+    return _request(() async {
+      final response = await http
+          .patch(
+            _uri(path),
+            headers: {"Content-Type": "application/json"},
+            body: jsonEncode(body),
+          )
+          .timeout(timeout);
+
+      return response;
+    });
   }
 
-  Future<http.Response> delete(String path) async {
-    return await http.delete(
-      Uri.parse("${apiStore.baseUrl}$path"),
-    ).timeout(timeout);
+  Future<ApiResult<String>> delete(String path) {
+    return _request(() async {
+      final response = await http
+          .delete(_uri(path))
+          .timeout(timeout);
+
+      return response;
+    });
+  }
+
+  Future<ApiResult<String>> _request(
+    Future<http.Response> Function() call,
+  ) async {
+    try {
+      final response = await call();
+
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        apiStore.setReachable(true);
+        return ApiSuccess(response.body);
+      }
+
+      return ApiError(
+        "http_error",
+        statusCode: response.statusCode,
+        message: response.body,
+      );
+    } on TimeoutException {
+      apiStore.setReachable(false);
+      return ApiError("timeout", statusCode: 408);
+    } on SocketException {
+      apiStore.setReachable(false);
+      return ApiError("no_connection", statusCode: 503);
+    } catch (e) {
+      return ApiError("unknown", message: e.toString());
+    }
   }
 
   Future<bool> checkReachability() async {
-    try {
-      final response = await get("/health");
-      return response.statusCode == 200;
-    } catch (e) {
-      return false;
-    }
+    final result = await get("/health");
+
+    return result is ApiSuccess;
   }
 }

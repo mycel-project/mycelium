@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mycelium/core/stores/api_store.dart';
 import 'package:mycelium/core/stores/collection_store.dart';
+import 'package:mycelium/data/api_result.dart';
 import 'package:mycelium/data/models/collection.dart';
 import 'package:mycelium/data/services/collection_service.dart';
 
@@ -19,18 +20,32 @@ class CollectionsViewModel extends ChangeNotifier {
     collectionStore.clearCollection();
     init();
   }
+
   Collection? get currentCollection => collectionStore.currentCollection;
 
   Future<void> init() async {
     collections = [];
     notifyListeners();
-    collections = await service.getCollections();
-    notifyListeners();
+
+    final result = await service.getCollections();
+
+    if (result is ApiSuccess<List<Collection>>) {
+      collections = result.data;
+      notifyListeners();
+    } else if (result is ApiError) {
+      print("Can't get collections: ${result.code}");
+    }
   }
 
   Future<void> createCollection(String name) async {
-    final collection = await service.createCollection(name);
-    collections.add(collection);
+    final result = await service.createCollection(name);
+
+    if (result is ApiSuccess<Collection>) {
+      collections.add(result.data);
+    } else if (result is ApiError) {
+      print("Can't create collection: ${result.code}");
+    }
+
     notifyListeners();
   }
 
@@ -54,6 +69,8 @@ class CollectionsViewModel extends ChangeNotifier {
 
   void setCollection(int id) {
     final candidates = collections.where((c) => c.id == id);
-    if (candidates.isNotEmpty) collectionStore.selectCollection(candidates.first);
+    if (candidates.isNotEmpty) {
+      collectionStore.selectCollection(candidates.first);
+    }
   }
 }

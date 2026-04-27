@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:mycelium/core/stores/api_store.dart';
 import 'package:mycelium/core/stores/collection_store.dart';
+import 'package:mycelium/data/api_result.dart';
+import 'package:mycelium/data/models/collection.dart';
 import 'package:mycelium/data/services/api_service.dart';
 import 'package:mycelium/data/services/collection_service.dart';
 import 'package:mycelium/data/services/node_service.dart';
@@ -29,11 +31,19 @@ void main() async {
   // restore selected collection
   try {
     final savedId = await collectionStore.getSavedId();
-    final collections = await collectionService.getCollections();
-    if (savedId != null) {
+    final result = await collectionService.getCollections();
+
+    List<Collection> collections = [];
+    if (result is ApiSuccess<List<Collection>>) {
+      collections = result.data;
+    } else if (result is ApiError) {
+      print("Can't get collections: ${result.code}");
+    }
+    if (savedId != null && collections.isNotEmpty) {
       final candidates = collections.where((c) => c.id == savedId);
-      if (candidates.isNotEmpty)
+      if (candidates.isNotEmpty) {
         collectionStore.selectCollection(candidates.first);
+      }
     }
     await collectionView.init();
   } catch (e) {
@@ -50,7 +60,9 @@ void main() async {
         ChangeNotifierProvider(create: (_) => collectionStore),
         ChangeNotifierProvider(create: (_) => nodeViewModel),
         ChangeNotifierProvider(create: (_) => HomeViewModel()),
-        ChangeNotifierProvider(create: (_) => ApiViewModel(apiStore, apiService)),
+        ChangeNotifierProvider(
+          create: (_) => ApiViewModel(apiStore, apiService),
+        ),
         ChangeNotifierProvider(create: (_) => apiStore),
       ],
       child: const MyApp(),
