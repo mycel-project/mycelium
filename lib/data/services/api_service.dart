@@ -94,7 +94,6 @@ class ApiService {
 
   Future<bool> checkReachability() async {
     final result = await get("/health");
-
     return result is ApiSuccess;
   }
 }

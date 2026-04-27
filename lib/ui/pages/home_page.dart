@@ -12,24 +12,38 @@ import 'package:mycelium/viewmodels/home_viewmodel.dart';
 class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final vm = context.read<HomeViewModel>();
+    final vm = context.watch<HomeViewModel>();
     final apiStore = context.watch<ApiStore>();       
 
     return Scaffold(     
       appBar: MyAppBar(
         titleText: context.watch<CollectionStore>().currentCollection?.name ?? "No collection selected",
         actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 7),
-            child: GestureDetector(
-              onTap: () =>  vm.goToApiConfig(context),
-              child: Icon(
-                (apiStore.isReachable ?? false) ? Icons.circle : Icons.circle,
-                color: apiStore.isReachable == null
-                ? Colors.grey
-                : (apiStore.isReachable! ? Colors.green : Colors.red),
-                size: 16,
-              ),
+          IconButton(
+            onPressed: () => vm.connectionStatusClick(),
+            splashRadius: 20,
+            icon: vm.isCheckingConnection
+            ? const Icon(
+              Icons.sync,
+              size: 16,
+              color: Colors.white,
+            )
+            : apiStore.isReachable == null
+            ? const Icon(
+              Icons.circle,
+              size: 16,
+              color: Colors.grey,
+            )
+            : apiStore.isReachable == true
+            ? const Icon(
+              Icons.circle,
+              size: 16,
+              color: Colors.green,
+            )
+            : const Icon(
+              Icons.refresh,
+              size: 16,
+              color: Colors.red,
             ),
           ),
           PopupMenuButton(

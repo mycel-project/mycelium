@@ -28,6 +28,7 @@ void main() async {
     collectionStore,
     apiStore,
   );
+  
   // restore selected collection
   try {
     final savedId = await collectionStore.getSavedId();
@@ -59,7 +60,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => collectionView),
         ChangeNotifierProvider(create: (_) => collectionStore),
         ChangeNotifierProvider(create: (_) => nodeViewModel),
-        ChangeNotifierProvider(create: (_) => HomeViewModel()),
+        ChangeNotifierProvider(create: (_) => HomeViewModel(apiService: apiService)),
         ChangeNotifierProvider(
           create: (_) => ApiViewModel(apiStore, apiService),
         ),
