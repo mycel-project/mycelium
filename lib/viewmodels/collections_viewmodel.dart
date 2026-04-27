@@ -1,28 +1,31 @@
 import 'package:flutter/material.dart';
+import 'package:mycelium/core/stores/api_store.dart';
+import 'package:mycelium/core/stores/collection_store.dart';
 import 'package:mycelium/data/models/collection.dart';
 import 'package:mycelium/data/services/collection_service.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class CollectionsViewModel extends ChangeNotifier {
-  static const _selectedKey = "selected_collection_id";
-
   final CollectionService service;
-
-  Collection? selectedCollection;
-
-  CollectionsViewModel(this.service);
+  final CollectionStore collectionStore;
+  final ApiStore apiStore;
 
   List<Collection> collections = [];
 
+  CollectionsViewModel(this.service, this.collectionStore, this.apiStore) {
+    apiStore.addListener(_onApiChange);
+  }
+
+  void _onApiChange() {
+    collectionStore.clearCollection();
+    init();
+  }
+  Collection? get currentCollection => collectionStore.currentCollection;
+
   Future<void> init() async {
+    collections = [];
+    notifyListeners();
     collections = await service.getCollections();
-
-    final prefs = await SharedPreferences.getInstance();
-    final savedId = prefs.getInt(_selectedKey);
-
-    if (savedId != null) {
-      setCollection(savedId);
-    }
+    notifyListeners();
   }
 
   Future<void> createCollection(String name) async {
@@ -34,8 +37,8 @@ class CollectionsViewModel extends ChangeNotifier {
   Future<void> deleteCollection(int id) async {
     await service.deleteCollection(id);
     collections.removeWhere((c) => c.id == id);
-    if (selectedCollection?.id == id) {
-      selectedCollection = null;
+    if (collectionStore.currentCollection?.id == id) {
+      collectionStore.clearCollection();
     }
     notifyListeners();
   }
@@ -49,13 +52,8 @@ class CollectionsViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setCollection(int id) async {
-    selectedCollection = collections.firstWhere(
-      (c) => c.id == id
-    );
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setInt(_selectedKey, id);
-
-    notifyListeners();
+  void setCollection(int id) {
+    final candidates = collections.where((c) => c.id == id);
+    if (candidates.isNotEmpty) collectionStore.selectCollection(candidates.first);
   }
 }

@@ -14,7 +14,6 @@ class NodeTree extends StatefulWidget {
 
   final bool Function(Node node)? isSpore;
 
-
   @override
   State<NodeTree> createState() => _NodeTreeState();
 }

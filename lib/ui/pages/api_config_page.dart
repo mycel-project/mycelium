@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:mycelium/core/app_config.dart';
+import 'package:mycelium/core/stores/api_store.dart';
+import 'package:mycelium/viewmodels/api_viewmodel.dart';
 import 'package:provider/provider.dart';
 
 class ApiConfigPage extends StatefulWidget {
@@ -9,21 +10,19 @@ class ApiConfigPage extends StatefulWidget {
 
 class _ApiConfigPageState extends State<ApiConfigPage> {
   late final TextEditingController controller;
-  late final AppConfig config;
 
   @override
   void initState() {
     super.initState();
-
-    config = context.read<AppConfig>();
-
-    controller = TextEditingController(text: config.baseUrl);
+    controller = TextEditingController(
+      text: context.read<ApiViewModel>().apiStore.baseUrl,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    final config = context.watch<AppConfig>();
-
+    final vm = context.watch<ApiViewModel>();
+    final store = context.watch<ApiStore>();       
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.all(64),
@@ -34,10 +33,17 @@ class _ApiConfigPageState extends State<ApiConfigPage> {
               controller: controller,
               decoration: const InputDecoration(
                 labelText: "API Base URL",
+                hintText: "http://192.168.1.10:8000",
               ),
-              onSubmitted: (value) {
-                config.setBaseUrl(value); // ✔ ici
-              },
+              onSubmitted: (value) => vm.setUrl(value),
+            ),
+            const SizedBox(height: 16),
+            if (vm.isChecking)
+            const CircularProgressIndicator()
+            else if (store.isReachable != null)
+            Icon(
+              store.isReachable! ? Icons.check_circle : Icons.cancel,
+              color: store.isReachable! ? Colors.green : Colors.red,
             ),
           ],
         ),

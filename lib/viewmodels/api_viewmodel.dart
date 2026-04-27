@@ -1,21 +1,26 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:mycelium/core/stores/api_store.dart';
+import 'package:mycelium/data/services/api_service.dart';
 
 class ApiViewModel extends ChangeNotifier {
-  static const _key = "api_base_url";
+  final ApiStore apiStore;
+  final ApiService apiService;
 
-  String url = "";
+  bool isChecking = false;
 
-  Future<void> loadUrl() async {
-    final prefs = await SharedPreferences.getInstance();
-    url = prefs.getString(_key) ?? "";
-  }
+  ApiViewModel(this.apiStore, this.apiService);
 
   Future<void> setUrl(String newUrl) async {
-    url = newUrl;
-    notifyListeners();
+    await apiStore.setBaseUrl(newUrl);
+    await checkReachability();
+  }
 
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_key, newUrl);
+  Future<void> checkReachability() async {
+    isChecking = true;
+    notifyListeners();
+    final result = await apiService.checkReachability();
+    apiStore.setReachable(result); 
+    isChecking = false;
+    notifyListeners();
   }
 }

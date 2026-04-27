@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:mycelium/core/app_config.dart';
+import 'package:mycelium/core/stores/api_store.dart';
+import 'package:mycelium/core/stores/collection_store.dart';
+import 'package:mycelium/data/services/api_service.dart';
 import 'package:mycelium/data/services/collection_service.dart';
 import 'package:mycelium/data/services/node_service.dart';
+import 'package:mycelium/viewmodels/api_viewmodel.dart';
 import 'package:mycelium/viewmodels/collections_viewmodel.dart';
 import 'package:mycelium/viewmodels/home_viewmodel.dart';
 import 'package:mycelium/viewmodels/nodes_viewmodel.dart';
@@ -11,21 +14,44 @@ import 'package:provider/provider.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  final config = AppConfig();
-  await config.init();
-  final collectionService = CollectionService(config);
-  final nodeService = NodeService(config);
-  final collectionView = CollectionsViewModel(collectionService);
-  final nodeView = NodesViewModel(nodeService, collectionView);  
-  collectionView.init();
+  final apiStore = ApiStore();
+  await apiStore.init();
+  final apiService = ApiService(apiStore);
+
+  final collectionService = CollectionService(apiService);
+  final collectionStore = CollectionStore();
+
+  final collectionView = CollectionsViewModel(
+    collectionService,
+    collectionStore,
+    apiStore,
+  );
+  // restore selected collection
+  try {
+    final savedId = await collectionStore.getSavedId();
+    final collections = await collectionService.getCollections();
+    if (savedId != null) {
+      final candidates = collections.where((c) => c.id == savedId);
+      if (candidates.isNotEmpty)
+        collectionStore.selectCollection(candidates.first);
+    }
+    await collectionView.init();
+  } catch (e) {
+    print("No access to API");
+  }
+
+  final nodeService = NodeService(apiService);
+  final nodeViewModel = NodesViewModel(nodeService, collectionStore);
 
   runApp(
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => collectionView),
-        ChangeNotifierProvider(create: (_) => nodeView),
+        ChangeNotifierProvider(create: (_) => collectionStore),
+        ChangeNotifierProvider(create: (_) => nodeViewModel),
         ChangeNotifierProvider(create: (_) => HomeViewModel()),
-        ChangeNotifierProvider(create: (_) => config),
+        ChangeNotifierProvider(create: (_) => ApiViewModel(apiStore, apiService)),
+        ChangeNotifierProvider(create: (_) => apiStore),
       ],
       child: const MyApp(),
     ),

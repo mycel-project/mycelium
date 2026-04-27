@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mycelium/core/stores/collection_store.dart';
 import 'package:mycelium/ui/widgets/app_bar.dart';
 import 'package:mycelium/viewmodels/collections_viewmodel.dart';
 import 'package:provider/provider.dart';
@@ -61,13 +62,14 @@ class _CollectionsListState extends State<CollectionsList> {
   @override
   Widget build(BuildContext context) {
     final vm = context.watch<CollectionsViewModel>();
+    final store = context.watch<CollectionStore>(); 
     return ListView.builder(
       itemCount: vm.collections.length,
       itemBuilder: (context, index) {
         final collection = vm.collections[index];
         return Center(
           child: ListTile(
-            tileColor: collection.id == vm.selectedCollection?.id ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.1) : null,
+            tileColor: collection.id == store.currentCollection?.id ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.1) : null,
             onTap: () {
               vm.setCollection(collection.id);
             },

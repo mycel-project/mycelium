@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:mycelium/core/stores/api_store.dart';
+import 'package:mycelium/core/stores/collection_store.dart';
 import 'package:mycelium/data/models/node_type.dart';
 import 'package:mycelium/ui/widgets/app_bar.dart';
-import 'package:mycelium/ui/widgets/md_area.dart';
 import 'package:mycelium/ui/widgets/md_editor.dart';
 import 'package:mycelium/ui/widgets/node_tree.dart';
-import 'package:mycelium/viewmodels/collections_viewmodel.dart';
 import 'package:mycelium/viewmodels/nodes_viewmodel.dart';
 import 'package:provider/provider.dart';
 import 'package:mycelium/viewmodels/home_viewmodel.dart';
@@ -13,11 +13,25 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final vm = context.read<HomeViewModel>();
+    final apiStore = context.watch<ApiStore>();       
 
     return Scaffold(     
       appBar: MyAppBar(
-        titleText: context.watch<CollectionsViewModel>().selectedCollection?.name ?? "No collection selected",
+        titleText: context.watch<CollectionStore>().currentCollection?.name ?? "No collection selected",
         actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 7),
+            child: GestureDetector(
+              onTap: () =>  vm.goToApiConfig(context),
+              child: Icon(
+                (apiStore.isReachable ?? false) ? Icons.circle : Icons.circle,
+                color: apiStore.isReachable == null
+                ? Colors.grey
+                : (apiStore.isReachable! ? Colors.green : Colors.red),
+                size: 16,
+              ),
+            ),
+          ),
           PopupMenuButton(
             onSelected: (value) {
               if (value == 1) {

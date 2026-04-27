@@ -1,21 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:mycelium/core/stores/collection_store.dart';
 import 'package:mycelium/data/models/node.dart';
 import 'package:mycelium/data/models/node_type.dart';
 import 'package:mycelium/data/services/node_service.dart';
-import 'package:mycelium/viewmodels/collections_viewmodel.dart';
 
 class NodesViewModel extends ChangeNotifier {
   final NodeService service;
-  final CollectionsViewModel collectionsVM;
-
-  NodesViewModel(this.service, this.collectionsVM) {
-    collectionsVM.addListener(_onCollectionChange);
-    _init();
-  }
+  final CollectionStore collectionStore;
 
   List<Node> nodes = [];
   List<NodeType> nodeTypes = [];
   Node? selectedNode;
+
+  NodesViewModel(this.service, this.collectionStore) {
+    collectionStore.addListener(_onCollectionChange);
+    _init();
+  }
 
   Future<void> _init() async {
     nodeTypes = await service.getNodeTypes();
@@ -25,8 +25,7 @@ class NodesViewModel extends ChangeNotifier {
   void _onCollectionChange() {
     selectedNode = null;
     nodes = [];
-
-    final collectionId = collectionsVM.selectedCollection?.id;
+    final collectionId = collectionStore.currentCollection?.id;
     if (collectionId != null) {
       loadNodes(collectionId);
     }
@@ -35,5 +34,11 @@ class NodesViewModel extends ChangeNotifier {
   Future<void> loadNodes(int collectionId) async {
     nodes = await service.getNodes(collectionId);
     notifyListeners();
+  }
+
+  @override
+  void dispose() {
+    collectionStore.removeListener(_onCollectionChange);
+    super.dispose();
   }
 }
