@@ -13,38 +13,24 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final vm = context.watch<HomeViewModel>();
-    final apiStore = context.watch<ApiStore>();       
+    final apiStore = context.watch<ApiStore>();
 
-    return Scaffold(     
+    return Scaffold(
       appBar: MyAppBar(
-        titleText: context.watch<CollectionStore>().currentCollection?.name ?? "No collection selected",
+        titleText:
+            context.watch<CollectionStore>().currentCollection?.name ??
+            "No collection selected",
         actions: [
           IconButton(
             onPressed: () => vm.connectionStatusClick(),
             splashRadius: 20,
             icon: vm.isCheckingConnection
-            ? const Icon(
-              Icons.sync,
-              size: 16,
-              color: Colors.white,
-            )
-            : apiStore.isReachable == null
-            ? const Icon(
-              Icons.circle,
-              size: 16,
-              color: Colors.grey,
-            )
-            : apiStore.isReachable == true
-            ? const Icon(
-              Icons.circle,
-              size: 16,
-              color: Colors.green,
-            )
-            : const Icon(
-              Icons.refresh,
-              size: 16,
-              color: Colors.red,
-            ),
+                ? const Icon(Icons.sync, size: 16, color: Colors.white)
+                : apiStore.isReachable == null
+                ? const Icon(Icons.circle, size: 16, color: Colors.grey)
+                : apiStore.isReachable == true
+                ? const Icon(Icons.circle, size: 16, color: Colors.green)
+                : const Icon(Icons.refresh, size: 16, color: Colors.red),
           ),
           PopupMenuButton(
             onSelected: (value) {
@@ -79,6 +65,9 @@ class HomePage extends StatelessWidget {
                     );
                     return type.label == "SPORE";
                   },
+                  clickCallback: (int value) {
+                    context.read<NodesViewModel>().selectNode(value);
+                  },
                 ),
               ),
             ],
@@ -102,10 +91,7 @@ class _DrawerHeader extends StatelessWidget {
         children: [
           const Text(
             "Nodes",
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
         ],
       ),

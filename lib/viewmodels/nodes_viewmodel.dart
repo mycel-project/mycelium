@@ -1,21 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:mycelium/core/stores/collection_store.dart';
+import 'package:mycelium/core/stores/node_store.dart';
 import 'package:mycelium/data/api_result.dart';
 import 'package:mycelium/data/models/node.dart';
 import 'package:mycelium/data/models/node_type.dart';
 import 'package:mycelium/data/services/node_service.dart';
 
 class NodesViewModel extends ChangeNotifier {
+  // Or view -> vm -> domain service -> store ? 
   final NodeService service;
   final CollectionStore collectionStore;
+  final NodeStore nodeStore;
 
   List<Node> nodes = [];
   List<NodeType> nodeTypes = [];
   Node? selectedNode;
 
-  NodesViewModel(this.service, this.collectionStore) {
+  NodesViewModel(this.service, this.collectionStore, this.nodeStore) {
     collectionStore.addListener(_onCollectionChange);
     _init();
+  }
+
+  void selectNode (int id) {
+    final node = nodes.firstWhere((n) => n.id == id);
+    nodeStore.selectNode(node);
   }
 
   Future<void> _init() async {
