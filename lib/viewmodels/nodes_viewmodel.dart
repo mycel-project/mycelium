@@ -7,7 +7,7 @@ import 'package:mycelium/data/models/node_type.dart';
 import 'package:mycelium/data/services/node_service.dart';
 
 class NodesViewModel extends ChangeNotifier {
-  // Or view -> vm -> domain service -> store ? 
+  // Or view -> vm -> domain service -> store ?
   final NodeService service;
   final CollectionStore collectionStore;
   final NodeStore nodeStore;
@@ -18,10 +18,27 @@ class NodesViewModel extends ChangeNotifier {
 
   NodesViewModel(this.service, this.collectionStore, this.nodeStore) {
     collectionStore.addListener(_onCollectionChange);
+    nodeStore.addListener(_onNodeChange);
     _init();
   }
 
-  void selectNode (int id) {
+  void _onNodeChange() {
+    // ensure selected node from local node is aligned with source of truth
+    final node = nodeStore.currentNode;
+    if (node == null) return;
+
+    final index = nodes.indexWhere((n) => n.id == node.id);
+
+    if (index != -1) {
+      nodes[index] = node;
+    } else {
+      nodes.add(node);
+    }
+
+    notifyListeners();
+  }
+
+  void selectNode(int id) {
     final node = nodes.firstWhere((n) => n.id == id);
     nodeStore.selectNode(node);
   }

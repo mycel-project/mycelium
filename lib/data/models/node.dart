@@ -1,7 +1,8 @@
 class Node {
-  const Node({required this.id, required this.type, this.parentId, this.content});
+  const Node({required this.id, required this.type, required this.collectionId, this.parentId, this.content});
   final int id;
   final int type;
+  final int collectionId;
   final int? parentId;
   final Map? content;
 
@@ -12,6 +13,7 @@ class Node {
       id: json['id'],
       type: json['type'],
       parentId: json["parent_id"],
+      collectionId: json["collection_id"],
       content: rawContent is Map<String, dynamic>
           ? rawContent['fields'] as Map<String, dynamic>?
           : null,

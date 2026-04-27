@@ -93,6 +93,7 @@ class _NodeTreeState extends State<NodeTree> {
                         child: InkWell(
                           onTap: () {
                             widget.clickCallback?.call(typedNode.id);
+                            FocusManager.instance.primaryFocus?.unfocus();
                             Navigator.pop(context);
                           },
                           child: Container(

@@ -17,9 +17,24 @@ class NodeService {
     final json = jsonDecode(success.data);
 
     return ApiSuccess<List<Node>>(
-      (json["nodes"] as List)
-          .map((e) => Node.fromJson(e))
-          .toList(),
+      (json["nodes"] as List).map((e) => Node.fromJson(e)).toList(),
+    );
+  }
+
+  Future<ApiResult<Node>> saveNodeContent(
+    int collectionId,
+    int nodeId,
+    String content,
+  ) async {
+    final result = await api.patch("/collections/$collectionId/nodes/$nodeId", {"content": content});
+
+    if (result is ApiError) return result;
+
+    final success = result as ApiSuccess<String>;
+    final json = jsonDecode(success.data);
+
+    return ApiSuccess<Node>(
+      Node.fromJson(json["node"]),
     );
   }
 
@@ -32,9 +47,7 @@ class NodeService {
     final json = jsonDecode(success.data);
 
     return ApiSuccess<List<NodeType>>(
-      (json["types"] as List)
-          .map((e) => NodeType.fromJson(e))
-          .toList(),
+      (json["types"] as List).map((e) => NodeType.fromJson(e)).toList(),
     );
   }
 }

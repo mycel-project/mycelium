@@ -10,6 +10,7 @@ import 'package:mycelium/data/services/node_service.dart';
 import 'package:mycelium/viewmodels/api_viewmodel.dart';
 import 'package:mycelium/viewmodels/collections_viewmodel.dart';
 import 'package:mycelium/viewmodels/home_viewmodel.dart';
+import 'package:mycelium/viewmodels/md_editor_view_model.dart';
 import 'package:mycelium/viewmodels/nodes_viewmodel.dart';
 import 'ui/pages/home_page.dart';
 import 'package:provider/provider.dart';
@@ -68,6 +69,7 @@ void main() async {
         ),
         ChangeNotifierProvider(create: (_) => apiStore),
         ChangeNotifierProvider(create: (_) => nodeStore),
+        ChangeNotifierProvider(create: (_) => MdEditorViewModel(nodeService: nodeService, nodeStore: nodeStore)),
       ],
       child: const MyApp(),
     ),

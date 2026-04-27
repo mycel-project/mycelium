@@ -10,58 +10,67 @@ class MdEditor extends StatefulWidget {
 }
 
 class _MdEditorState extends State<MdEditor> {
-  String? content;
-
-  MdEditorViewModel editorVm = MdEditorViewModel();
-
-  late final MarkdownController markdownController;
-
-  void _onNodeChanged() {
-    final node = context.read<NodeStore>().currentNode;
-    final content = node?.content?["0"] ?? "";
-    markdownController.text = content;
-    FocusManager.instance.primaryFocus?.unfocus();
-  }
+  late final MarkdownController markdownController = MarkdownController();
+  late MdEditorViewModel vm;
   
   @override
   void initState() {
     super.initState();
 
-    markdownController = MarkdownController();
-    final nodeStore = context.read<NodeStore>();
-    nodeStore.addListener(_onNodeChanged);
+    vm = context.read<MdEditorViewModel>();
+
+    markdownController.text = vm.content;
+
+    vm.addListener(_syncFromVm);
+  }
+
+  void _syncFromVm() {
+    final vm = context.read<MdEditorViewModel>();
+
+    if (markdownController.text != vm.content) {
+      final selection = markdownController.selection;
+      markdownController.text = vm.content;
+      markdownController.selection = selection;
+    }
   }
 
   @override
   void dispose() {
-    context.read<NodeStore>().removeListener(_onNodeChanged);
     markdownController.dispose();
+    vm.removeListener(_syncFromVm);
     super.dispose();
   }
-
+  
   @override
   Widget build(BuildContext context) {
-
+    final vm = context.watch<MdEditorViewModel>();
     return SafeArea(
       child: Stack(
         fit: StackFit.expand,
         children: [
           Padding(
-            padding: EdgeInsetsGeometry.only(left: 16, right: 16),
+            padding: const EdgeInsets.only(left: 16, right: 16),
             child: TextField(
               maxLines: null,
               expands: true,
               controller: markdownController,
-              decoration: InputDecoration(border: InputBorder.none),
+              onChanged: (value) {
+                vm.updateContent(value);
+              },
+              decoration: const InputDecoration(border: InputBorder.none),
             ),
           ),
-          // Positioned(
-          //   bottom: 40,
-          //   right: 30,
-          //   child: FloatingActionButton(
-          //     child: Icon( Icons.edit),
-          //   ),
-          // ),
+          Positioned(
+            bottom: 40,
+            right: 30,
+            child: FloatingActionButton(
+              onPressed: vm.isDirty ? vm.saveContent : null,
+              child: Opacity(
+                opacity: vm.isDirty ? 1.0 : 0.4,
+                child: const Icon(Icons.save),
+              ),
+            ),
+          ),
         ],
       ),
     );
