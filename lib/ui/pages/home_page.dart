@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:mycelium/data/models/node_type.dart';
 import 'package:mycelium/ui/widgets/app_bar.dart';
+import 'package:mycelium/ui/widgets/md_area.dart';
+import 'package:mycelium/ui/widgets/md_editor.dart';
 import 'package:mycelium/ui/widgets/node_tree.dart';
 import 'package:mycelium/viewmodels/collections_viewmodel.dart';
 import 'package:mycelium/viewmodels/nodes_viewmodel.dart';
@@ -31,7 +33,7 @@ class HomePage extends StatelessWidget {
           ),
         ],
       ),
-      body: Text("placeholder"),
+      body: MdEditor(),
       drawer: Drawer(
         child: SafeArea(
           child: Column(
