@@ -12,14 +12,7 @@ class CollectionsViewModel extends ChangeNotifier {
 
   List<Collection> collections = [];
 
-  CollectionsViewModel(this.service, this.collectionStore, this.apiStore) {
-    apiStore.addListener(_onApiChange);
-  }
-
-  void _onApiChange() {
-    collectionStore.clearCollection();
-    init();
-  }
+  CollectionsViewModel(this.service, this.collectionStore, this.apiStore);
 
   Collection? get currentCollection => collectionStore.currentCollection;
 

@@ -26,7 +26,6 @@ class ApiStore extends ChangeNotifier {
   
   void setReachable(bool value) {
     if (_isReachable == value) return;
-
     _isReachable = value;
     notifyListeners();
   }

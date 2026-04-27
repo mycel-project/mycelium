@@ -12,15 +12,15 @@ class ApiViewModel extends ChangeNotifier {
 
   Future<void> setUrl(String newUrl) async {
     await apiStore.setBaseUrl(newUrl);
-    await checkReachability();
+    final state = await checkReachability();
+    apiStore.setReachable(state);
+    notifyListeners();
   }
 
-  Future<void> checkReachability() async {
+  Future<bool> checkReachability() async {
     isChecking = true;
-    notifyListeners();
     final result = await apiService.checkReachability();
-    apiStore.setReachable(result); 
     isChecking = false;
-    notifyListeners();
+    return result;
   }
 }
