@@ -24,7 +24,7 @@ class HomePage extends StatelessWidget {
     final apiStore = context.watch<ApiStore>();
     return
     ChangeNotifierProvider(
-      create: (_) => LaunchReviewButtonViewmodel(context.read<ReviewUseCase>(), context.read<CollectionStore>()),
+      create: (_) => LaunchReviewButtonViewmodel(context.read<ReviewUseCase>()),
       child: Scaffold(
         appBar: MyAppBar(
           titleText:

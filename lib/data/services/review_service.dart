@@ -26,4 +26,42 @@ class ReviewService {
       Node.fromJson(nodeJson),
     );
   }
+
+  Future<ApiResult<dynamic>> completeFragmentReview(
+    int colId,
+    int nodeId,
+    int duration,
+  ) async {
+    final result = await api.post(
+      "/collections/$colId/nodes/$nodeId/fragment-review",
+      {
+        "duration": duration,
+      },
+    );
+
+    if (result is ApiError) return result;
+
+    final success = result as ApiSuccess<String>;
+    return ApiSuccess(jsonDecode(success.data));
+  }
+  
+  Future<ApiResult<dynamic>> completeSporeReview(
+    int colId,
+    int nodeId,
+    int duration,
+    int rating,
+  ) async {
+    final result = await api.post(
+      "/collections/$colId/nodes/$nodeId/spore-review",
+      {
+        "rating": rating,
+        "duration": duration,
+      },
+    );
+
+    if (result is ApiError) return result;
+
+    final success = result as ApiSuccess<String>;
+    return ApiSuccess(jsonDecode(success.data));
+  }
 }

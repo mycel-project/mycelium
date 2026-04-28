@@ -2,9 +2,13 @@ import "package:flutter/material.dart";
 import "package:mycelium/core/stores/review_state.dart";
 import "package:mycelium/core/stores/review_store.dart";
 import "package:mycelium/ui/controllers/markdown_controller.dart";
+import "package:mycelium/ui/widgets/next_review_button.dart";
+import "package:mycelium/ui/widgets/show_answer_button.dart";
+import "package:mycelium/ui/widgets/validation_bar.dart";
 import "package:mycelium/viewmodels/md_editor_view_model.dart";
 import 'package:provider/provider.dart';
 
+/// Widget that handles the current node editing and review process.
 class MdEditor extends StatefulWidget {
   @override
   _MdEditorState createState() => _MdEditorState();
@@ -51,33 +55,91 @@ class _MdEditorState extends State<MdEditor> {
       _ => null,
     };
     return SafeArea(
-      child: Stack(
-        fit: StackFit.expand,
+      child: Column(
         children: [
-          Padding(
-            padding: const EdgeInsets.only(left: 16, right: 16),
-            child: TextField(
-              maxLines: null,
-              expands: true,
-              controller: markdownController,
-              onChanged: (value) {
-                vm.updateContent(value);
-              },
-              decoration: const InputDecoration(border: InputBorder.none),
+          Expanded(
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(left: 16, right: 16),
+                  child: TextField(
+                    maxLines: null,
+                    expands: true,
+                    controller: markdownController,
+                    onChanged: (value) {
+                      vm.updateContent(value);
+                    },
+                    decoration: const InputDecoration(border: InputBorder.none),
+                  ),
+                ),
+                Positioned(
+                  bottom: 40,
+                  right: 30,
+                  child: Row(
+                    children: [
+                      FloatingActionButton(
+                        onPressed: vm.isDirty ? vm.saveContent : null,
+                        child: Opacity(
+                          opacity: vm.isDirty ? 1.0 : 0.4,
+                          child: const Icon(Icons.save),
+                        ),
+                      ),
+                      if (vm.isCurrentNodeSpore())
+                        FloatingActionButton(
+                          onPressed: vm.isDirty ? vm.saveContent : null,
+                          child: Opacity(
+                            opacity: vm.isDirty ? 1.0 : 0.4,
+                            child: const Icon(Icons.check),
+                          ),
+                        )
+                      else ...[
+                        FloatingActionButton(
+                          onPressed: vm.isDirty ? vm.saveContent : null,
+                          child: Opacity(
+                            opacity: vm.isDirty ? 1.0 : 0.4,
+                            child: const Icon(Icons.content_cut),
+                          ),
+                        ),
+                        FloatingActionButton(
+                          onPressed: vm.isDirty ? vm.saveContent : null,
+                          child: Opacity(
+                            opacity: vm.isDirty ? 1.0 : 0.4,
+                            child: const Icon(Icons.quiz),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ],
             ),
           ),
-          Positioned(
-            bottom: 40,
-            right: 30,
-            child: FloatingActionButton(
-              onPressed: vm.isDirty ? vm.saveContent : null,
-              child: Opacity(
-                opacity: vm.isDirty ? 1.0 : 0.4,
-                child: const Icon(Icons.save),
-              ),
-            ),
-          ),
-          (reviewNodeId == vm.node?.id) ? Text("Reviewing") : Text("Not")
+          reviewNodeId == vm.node?.id
+              ? vm.isCurrentNodeSpore()
+                    ? vm.isAnswerVisible
+                          ? ValidationBar(
+                              onSelected: (value) {
+                                FocusScope.of(context).unfocus();
+                                vm.saveContent;
+                                vm.reviewSpore(value);
+                                vm.nextReview();
+                              },
+                            )
+                          : ShowAnswerButton(
+                              onPressed: () {
+                                vm.showAnswer();
+                              },
+                            )
+                    : NextReviewButton(
+                        onPressed: () {
+                          FocusScope.of(context).unfocus();
+                          vm.saveContent;
+                          vm.reviewFragment();
+                          vm.nextReview();
+                        },
+                      )
+              : SizedBox.shrink(),
         ],
       ),
     );

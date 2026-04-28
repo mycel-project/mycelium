@@ -5,6 +5,8 @@ import 'package:mycelium/core/stores/node_store.dart';
 import 'package:mycelium/core/stores/review_store.dart';
 import 'package:mycelium/data/api_result.dart';
 import 'package:mycelium/data/models/collection.dart';
+import 'package:mycelium/data/repositories/node_repository.dart';
+import 'package:mycelium/data/repositories/review_repository.dart';
 import 'package:mycelium/data/services/api_service.dart';
 import 'package:mycelium/data/services/collection_service.dart';
 import 'package:mycelium/data/services/node_service.dart';
@@ -62,8 +64,19 @@ void main() async {
 
   final reviewStore = ReviewStore();
 
-  final reviewService = ReviewService(apiService); // No direct access to reviewService, only through reviewUseCase?
-  final reviewUseCase = ReviewUseCase(reviewService, nodeStore, reviewStore);
+  final reviewService = ReviewService(
+    apiService,
+  ); // No direct access to reviewService, only through reviewUseCase?
+  final reviewUseCase = ReviewUseCase(
+    reviewService,
+    nodeStore,
+    reviewStore,
+    collectionStore,
+  );
+
+  final nodeRepository = NodeRepository(nodeService);
+  final reviewRepository = ReviewRepository(reviewService);
+  await nodeRepository.getNodeTypes();
 
   runApp(
     MultiProvider(
@@ -72,7 +85,8 @@ void main() async {
         ChangeNotifierProvider(create: (_) => collectionStore),
         ChangeNotifierProvider(create: (_) => nodeViewModel),
         ChangeNotifierProvider(
-          create: (_) => HomeViewModel(apiService: apiService, reviewStore: reviewStore),
+          create: (_) =>
+              HomeViewModel(apiService: apiService, reviewStore: reviewStore),
         ),
         ChangeNotifierProvider(
           create: (_) => ApiViewModel(apiStore, apiService),
@@ -80,8 +94,13 @@ void main() async {
         ChangeNotifierProvider(create: (_) => apiStore),
         ChangeNotifierProvider(create: (_) => nodeStore),
         ChangeNotifierProvider(
-          create: (_) =>
-              MdEditorViewModel(nodeService: nodeService, nodeStore: nodeStore),
+          create: (_) => MdEditorViewModel(
+            nodeService: nodeService,
+            nodeStore: nodeStore,
+            nodeRepository: nodeRepository,
+            reviewUseCase: reviewUseCase,
+            reviewRepository: reviewRepository,
+          ),
         ),
         ChangeNotifierProvider(create: (_) => reviewStore),
         Provider(create: (_) => reviewUseCase),
