@@ -55,7 +55,7 @@ class _CollectionsListState extends State<CollectionsList> {
     super.initState();
 
     Future.microtask(() {
-      context.read<CollectionsViewModel>().init();
+        context.read<CollectionsViewModel>().init();
     });
   }
 
@@ -63,113 +63,117 @@ class _CollectionsListState extends State<CollectionsList> {
   Widget build(BuildContext context) {
     final vm = context.watch<CollectionsViewModel>();
     final store = context.watch<CollectionStore>();
-    return ListView.builder(
-      itemCount: vm.collections.length,
-      itemBuilder: (context, index) {
-        final collection = vm.collections[index];
-        return Center(
-          child: ListTile(
-            tileColor: collection.id == store.currentCollection?.id
-                ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.1)
-                : null,
-            onTap: () {
-              vm.setCollection(collection.id);
-            },
-            onLongPress: () {
-              showModalBottomSheet(
-                context: context,
-                builder: (_) {
-                  return Wrap(
-                    children: [
-                      ListTile(
-                        leading: Icon(Icons.edit),
-                        title: Text("Rename"),
-                        onTap: () {
-                          showDialog(
-                            context: context,
-                            builder: (context) {
-                              final controller = TextEditingController(
-                                text: collection.name,
-                              );
-                              return SimpleDialog(
-                                title: Text("New name"),
-                                children: [
-                                  Center(
-                                    child: Padding(
-                                      padding: EdgeInsets.all(16.0),
-                                      child: TextField(
-                                        controller: controller,
-                                        autofocus: true,
-                                        onSubmitted: (value) async {
-                                          await vm.renameCollection(
-                                            collection.id,
-                                            value,
-                                          );
-                                          Navigator.pop(context);
-                                          Navigator.pop(context);
-                                        },
+    return SafeArea (
+      child: ListView.builder(
+        itemCount: vm.collections.length,
+        itemBuilder: (context, index) {
+          final collection = vm.collections[index];
+          return Center(
+            child: ListTile(
+              tileColor: collection.id == store.currentCollection?.id
+              ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.1)
+              : null,
+              onTap: () {
+                vm.setCollection(collection.id);
+              },
+              onLongPress: () {
+                showModalBottomSheet(
+                  context: context,
+                  builder: (_) {
+                    return SafeArea (
+                      child: Wrap(
+                        children: [
+                          ListTile(
+                            leading: Icon(Icons.edit),
+                            title: Text("Rename"),
+                            onTap: () {
+                              showDialog(
+                                context: context,
+                                builder: (context) {
+                                  final controller = TextEditingController(
+                                    text: collection.name,
+                                  );
+                                  return SimpleDialog(
+                                    title: Text("New name"),
+                                    children: [
+                                      Center(
+                                        child: Padding(
+                                          padding: EdgeInsets.all(16.0),
+                                          child: TextField(
+                                            controller: controller,
+                                            autofocus: true,
+                                            onSubmitted: (value) async {
+                                              await vm.renameCollection(
+                                                collection.id,
+                                                value,
+                                              );
+                                              Navigator.pop(context);
+                                              Navigator.pop(context);
+                                            },
+                                          ),
+                                        ),
                                       ),
-                                    ),
-                                  ),
-                                ],
+                                    ],
+                                  );
+                                },
                               );
                             },
-                          );
-                        },
-                      ),
-                      ListTile(
-                        leading: Icon(Icons.delete, color: Colors.red),
-                        title: Text(
-                          "Delete",
-                          style: TextStyle(color: Colors.red),
-                        ),
-                        onTap: () {
-                          showDialog(
-                            context: context,
-                            builder: (context) {
-                              return AlertDialog(
-                                title: Text("Confirmation"),
-                                content: Text(
-                                  "Delete collection ${collection.name} and all data associated?",
-                                ),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () => {
-                                      Navigator.pop(context, false),
-                                      Navigator.pop(context),
-                                    },
-                                    child: Text("No"),
-                                  ),
-                                  TextButton(
-                                    onPressed: () => {
-                                      Navigator.pop(context, true),
-                                      Navigator.pop(context),
-                                      vm.deleteCollection(collection.id),
-                                    },
-                                    child: Text(
-                                      "Yes",
-                                      style: TextStyle(color: Colors.red),
+                          ),
+                          ListTile(
+                            leading: Icon(Icons.delete, color: Colors.red),
+                            title: Text(
+                              "Delete",
+                              style: TextStyle(color: Colors.red),
+                            ),
+                            onTap: () {
+                              showDialog(
+                                context: context,
+                                builder: (context) {
+                                  return AlertDialog(
+                                    title: Text("Confirmation"),
+                                    content: Text(
+                                      "Delete collection ${collection.name} and all data associated?",
                                     ),
-                                  ),
-                                ],
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () => {
+                                          Navigator.pop(context, false),
+                                          Navigator.pop(context),
+                                        },
+                                        child: Text("No"),
+                                      ),
+                                      TextButton(
+                                        onPressed: () => {
+                                          Navigator.pop(context, true),
+                                          Navigator.pop(context),
+                                          vm.deleteCollection(collection.id),
+                                        },
+                                        child: Text(
+                                          "Yes",
+                                          style: TextStyle(color: Colors.red),
+                                        ),
+                                      ),
+                                    ],
+                                  );
+                                },
                               );
                             },
-                          );
-                        },
+                          ),
+                        ],
                       ),
-                    ],
-                  );
-                },
-              );
-            },
-            title: Text(
-              collection.name,
-              style: Theme.of(context).textTheme.headlineSmall,
+                    );
+                  },
+                );
+              },
+              title: Text(
+                collection.name,
+                style: Theme.of(context).textTheme.headlineSmall,
+              ),
+              trailing: Icon(Icons.chevron_right),
             ),
-            trailing: Icon(Icons.chevron_right),
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 }
