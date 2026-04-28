@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mycelium/core/stores/api_store.dart';
 import 'package:mycelium/core/stores/collection_store.dart';
 import 'package:mycelium/core/stores/node_store.dart';
+import 'package:mycelium/core/stores/review_store.dart';
 import 'package:mycelium/data/api_result.dart';
 import 'package:mycelium/data/models/collection.dart';
 import 'package:mycelium/data/services/api_service.dart';
@@ -57,6 +58,8 @@ void main() async {
   final nodeStore = NodeStore();
   final nodeViewModel = NodesViewModel(nodeService, collectionStore, nodeStore);
 
+  final reviewStore = ReviewStore();
+
   runApp(
     MultiProvider(
       providers: [
@@ -70,6 +73,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => apiStore),
         ChangeNotifierProvider(create: (_) => nodeStore),
         ChangeNotifierProvider(create: (_) => MdEditorViewModel(nodeService: nodeService, nodeStore: nodeStore)),
+        ChangeNotifierProvider(create: (_) => reviewStore),
       ],
       child: const MyApp(),
     ),

@@ -12,7 +12,7 @@ class NoCollectionWidget extends StatelessWidget {
             Padding(
               padding: EdgeInsetsGeometry.all(32),
               child: Text(
-                "No collection selected yet. Create one or pick an existing one to get started.",
+                "No collection selected yet.\nCreate one or pick an existing one to get started.",
                 textAlign: TextAlign.center,
               )
             ),
