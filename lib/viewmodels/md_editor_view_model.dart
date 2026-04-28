@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:mycelium/core/either.dart';
+import 'package:mycelium/core/errors/node_update_errors.dart';
 import 'package:mycelium/core/stores/node_store.dart';
 import 'package:mycelium/core/stores/review_store.dart';
 import 'package:mycelium/data/api_result.dart';
@@ -21,6 +23,8 @@ class MdEditorViewModel extends ChangeNotifier {
   bool isEditing = false;
 
   final ReviewUseCase reviewUseCase;
+
+  String? uiMessage;
 
   final ReviewRepository reviewRepository;
 
@@ -63,8 +67,18 @@ class MdEditorViewModel extends ChangeNotifier {
 
   bool isLocked() {
     return reviewStore.currentNodeId == node?.id &&
-    isCurrentNodeSpore() &&
-    !isAnswerVisible;
+        isCurrentNodeSpore() &&
+        !isAnswerVisible;
+  }
+
+  void _showMessage(String message) {
+    uiMessage = message;
+    notifyListeners();
+
+    Future.delayed(const Duration(seconds: 3), () {
+        uiMessage = null;
+        notifyListeners();
+    });
   }
 
   bool isCurrentNodeSpore() {
@@ -83,10 +97,13 @@ class MdEditorViewModel extends ChangeNotifier {
       notifyListeners();
     }
   }
-  
+
   void showAnswer() {
     isAnswerVisible = true;
-    content = reviewUseCase.transformClozeContent(node?.content?["0"] ?? "", mode: ClozeMode.show);
+    content = reviewUseCase.transformClozeContent(
+      node?.content?["0"] ?? "",
+      mode: ClozeMode.show,
+    );
     notifyListeners();
   }
 
@@ -99,7 +116,10 @@ class MdEditorViewModel extends ChangeNotifier {
 
       if (isCurrentNodeSpore()) {
         if (reviewStore.currentNodeId == node.id) {
-          content = reviewUseCase.transformClozeContent(node.content?["0"] ?? "", mode: ClozeMode.hide);
+          content = reviewUseCase.transformClozeContent(
+            node.content?["0"] ?? "",
+            mode: ClozeMode.hide,
+          );
         } else {
           content = node.content?["0"] ?? "";
         }
@@ -126,24 +146,30 @@ class MdEditorViewModel extends ChangeNotifier {
     if (isDirty) {
       final collectionId = node?.collectionId;
       final nodeId = node?.id;
-      isEditing = false;
 
       if (collectionId != null && nodeId != null) {
-        isDirty = false;
-        notifyListeners();
-
-        // pass through repo and delegate api state to repo
-        final result = await nodeService.saveNodeContent(
+        final result = await nodeRepository.updateNodeContent(
           collectionId,
           nodeId,
           content,
         );
-        if (result is ApiSuccess<Node>) {
-          nodeStore.selectNode(result.data);
-          notifyListeners();
-        } else if (result is ApiError) {
-          print("Can't get updated node: ${result.code}");
-        }
+
+        result.fold(
+          (error) {
+            print("Can't update node: $error");
+            if (error is InvalidNodeUpdateError) {
+              _showMessage("Spore must contain at least one cloze field");
+            } else {
+              _showMessage("Can't update node");
+            }
+          },
+          (node) {
+            isDirty = false;
+            isEditing = false;
+            nodeStore.selectNode(node);
+            notifyListeners();
+          },
+        );
       }
     }
   }

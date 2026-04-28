@@ -16,9 +16,7 @@ class ReviewService {
     final success = result as ApiSuccess<String>;
     final json = jsonDecode(success.data) as Map<String, dynamic>;
 
-    final regex = json["regex"] as String?;
-
-    return ApiSuccess<String?>(regex);
+    return ApiSuccess<String?>(json["regex"] as String?);
   }
 
   Future<ApiResult<Node?>> getNextReview(int colId) async {
@@ -38,7 +36,7 @@ class ReviewService {
     return ApiSuccess<Node?>(Node.fromJson(nodeJson));
   }
 
-  Future<ApiResult<dynamic>> completeFragmentReview(
+  Future<ApiResult<String>> completeFragmentReview(
     int colId,
     int nodeId,
     int duration,
@@ -51,10 +49,11 @@ class ReviewService {
     if (result is ApiError) return result;
 
     final success = result as ApiSuccess<String>;
-    return ApiSuccess(jsonDecode(success.data));
+
+    return ApiSuccess<String>(success.data);
   }
 
-  Future<ApiResult<dynamic>> completeSporeReview(
+  Future<ApiResult<String>> completeSporeReview(
     int colId,
     int nodeId,
     int duration,
@@ -62,12 +61,16 @@ class ReviewService {
   ) async {
     final result = await api.post(
       "/collections/$colId/nodes/$nodeId/spore-review",
-      {"rating": rating, "duration": duration},
+      {
+        "rating": rating,
+        "duration": duration,
+      },
     );
 
     if (result is ApiError) return result;
 
     final success = result as ApiSuccess<String>;
-    return ApiSuccess(jsonDecode(success.data));
+
+    return ApiSuccess<String>(success.data);
   }
 }

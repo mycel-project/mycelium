@@ -15,11 +15,11 @@ class ReviewRepository {
       duration,
     );
 
-    if (result is ApiSuccess<List<void>>) {
-      return true;
+    if (result is ApiError) {
+      throw Exception(result.message ?? "Failed to complete fragment review");
     }
 
-    throw Exception("Failed to complete fragment review");
+    return true;
   }
 
   Future<bool> reviewSpore(
@@ -35,11 +35,11 @@ class ReviewRepository {
       rating,
     );
 
-    if (result is ApiSuccess<List<void>>) {
-      return true;
+    if (result is ApiError) {
+      throw Exception(result.message ?? "Failed to complete spore review");
     }
 
-    throw Exception("Failed to complete spore review");
+    return true;
   }
 
   Future<String?> getClozeRegex() async {

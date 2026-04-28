@@ -10,18 +10,13 @@ class ApiService {
   final ApiStore apiStore;
   final Duration timeout;
 
-  ApiService(
-    this.apiStore, {
-    this.timeout = const Duration(seconds: 5),
-  });
+  ApiService(this.apiStore, {this.timeout = const Duration(seconds: 5)});
 
   Uri _uri(String path) => Uri.parse("${apiStore.baseUrl}$path");
 
   Future<ApiResult<String>> get(String path) {
     return _request(() async {
-      final response = await http
-          .get(_uri(path))
-          .timeout(timeout);
+      final response = await http.get(_uri(path)).timeout(timeout);
 
       return response;
     });
@@ -57,9 +52,7 @@ class ApiService {
 
   Future<ApiResult<String>> delete(String path) {
     return _request(() async {
-      final response = await http
-          .delete(_uri(path))
-          .timeout(timeout);
+      final response = await http.delete(_uri(path)).timeout(timeout);
 
       return response;
     });
@@ -71,16 +64,28 @@ class ApiService {
     try {
       final response = await call();
 
+      apiStore.setReachable(true);
+
       if (response.statusCode >= 200 && response.statusCode < 300) {
-        apiStore.setReachable(true);
         return ApiSuccess(response.body);
       }
 
-      return ApiError(
-        "http_error",
-        statusCode: response.statusCode,
-        message: response.body,
-      );
+      dynamic body;
+      try {
+        body = jsonDecode(response.body);
+      } catch (_) {
+        body = null;
+      }
+
+      final code = body is Map && body["detail"]["code"] != null
+          ? body["detail"]["code"]
+          : "http_error";
+
+      final reason = body is Map
+          ? body["detail"]["reason"] ?? response.body
+          : response.body;
+
+      return ApiError(code, statusCode: response.statusCode, message: reason);
     } on TimeoutException {
       apiStore.setReachable(false);
       return ApiError("timeout", statusCode: 408);

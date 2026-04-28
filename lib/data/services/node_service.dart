@@ -21,7 +21,7 @@ class NodeService {
     );
   }
 
-  Future<ApiResult<Node>> saveNodeContent(
+  Future<ApiResult<String>> saveNodeContent(
     int collectionId,
     int nodeId,
     String content,
@@ -31,11 +31,8 @@ class NodeService {
     if (result is ApiError) return result;
 
     final success = result as ApiSuccess<String>;
-    final json = jsonDecode(success.data);
 
-    return ApiSuccess<Node>(
-      Node.fromJson(json["node"]),
-    );
+    return ApiSuccess<String>(success.data);
   }
 
   Future<ApiResult<List<NodeType>>> getNodeTypes() async {

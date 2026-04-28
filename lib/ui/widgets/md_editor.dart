@@ -75,6 +75,28 @@ class _MdEditorState extends State<MdEditor> {
                     decoration: const InputDecoration(border: InputBorder.none),
                   ),
                 ),
+                if (vm.uiMessage != null)
+                  Positioned(
+                    bottom: 110,
+                    right: 30,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.red.withValues(alpha: 0.9),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Text(
+                        vm.uiMessage!,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
+                  ),
                 Positioned(
                   bottom: 40,
                   right: 30,
