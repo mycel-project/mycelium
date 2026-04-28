@@ -12,6 +12,7 @@ class MdEditorViewModel extends ChangeNotifier {
 
   MdEditorViewModel({required this.nodeService, required this.nodeStore}) {
     nodeStore.addListener(_onNodeStoreChanged);
+    _onNodeStoreChanged();
   }
 
   void _onNodeStoreChanged() {

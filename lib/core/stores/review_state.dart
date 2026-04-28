@@ -1,0 +1,12 @@
+sealed class ReviewState {}
+
+class ReviewLoading extends ReviewState {}
+
+class ReviewNotStarted extends ReviewState {}
+
+class Reviewing extends ReviewState {
+  final int nodeId;
+  Reviewing(this.nodeId);
+}
+
+class NoMoreReviews extends ReviewState {}

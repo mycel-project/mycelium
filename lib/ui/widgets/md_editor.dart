@@ -1,5 +1,5 @@
 import "package:flutter/material.dart";
-import "package:mycelium/core/stores/node_store.dart";
+import "package:mycelium/core/stores/review_state.dart";
 import "package:mycelium/core/stores/review_store.dart";
 import "package:mycelium/ui/controllers/markdown_controller.dart";
 import "package:mycelium/viewmodels/md_editor_view_model.dart";
@@ -45,7 +45,11 @@ class _MdEditorState extends State<MdEditor> {
   @override
   Widget build(BuildContext context) {
     final vm = context.watch<MdEditorViewModel>();
-    final nodeReviewId = context.watch<ReviewStore>().currentReviewNodeId;
+    final reviewState = context.watch<ReviewStore>().state;
+    final reviewNodeId = switch (reviewState) {
+      Reviewing(:final nodeId) => nodeId,
+      _ => null,
+    };
     return SafeArea(
       child: Stack(
         fit: StackFit.expand,
@@ -73,7 +77,7 @@ class _MdEditorState extends State<MdEditor> {
               ),
             ),
           ),
-          (nodeReviewId == vm.node?.id) ? Text("Reviewing") : Text("Not reviewing")
+          (reviewNodeId == vm.node?.id) ? Text("Reviewing") : Text("Not")
         ],
       ),
     );

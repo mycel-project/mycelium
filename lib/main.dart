@@ -8,6 +8,8 @@ import 'package:mycelium/data/models/collection.dart';
 import 'package:mycelium/data/services/api_service.dart';
 import 'package:mycelium/data/services/collection_service.dart';
 import 'package:mycelium/data/services/node_service.dart';
+import 'package:mycelium/data/services/review_service.dart';
+import 'package:mycelium/domain/review_usecase.dart';
 import 'package:mycelium/viewmodels/api_viewmodel.dart';
 import 'package:mycelium/viewmodels/collections_viewmodel.dart';
 import 'package:mycelium/viewmodels/home_viewmodel.dart';
@@ -31,7 +33,7 @@ void main() async {
     collectionStore,
     apiStore,
   );
-  
+
   // restore selected collection
   try {
     final savedId = await collectionStore.getSavedId();
@@ -60,20 +62,29 @@ void main() async {
 
   final reviewStore = ReviewStore();
 
+  final reviewService = ReviewService(apiService); // No direct access to reviewService, only through reviewUseCase?
+  final reviewUseCase = ReviewUseCase(reviewService, nodeStore, reviewStore);
+
   runApp(
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => collectionView),
         ChangeNotifierProvider(create: (_) => collectionStore),
         ChangeNotifierProvider(create: (_) => nodeViewModel),
-        ChangeNotifierProvider(create: (_) => HomeViewModel(apiService: apiService)),
+        ChangeNotifierProvider(
+          create: (_) => HomeViewModel(apiService: apiService, reviewStore: reviewStore),
+        ),
         ChangeNotifierProvider(
           create: (_) => ApiViewModel(apiStore, apiService),
         ),
         ChangeNotifierProvider(create: (_) => apiStore),
         ChangeNotifierProvider(create: (_) => nodeStore),
-        ChangeNotifierProvider(create: (_) => MdEditorViewModel(nodeService: nodeService, nodeStore: nodeStore)),
+        ChangeNotifierProvider(
+          create: (_) =>
+              MdEditorViewModel(nodeService: nodeService, nodeStore: nodeStore),
+        ),
         ChangeNotifierProvider(create: (_) => reviewStore),
+        Provider(create: (_) => reviewUseCase),
       ],
       child: const MyApp(),
     ),

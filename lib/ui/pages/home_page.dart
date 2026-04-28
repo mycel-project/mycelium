@@ -3,11 +3,13 @@ import 'package:mycelium/core/stores/api_store.dart';
 import 'package:mycelium/core/stores/collection_store.dart';
 import 'package:mycelium/core/stores/node_store.dart';
 import 'package:mycelium/data/models/node_type.dart';
+import 'package:mycelium/domain/review_usecase.dart';
 import 'package:mycelium/ui/pages/api_config_page.dart';
 import 'package:mycelium/ui/pages/collections_page.dart';
 import 'package:mycelium/ui/widgets/app_bar.dart';
 import 'package:mycelium/ui/widgets/md_editor.dart';
 import 'package:mycelium/ui/widgets/no_collection_widget.dart';
+import 'package:mycelium/ui/widgets/no_more_reviews_widget.dart';
 import 'package:mycelium/ui/widgets/no_node_widget.dart';
 import 'package:mycelium/ui/widgets/node_tree.dart';
 import 'package:mycelium/viewmodels/launch_review_button_viewmodel.dart';
@@ -22,7 +24,7 @@ class HomePage extends StatelessWidget {
     final apiStore = context.watch<ApiStore>();
     return
     ChangeNotifierProvider(
-      create: (_) => LaunchReviewButtonViewmodel(),
+      create: (_) => LaunchReviewButtonViewmodel(context.read<ReviewUseCase>(), context.read<CollectionStore>()),
       child: Scaffold(
         appBar: MyAppBar(
           titleText:
@@ -63,7 +65,11 @@ class HomePage extends StatelessWidget {
             ),
           ],
         ),
-        body: context.watch<NodeStore>().currentNode != null
+        body: vm.noMoreReviewsFlag
+        ?
+        NoMoreReviewsWidget(onDismiss: vm.dismissNoMoreReviews)
+        :
+        context.watch<NodeStore>().currentNode != null
         ?
         MdEditor()
         :

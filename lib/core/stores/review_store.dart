@@ -1,23 +1,26 @@
 import 'package:flutter/material.dart';
+import 'package:mycelium/core/stores/review_state.dart';
 
-/// Holds the identifier of the node currently in review mode.
+/// Holds the review state (and id of the node currently in review mode).
 class ReviewStore extends ChangeNotifier {
-  
-  int? _currentReviewNodeId;
+  ReviewState _state = ReviewNotStarted();
 
-  int? get currentReviewNodeId => _currentReviewNodeId;
+  ReviewState get state => _state;
 
-  void startReview(int nodeId) {
-    _currentReviewNodeId = nodeId;
+  void setReview(int nodeId) {
+    _state = Reviewing(nodeId);
     notifyListeners();
   }
 
-  void stopReview() {
-    _currentReviewNodeId = null;
+  void endReview() {
+    _state = NoMoreReviews();
+    notifyListeners();
+    _state = ReviewNotStarted();
     notifyListeners();
   }
 
-  bool isReviewing(int nodeId) {
-    return _currentReviewNodeId == nodeId;
+  void setLoading() {
+    _state = ReviewLoading();
+    notifyListeners();
   }
 }

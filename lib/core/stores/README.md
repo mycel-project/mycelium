@@ -1,1 +1,1 @@
-Stores global app state and handle persistent storage if required. No business logic nor dependencies.
+Stores global app state and handle persistent storage if required. They contain no business logic and no external dependencies, but can expose state changes through listeners that other parts of the app can react to.
