@@ -1,0 +1,4 @@
+enum ClozeMode {
+  hide,
+  show,
+}

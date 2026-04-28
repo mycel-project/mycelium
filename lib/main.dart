@@ -67,16 +67,18 @@ void main() async {
   final reviewService = ReviewService(
     apiService,
   ); // No direct access to reviewService, only through reviewUseCase?
+
+  final nodeRepository = NodeRepository(nodeService);
+  final reviewRepository = ReviewRepository(reviewService);
+  await nodeRepository.getNodeTypes();
+  await reviewRepository.getClozeRegex();
   final reviewUseCase = ReviewUseCase(
     reviewService,
     nodeStore,
     reviewStore,
     collectionStore,
+    reviewRepository
   );
-
-  final nodeRepository = NodeRepository(nodeService);
-  final reviewRepository = ReviewRepository(reviewService);
-  await nodeRepository.getNodeTypes();
 
   runApp(
     MultiProvider(
@@ -100,6 +102,7 @@ void main() async {
             nodeRepository: nodeRepository,
             reviewUseCase: reviewUseCase,
             reviewRepository: reviewRepository,
+            reviewStore: reviewStore,
           ),
         ),
         ChangeNotifierProvider(create: (_) => reviewStore),

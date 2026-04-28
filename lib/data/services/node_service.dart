@@ -39,7 +39,7 @@ class NodeService {
   }
 
   Future<ApiResult<List<NodeType>>> getNodeTypes() async {
-    final result = await api.get("/node-types");
+    final result = await api.get("/config/node-types");
 
     if (result is ApiError) return result;
 

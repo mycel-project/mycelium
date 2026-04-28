@@ -23,4 +23,9 @@ class ReviewStore extends ChangeNotifier {
     _state = ReviewLoading();
     notifyListeners();
   }
+
+  int? get currentNodeId {
+    final s = _state;
+    return s is Reviewing ? s.nodeId : null;
+  }
 }

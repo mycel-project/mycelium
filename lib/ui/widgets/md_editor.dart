@@ -49,11 +49,8 @@ class _MdEditorState extends State<MdEditor> {
   @override
   Widget build(BuildContext context) {
     final vm = context.watch<MdEditorViewModel>();
-    final reviewState = context.watch<ReviewStore>().state;
-    final reviewNodeId = switch (reviewState) {
-      Reviewing(:final nodeId) => nodeId,
-      _ => null,
-    };
+    final reviewNodeId = context.watch<ReviewStore>().currentNodeId;
+
     return SafeArea(
       child: Column(
         children: [
@@ -64,6 +61,8 @@ class _MdEditorState extends State<MdEditor> {
                 Padding(
                   padding: const EdgeInsets.only(left: 16, right: 16),
                   child: TextField(
+                    readOnly: vm.isLocked(),
+                    onTap: vm.isLocked() ? null : vm.editMode,
                     maxLines: null,
                     expands: true,
                     controller: markdownController,

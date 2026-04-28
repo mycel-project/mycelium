@@ -1,21 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:mycelium/core/stores/node_store.dart';
+import 'package:mycelium/core/stores/review_store.dart';
 import 'package:mycelium/data/api_result.dart';
 import 'package:mycelium/data/models/node.dart';
 import 'package:mycelium/data/repositories/node_repository.dart';
 import 'package:mycelium/data/repositories/review_repository.dart';
 import 'package:mycelium/data/services/node_service.dart';
+import 'package:mycelium/domain/cloze_mode.dart';
 import 'package:mycelium/domain/review_usecase.dart';
 
 class MdEditorViewModel extends ChangeNotifier {
-  // Must delegate col logic directly in review usecase I guess
   Node? node;
 
   NodeService nodeService;
   NodeStore nodeStore;
+  ReviewStore reviewStore;
   NodeRepository nodeRepository;
 
   bool isAnswerVisible = false;
+  bool isEditing = false;
 
   final ReviewUseCase reviewUseCase;
 
@@ -24,6 +27,7 @@ class MdEditorViewModel extends ChangeNotifier {
   MdEditorViewModel({
     required this.nodeService,
     required this.nodeStore,
+    required this.reviewStore,
     required this.nodeRepository,
     required this.reviewUseCase,
     required this.reviewRepository,
@@ -45,30 +49,22 @@ class MdEditorViewModel extends ChangeNotifier {
   String content = "";
   bool isDirty = false;
 
-  void showAnswer() {
-    isAnswerVisible = true;
-    notifyListeners();
-  }
-
   void reviewSpore(int rating) {
-    reviewRepository.reviewSpore(
-      node!.collectionId,
-      node!.id,
-      10,
-      rating,
-    );
+    reviewRepository.reviewSpore(node!.collectionId, node!.id, 10, rating);
   }
 
   void reviewFragment() {
-    reviewRepository.reviewFragment(
-      node!.collectionId,
-      node!.id,
-      10,
-    );
+    reviewRepository.reviewFragment(node!.collectionId, node!.id, 10);
   }
 
   void nextReview() {
-      reviewUseCase.handleNextReview();
+    reviewUseCase.handleNextReview();
+  }
+
+  bool isLocked() {
+    return reviewStore.currentNodeId == node?.id &&
+    isCurrentNodeSpore() &&
+    !isAnswerVisible;
   }
 
   bool isCurrentNodeSpore() {
@@ -80,12 +76,37 @@ class MdEditorViewModel extends ChangeNotifier {
     }
   }
 
+  void editMode() {
+    if (isCurrentNodeSpore() && !isEditing) {
+      isEditing = true;
+      content = node?.content?["0"] ?? "";
+      notifyListeners();
+    }
+  }
+  
+  void showAnswer() {
+    isAnswerVisible = true;
+    content = reviewUseCase.transformClozeContent(node?.content?["0"] ?? "", mode: ClozeMode.show);
+    notifyListeners();
+  }
+
   void loadNode(Node? node) {
     isAnswerVisible = false;
     if (node != null) {
       this.node = node;
-      content = node.content?["0"] ?? "";
       isDirty = false;
+      isEditing = false;
+
+      if (isCurrentNodeSpore()) {
+        if (reviewStore.currentNodeId == node.id) {
+          content = reviewUseCase.transformClozeContent(node.content?["0"] ?? "", mode: ClozeMode.hide);
+        } else {
+          content = node.content?["0"] ?? "";
+        }
+      } else {
+        content = node.content?["0"] ?? "";
+      }
+
       notifyListeners();
     } else {
       this.node = null;
@@ -105,6 +126,7 @@ class MdEditorViewModel extends ChangeNotifier {
     if (isDirty) {
       final collectionId = node?.collectionId;
       final nodeId = node?.id;
+      isEditing = false;
 
       if (collectionId != null && nodeId != null) {
         isDirty = false;

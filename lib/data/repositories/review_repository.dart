@@ -6,9 +6,15 @@ class ReviewRepository {
 
   ReviewRepository(this.reviewService);
 
+  String? _clozeRegex;
+
   Future<bool> reviewFragment(int colId, int nodeId, int duration) async {
-    final result = await reviewService.completeFragmentReview(colId, nodeId, duration);
-    
+    final result = await reviewService.completeFragmentReview(
+      colId,
+      nodeId,
+      duration,
+    );
+
     if (result is ApiSuccess<List<void>>) {
       return true;
     }
@@ -16,13 +22,39 @@ class ReviewRepository {
     throw Exception("Failed to complete fragment review");
   }
 
-  Future<bool> reviewSpore(int colId, int nodeId, int duration, int rating) async {
-    final result = await reviewService.completeSporeReview(colId, nodeId, duration, rating);
-    
+  Future<bool> reviewSpore(
+    int colId,
+    int nodeId,
+    int duration,
+    int rating,
+  ) async {
+    final result = await reviewService.completeSporeReview(
+      colId,
+      nodeId,
+      duration,
+      rating,
+    );
+
     if (result is ApiSuccess<List<void>>) {
       return true;
     }
 
     throw Exception("Failed to complete spore review");
+  }
+
+  Future<String?> getClozeRegex() async {
+    if (_clozeRegex != null) return _clozeRegex!;
+
+    final result = await reviewService.getClozeRegex();
+
+    if (result is ApiSuccess<String?>) {
+      _clozeRegex = result.data;
+      return result.data;
+    }
+    throw Exception("Failed to get ClozeRegex");
+  }
+
+  String? getClozeRegexSync() {
+    return _clozeRegex;
   }
 }
