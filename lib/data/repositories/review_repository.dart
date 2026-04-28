@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import 'package:mycelium/data/api_result.dart';
+import 'package:mycelium/data/models/node.dart';
 import 'package:mycelium/data/services/review_service.dart';
 
 class ReviewRepository {
@@ -20,6 +23,24 @@ class ReviewRepository {
     }
 
     return true;
+  }
+
+  Future<Node?> getNextReview(int colId) async {
+    final result = await reviewService.getNextReview(colId);
+
+    if (result is ApiError) {
+      throw Exception(result.message ?? "Failed to fetch next review");
+    }
+
+    final json = jsonDecode((result as ApiSuccess<String>).data);
+
+    final nodeJson = json["node_review"];
+
+    if (nodeJson == null) {
+      return null;
+    }
+
+    return Node.fromJson(nodeJson);
   }
 
   Future<bool> reviewSpore(

@@ -109,15 +109,7 @@ class _MdEditorState extends State<MdEditor> {
                           child: const Icon(Icons.save),
                         ),
                       ),
-                      if (vm.isCurrentNodeSpore())
-                        FloatingActionButton(
-                          onPressed: vm.isDirty ? vm.saveContent : null,
-                          child: Opacity(
-                            opacity: vm.isDirty ? 1.0 : 0.4,
-                            child: const Icon(Icons.check),
-                          ),
-                        )
-                      else ...[
+                      if (!vm.isCurrentNodeSpore()) ...[
                         FloatingActionButton(
                           onPressed: vm.isDirty ? vm.saveContent : null,
                           child: Opacity(

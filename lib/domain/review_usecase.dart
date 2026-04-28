@@ -28,20 +28,15 @@ class ReviewUseCase {
     if (colId == null) {
       throw StateError("No collection selected");
     }
-    final result = await reviewService.getNextReview(colId);
+    
+    final result = await reviewRepository.getNextReview(colId);
 
-    if (result is ApiSuccess<Node?>) {
-      final node = result.data;
-
-      if (node != null) {
-        nodeStore.selectNode(node);
-        reviewStore.setReview(node.id);
-      } else {
-        reviewStore.endReview();
-      }
-    } else if (result is ApiError) {
-      print("Can't get next review: ${result.code}");
-      return false;
+    if (result is Node) {
+      final node = result;
+      nodeStore.selectNode(node);
+      reviewStore.setReview(node.id);
+    } else {
+      reviewStore.endReview();
     }
 
     return true;
