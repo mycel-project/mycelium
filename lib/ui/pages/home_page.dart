@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:mycelium/core/stores/api_store.dart';
 import 'package:mycelium/core/stores/collection_store.dart';
+import 'package:mycelium/core/stores/node_store.dart';
 import 'package:mycelium/data/models/node_type.dart';
+import 'package:mycelium/ui/pages/api_config_page.dart';
+import 'package:mycelium/ui/pages/collections_page.dart';
 import 'package:mycelium/ui/widgets/app_bar.dart';
 import 'package:mycelium/ui/widgets/md_editor.dart';
+import 'package:mycelium/ui/widgets/no_collection_widget.dart';
 import 'package:mycelium/ui/widgets/node_tree.dart';
 import 'package:mycelium/viewmodels/nodes_viewmodel.dart';
 import 'package:provider/provider.dart';
@@ -18,26 +22,34 @@ class HomePage extends StatelessWidget {
     return Scaffold(
       appBar: MyAppBar(
         titleText:
-            context.watch<CollectionStore>().currentCollection?.name ??
-            "No collection selected",
+        context.watch<CollectionStore>().currentCollection?.name ??
+        "No collection selected",
         actions: [
           IconButton(
             onPressed: () => vm.connectionStatusClick(),
             splashRadius: 20,
             icon: vm.isCheckingConnection
-                ? const Icon(Icons.sync, size: 16, color: Colors.white)
-                : apiStore.isReachable == null
-                ? const Icon(Icons.circle, size: 16, color: Colors.grey)
-                : apiStore.isReachable == true
-                ? const Icon(Icons.circle, size: 16, color: Colors.green)
-                : const Icon(Icons.refresh, size: 16, color: Colors.red),
+            ? const Icon(Icons.sync, size: 16, color: Colors.white)
+            : apiStore.isReachable == null
+            ? const Icon(Icons.circle, size: 16, color: Colors.grey)
+            : apiStore.isReachable == true
+            ? const Icon(Icons.circle, size: 16, color: Colors.green)
+            : const Icon(Icons.refresh, size: 16, color: Colors.red),
           ),
           PopupMenuButton(
             onSelected: (value) {
               if (value == 1) {
-                vm.goToCollections(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => CollectionsPage()
+                  ),
+                );
               } else if (value == 2) {
-                vm.goToApiConfig(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => ApiConfigPage()
+                  )
+                );
               }
             },
             itemBuilder: (BuildContext context) => [
@@ -47,7 +59,15 @@ class HomePage extends StatelessWidget {
           ),
         ],
       ),
-      body: MdEditor(),
+      body: context.watch<NodeStore>().currentNode != null
+      ?
+      MdEditor()
+      :
+      context.watch<CollectionStore>().currentCollection == null
+      ?
+      NoCollectionWidget()
+      :
+      Text("No node selected"),
       drawer: Drawer(
         child: SafeArea(
           child: Column(
