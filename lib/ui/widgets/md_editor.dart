@@ -46,6 +46,8 @@ class _MdEditorState extends State<MdEditor> {
     super.dispose();
   }
 
+  final FocusNode focusNode = FocusNode();
+
   @override
   Widget build(BuildContext context) {
     final vm = context.watch<MdEditorViewModel>();
@@ -61,6 +63,7 @@ class _MdEditorState extends State<MdEditor> {
                 Padding(
                   padding: const EdgeInsets.only(left: 16, right: 16),
                   child: TextField(
+                    focusNode: focusNode,
                     readOnly: vm.isLocked(),
                     onTap: vm.isLocked() ? null : vm.editMode,
                     maxLines: null,
@@ -119,21 +122,22 @@ class _MdEditorState extends State<MdEditor> {
                     ? vm.isAnswerVisible
                           ? ValidationBar(
                               onSelected: (value) {
-                                FocusScope.of(context).unfocus();
                                 vm.saveContent;
                                 vm.reviewSpore(value);
+                                focusNode.unfocus();
                                 vm.nextReview();
                               },
                             )
                           : ShowAnswerButton(
                               onPressed: () {
                                 vm.showAnswer();
+                                focusNode.unfocus();
                               },
                             )
                     : NextReviewButton(
                         onPressed: () {
-                          FocusScope.of(context).unfocus();
                           vm.saveContent;
+                          focusNode.unfocus();
                           vm.reviewFragment();
                           vm.nextReview();
                         },
