@@ -18,13 +18,12 @@ class MdEditorViewModel extends ChangeNotifier {
     loadNode(nodeStore.currentNode);
   }
 
-
   @override
   void dispose() {
     nodeStore.removeListener(_onNodeStoreChanged);
     super.dispose();
   }
- 
+
   String content = "";
   bool isDirty = false;
 
@@ -34,6 +33,11 @@ class MdEditorViewModel extends ChangeNotifier {
       content = node.content?["0"] ?? "";
       isDirty = false;
       notifyListeners();
+    } else {
+      this.node = null;
+      content = "";
+      notifyListeners();
+      isDirty = false;
     }
   }
 

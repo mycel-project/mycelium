@@ -5,7 +5,7 @@ class NodeStore extends ChangeNotifier {
   Node? _currentNode;
   Node? get currentNode => _currentNode;
 
-  void selectNode(Node node) {
+  void selectNode(Node? node) {
     _currentNode = node;
     notifyListeners();
   }

@@ -62,7 +62,7 @@ class CollectionsViewModel extends ChangeNotifier {
 
   void setCollection(int id) {
     final candidates = collections.where((c) => c.id == id);
-    if (candidates.isNotEmpty) {
+    if (candidates.isNotEmpty && currentCollection?.id != id) {
       collectionStore.selectCollection(candidates.first);
     }
   }

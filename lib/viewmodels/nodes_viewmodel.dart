@@ -62,6 +62,7 @@ class NodesViewModel extends ChangeNotifier {
   void _onCollectionChange() {
     selectedNode = null;
     nodes = [];
+    nodeStore.selectNode(null);
     final collectionId = collectionStore.currentCollection?.id;
     if (collectionId != null) {
       loadNodes(collectionId);
