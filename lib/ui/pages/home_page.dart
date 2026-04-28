@@ -22,39 +22,42 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     final vm = context.watch<HomeViewModel>();
     final apiStore = context.watch<ApiStore>();
-    return
-    ChangeNotifierProvider(
+    return ChangeNotifierProvider(
       create: (_) => LaunchReviewButtonViewmodel(context.read<ReviewUseCase>()),
       child: Scaffold(
         appBar: MyAppBar(
           titleText:
-          context.watch<CollectionStore>().currentCollection?.name ??
-          "No collection selected",
+              context.watch<CollectionStore>().currentCollection?.name ??
+              "No collection selected",
           actions: [
+            IconButton(
+              onPressed: () {
+                context.read<ReviewUseCase>().handleNextReview();
+              },
+              icon: const Icon(Icons.school),
+            ),
             IconButton(
               onPressed: () => vm.connectionStatusClick(),
               splashRadius: 20,
               icon: vm.isCheckingConnection
-              ? const Icon(Icons.sync, size: 16, color: Colors.white)
-              : apiStore.isReachable == null
-              ? const Icon(Icons.circle, size: 16, color: Colors.grey)
-              : apiStore.isReachable == true
-              ? const Icon(Icons.circle, size: 16, color: Colors.green)
-              : const Icon(Icons.refresh, size: 16, color: Colors.red),
+                  ? const Icon(Icons.sync, size: 16, color: Colors.white)
+                  : apiStore.isReachable == null
+                  ? const Icon(Icons.circle, size: 16, color: Colors.grey)
+                  : apiStore.isReachable == true
+                  ? const Icon(Icons.circle, size: 16, color: Colors.green)
+                  : const Icon(Icons.refresh, size: 16, color: Colors.red),
             ),
             PopupMenuButton(
               onSelected: (value) {
                 if (value == 1) {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (_) => CollectionsPage()
-                    ),
+                    MaterialPageRoute(builder: (_) => CollectionsPage()),
                   );
                 } else if (value == 2) {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (_) => ApiConfigPage()
-                    )
+                    MaterialPageRoute(builder: (_) => ApiConfigPage()),
                   );
                 }
               },
@@ -66,18 +69,12 @@ class HomePage extends StatelessWidget {
           ],
         ),
         body: vm.noMoreReviewsFlag
-        ?
-        NoMoreReviewsWidget(onDismiss: vm.dismissNoMoreReviews)
-        :
-        context.watch<NodeStore>().currentNode != null
-        ?
-        MdEditor()
-        :
-        context.watch<CollectionStore>().currentCollection == null
-        ?
-        NoCollectionWidget()
-        :
-        NoNodeWidget(),
+            ? NoMoreReviewsWidget(onDismiss: vm.dismissNoMoreReviews)
+            : context.watch<NodeStore>().currentNode != null
+            ? MdEditor()
+            : context.watch<CollectionStore>().currentCollection == null
+            ? NoCollectionWidget()
+            : NoNodeWidget(),
         drawer: Drawer(
           child: SafeArea(
             child: Column(
