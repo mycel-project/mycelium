@@ -11,13 +11,13 @@ import 'package:mycelium/data/services/api_service.dart';
 import 'package:mycelium/data/services/collection_service.dart';
 import 'package:mycelium/data/services/node_service.dart';
 import 'package:mycelium/data/services/review_service.dart';
+import 'package:mycelium/domain/app_coordinator.dart';
 import 'package:mycelium/domain/node_usecase.dart';
 import 'package:mycelium/domain/review_usecase.dart';
 import 'package:mycelium/viewmodels/api_viewmodel.dart';
 import 'package:mycelium/viewmodels/collections_viewmodel.dart';
 import 'package:mycelium/viewmodels/home_viewmodel.dart';
 import 'package:mycelium/viewmodels/md_editor_view_model.dart';
-import 'package:mycelium/viewmodels/nodes_viewmodel.dart';
 import 'ui/pages/home_page.dart';
 import 'package:provider/provider.dart';
 
@@ -61,7 +61,6 @@ void main() async {
 
   final nodeService = NodeService(apiService);
   final nodeStore = NodeStore();
-  final nodeViewModel = NodesViewModel(nodeService, collectionStore, nodeStore);
 
   final reviewStore = ReviewStore();
 
@@ -70,6 +69,10 @@ void main() async {
   ); // No direct access to reviewService, only through reviewUseCase?
 
   final nodeRepository = NodeRepository(nodeService);
+  final colId = collectionStore.currentCollection?.id;
+  if (colId != null) {
+    nodeRepository.loadNodes(colId);
+  }
   final reviewRepository = ReviewRepository(reviewService);
   await nodeRepository.getNodeTypes();
   await reviewRepository.getClozeRegex();
@@ -81,19 +84,21 @@ void main() async {
     reviewRepository,
   );
   final nodeUseCase = NodeUseCase(nodeService, nodeStore, nodeRepository);
+  final appCoordinator = AppCoordinator(collectionStore, nodeRepository, nodeStore);
 
   runApp(
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => collectionView),
         ChangeNotifierProvider(create: (_) => collectionStore),
-        ChangeNotifierProvider(create: (_) => nodeViewModel),
         ChangeNotifierProvider(
           create: (_) => HomeViewModel(
             apiService: apiService,
             reviewStore: reviewStore,
             nodeUseCase: nodeUseCase,
             nodeStore: nodeStore,
+            nodeRepository: nodeRepository,
+            collectionStore: collectionStore,
           ),
         ),
         ChangeNotifierProvider(
@@ -113,6 +118,7 @@ void main() async {
         ),
         ChangeNotifierProvider(create: (_) => reviewStore),
         Provider(create: (_) => reviewUseCase),
+        Provider(create: (_) => appCoordinator),
       ],
       child: const MyApp(),
     ),

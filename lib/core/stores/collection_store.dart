@@ -34,4 +34,8 @@ class CollectionStore extends ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_key);
   }
+
+  void onNodesLoaded() {
+    notifyListeners();
+  }
 }

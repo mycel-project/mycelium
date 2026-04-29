@@ -8,21 +8,11 @@ class NodeService {
   final ApiService api;
   NodeService(this.api);
 
-  Future<ApiResult<List<Node>>> getNodes(int collectionId) async {
-    final result = await api.get("/collections/$collectionId/nodes");
-
-    if (result is ApiError) return result;
-
-    final success = result as ApiSuccess<String>;
-    final json = jsonDecode(success.data);
-
-    return ApiSuccess<List<Node>>(
-      (json["nodes"] as List).map((e) => Node.fromJson(e)).toList(),
-    );
+  Future<ApiResult<String>> getNodes(int collectionId) async {
+    return await api.get("/collections/$collectionId/nodes");
   }
 
   Future<ApiResult<String>> getNode(int collectionId, int nodeId) async {
-    /// REF
     return await api.get("/collections/$collectionId/nodes/$nodeId");
   }
   

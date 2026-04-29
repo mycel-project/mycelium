@@ -13,7 +13,6 @@ import 'package:mycelium/ui/widgets/no_more_reviews_widget.dart';
 import 'package:mycelium/ui/widgets/no_node_widget.dart';
 import 'package:mycelium/ui/widgets/node_tree.dart';
 import 'package:mycelium/viewmodels/launch_review_button_viewmodel.dart';
-import 'package:mycelium/viewmodels/nodes_viewmodel.dart';
 import 'package:provider/provider.dart';
 import 'package:mycelium/viewmodels/home_viewmodel.dart';
 
@@ -86,6 +85,7 @@ class HomePage extends StatelessWidget {
             ? NoCollectionWidget()
             : NoNodeWidget(),
         drawer: Drawer(
+          
           child: SafeArea(
             child: Column(
               children: [
@@ -93,17 +93,16 @@ class HomePage extends StatelessWidget {
                 const Divider(height: 1),
                 Expanded(
                   child: NodeTree(
-                    nodes: context.watch<NodesViewModel>().nodes,
+                    nodes: vm.getNodes(),
                     isSpore: (node) {
-                      final vm = context.read<NodesViewModel>();
-                      final type = vm.nodeTypes.firstWhere(
+                      final type = vm.getNodeTypes().firstWhere(
                         (t) => t.key == node.type,
                         orElse: () => NodeType(label: "", key: -1),
                       );
                       return type.label == "SPORE";
                     },
                     clickCallback: (int value) {
-                      context.read<NodesViewModel>().selectNode(value);
+                      vm.selectNode(value);
                     },
                   ),
                 ),
@@ -111,6 +110,9 @@ class HomePage extends StatelessWidget {
             ),
           ),
         ),
+        onDrawerChanged: (isOpened) {
+          if (isOpened) vm.refreshNodes();
+        },
       ),
     );
   }
