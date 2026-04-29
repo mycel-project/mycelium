@@ -20,8 +20,10 @@ class MdEditorViewModel extends ChangeNotifier {
 
   bool isAnswerVisible = false;
   bool isEditing = false;
+  bool hasSelection = false;
 
   final ReviewUseCase reviewUseCase;
+  TextSelection? selection;
 
   String? uiMessage;
 
@@ -75,9 +77,52 @@ class MdEditorViewModel extends ChangeNotifier {
     notifyListeners();
 
     Future.delayed(const Duration(seconds: 3), () {
-        uiMessage = null;
-        notifyListeners();
+      uiMessage = null;
+      notifyListeners();
     });
+  }
+
+  bool _isUpdatingSelection = false;
+  bool get isUpdatingSelection => _isUpdatingSelection;
+
+  void updateSelection(TextSelection newSelection) {
+    _isUpdatingSelection = true;
+    selection = newSelection;
+    hasSelection = !selection!.isCollapsed;
+    notifyListeners();
+    _isUpdatingSelection = false;
+  }
+
+  Future<void> createExtract(String extractType) async {
+    final node = this.node;
+    if (node == null) return;
+
+    final result = await nodeRepository.createExtract(
+      node.collectionId,
+      node.id,
+      content.substring(selection!.start, selection!.end),
+      "0",
+      selection!.start,
+      selection!.end,
+      nodeRepository.getNodeTypeByLabelSync(extractType)!.key,
+    );
+    result.fold((error) => _showMessage(error.toString()), (nodes) {
+        for (final node in nodes) {
+          if (node.id == this.node?.id) {
+            loadNode(node);
+          }
+        }
+        notifyListeners();
+      }
+    );
+  }
+
+  Future<void> createFragment() async {
+    await createExtract("FRAGMENT");
+  }
+
+  Future<void> createSpore() async {
+    await createExtract("SPORE");
   }
 
   bool isCurrentNodeSpore() {

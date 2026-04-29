@@ -77,12 +77,12 @@ class ApiService {
         body = null;
       }
 
-      final code = body is Map && body["detail"]["code"] != null
-          ? body["detail"]["code"]
+      final code = body is Map && body["code"] != null
+          ? body["code"]
           : "http_error";
 
       final reason = body is Map
-          ? body["detail"]["reason"] ?? response.body
+          ? body["message"] ?? response.body
           : response.body;
 
       return ApiError(code, statusCode: response.statusCode, message: reason);

@@ -1,6 +1,8 @@
 import 'dart:convert';
 
+import 'package:collection/collection.dart';
 import 'package:mycelium/core/either.dart';
+import 'package:mycelium/core/errors/extract_errors.dart';
 import 'package:mycelium/core/errors/node_fetch_errors.dart';
 import 'package:mycelium/core/errors/node_update_errors.dart';
 import 'package:mycelium/data/api_result.dart';
@@ -21,6 +23,40 @@ class NodeRepository {
 
   void clearCache() {
     _nodeCache.clear();
+  }
+
+  Future<Either<ExtractError, List<Node>>> createExtract(
+    int colId,
+    int nodeId,
+    String text,
+    String field,
+    int startIndex,
+    int endIndex,
+    int extractType,
+  ) async {
+    final result = await nodeService.createExtract(
+      colId,
+      nodeId,
+      text,
+      field,
+      startIndex,
+      endIndex,
+      extractType,
+    );
+    if (result is ApiError) {
+      if (result.code == "EXTRACT_MISMATCH") {
+        return Left(ExtractMismatchError(result.message));
+      } else {
+        return Left(UnknownExtractError(result.message));
+      }
+    }
+    final success = result as ApiSuccess<String>;
+    final json = jsonDecode(success.data);
+    final extractNode = Node.fromJson(json["extract_node"]);
+    final sourceNode = Node.fromJson(json["source_node"]);
+    _nodeCache[extractNode.id] = extractNode;
+    _nodeCache[sourceNode.id] = sourceNode;
+    return Right([extractNode, sourceNode]);
   }
 
   Future<Either<NodeFetchError, List<Node>>> loadNodes(int colId) async {
@@ -133,4 +169,7 @@ class NodeRepository {
   }
 
   NodeType? getNodeTypeSync(int key) => _typesCache?[key];
+
+  NodeType? getNodeTypeByLabelSync(String label) =>
+      _typesCache?.values.firstWhereOrNull((t) => t.label == label);
 }

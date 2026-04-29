@@ -1,5 +1,4 @@
 import "package:flutter/material.dart";
-import "package:mycelium/core/stores/review_state.dart";
 import "package:mycelium/core/stores/review_store.dart";
 import "package:mycelium/ui/controllers/markdown_controller.dart";
 import "package:mycelium/ui/widgets/next_review_button.dart";
@@ -18,6 +17,8 @@ class _MdEditorState extends State<MdEditor> {
   late final MarkdownController markdownController = MarkdownController();
   late MdEditorViewModel vm;
 
+  final FocusNode focusNode = FocusNode();
+
   @override
   void initState() {
     super.initState();
@@ -25,28 +26,43 @@ class _MdEditorState extends State<MdEditor> {
     vm = context.read<MdEditorViewModel>();
 
     markdownController.text = vm.content;
+    markdownController.addListener(_onSelectionChanged);
 
     vm.addListener(_syncFromVm);
   }
 
+  int? _lastNodeId;
+
   void _syncFromVm() {
-    final vm = context.read<MdEditorViewModel>();
+    
+    final currentId = vm.node?.id;
+
+    if (_lastNodeId != currentId) {
+      focusNode.unfocus();
+      _lastNodeId = currentId;
+    }
+    if (vm.isUpdatingSelection) return;
 
     if (markdownController.text != vm.content) {
       final selection = markdownController.selection;
       markdownController.text = vm.content;
       markdownController.selection = selection;
     }
+
+  }
+
+  void _onSelectionChanged() {
+    vm.updateSelection(markdownController.selection);
+
   }
 
   @override
   void dispose() {
+    markdownController.removeListener(_onSelectionChanged);
     markdownController.dispose();
     vm.removeListener(_syncFromVm);
     super.dispose();
   }
-
-  final FocusNode focusNode = FocusNode();
 
   @override
   Widget build(BuildContext context) {
@@ -60,19 +76,27 @@ class _MdEditorState extends State<MdEditor> {
             child: Stack(
               fit: StackFit.expand,
               children: [
-                Padding(
-                  padding: const EdgeInsets.only(left: 16, right: 16),
-                  child: TextField(
-                    focusNode: focusNode,
-                    readOnly: vm.isLocked(),
-                    onTap: vm.isLocked() ? null : vm.editMode,
-                    maxLines: null,
-                    expands: true,
-                    controller: markdownController,
-                    onChanged: (value) {
-                      vm.updateContent(value);
-                    },
-                    decoration: const InputDecoration(border: InputBorder.none),
+                Positioned.fill(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.only(
+                      left: 16,
+                      right: 16,
+                      bottom: 120,
+                    ),
+                    child: TextField(
+                      focusNode: focusNode,
+                      readOnly: vm.isLocked(),
+                      onTap: vm.isLocked() ? null : vm.editMode,
+                      maxLines: null,
+                      expands: false,
+                      controller: markdownController,
+                      onChanged: (value) {
+                        vm.updateContent(value);
+                      },
+                      decoration: const InputDecoration(
+                        border: InputBorder.none,
+                      ),
+                    ),
                   ),
                 ),
                 if (vm.uiMessage != null)
@@ -98,9 +122,10 @@ class _MdEditorState extends State<MdEditor> {
                     ),
                   ),
                 Positioned(
-                  bottom: 40,
-                  right: 30,
-                  child: Row(
+                  bottom: 32,
+                  right: 32,
+                  child: Wrap(
+                    spacing: 24,
                     children: [
                       FloatingActionButton(
                         onPressed: vm.isDirty ? vm.saveContent : null,
@@ -111,16 +136,30 @@ class _MdEditorState extends State<MdEditor> {
                       ),
                       if (!vm.isCurrentNodeSpore()) ...[
                         FloatingActionButton(
-                          onPressed: vm.isDirty ? vm.saveContent : null,
+                          onPressed: vm.hasSelection
+                              ? () async {
+                                  await vm.createFragment();
+                                  markdownController.selection =
+                                      const TextSelection.collapsed(offset: -1);
+                                  focusNode.unfocus();
+                                }
+                              : null,
                           child: Opacity(
-                            opacity: vm.isDirty ? 1.0 : 0.4,
+                            opacity: vm.hasSelection ? 1.0 : 0.4,
                             child: const Icon(Icons.content_cut),
                           ),
                         ),
                         FloatingActionButton(
-                          onPressed: vm.isDirty ? vm.saveContent : null,
+                          onPressed: vm.hasSelection
+                              ? () async {
+                                  await vm.createSpore();
+                                  markdownController.selection =
+                                      const TextSelection.collapsed(offset: -1);
+                                  focusNode.unfocus();
+                                }
+                              : null,
                           child: Opacity(
-                            opacity: vm.isDirty ? 1.0 : 0.4,
+                            opacity: vm.hasSelection ? 1.0 : 0.4,
                             child: const Icon(Icons.quiz),
                           ),
                         ),

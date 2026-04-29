@@ -15,9 +15,22 @@ class NodeService {
   Future<ApiResult<String>> getNode(int collectionId, int nodeId) async {
     return await api.get("/collections/$collectionId/nodes/$nodeId");
   }
-  
+
   Future<ApiResult<String>> getRootNode(int collectionId, int nodeId) async {
     return await api.get("/collections/$collectionId/nodes/$nodeId/root");
+  }
+
+  Future<ApiResult<String>> createExtract(int collectionId, int nodeId, String text, String field, int startIndex, int endIndex, int extractType) async {
+    return await api.post(
+      "/collections/$collectionId/nodes/$nodeId/extracts",
+      {
+        "text": text,
+        "field": field,
+        "start_index": startIndex,
+        "end_index": endIndex,
+        "extract_type": extractType,
+      },
+    );
   }
 
   Future<ApiResult<String>> saveNodeContent(
