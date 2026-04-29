@@ -25,6 +25,7 @@ class HomePage extends StatelessWidget {
     return ChangeNotifierProvider(
       create: (_) => LaunchReviewButtonViewmodel(context.read<ReviewUseCase>()),
       child: Scaffold(
+        drawerEdgeDragWidth: 200, 
         appBar: MyAppBar(
           titleText:
               context.watch<CollectionStore>().currentCollection?.name ??
