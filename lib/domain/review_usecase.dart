@@ -5,6 +5,7 @@ import 'package:mycelium/data/models/node.dart';
 import 'package:mycelium/data/repositories/review_repository.dart';
 import 'package:mycelium/data/services/review_service.dart';
 import 'package:mycelium/domain/cloze_mode.dart';
+import 'package:mycelium/domain/navigation_usecase.dart';
 
 class ReviewUseCase {
   // Must pass trough review repository i guess
@@ -13,6 +14,7 @@ class ReviewUseCase {
   final ReviewStore reviewStore;
   final CollectionStore collectionStore;
   final ReviewRepository reviewRepository;
+  final NavigationUseCase navigationUseCase;
 
   ReviewUseCase(
     this.reviewService,
@@ -20,6 +22,7 @@ class ReviewUseCase {
     this.reviewStore,
     this.collectionStore,
     this.reviewRepository,
+    this.navigationUseCase,
   );
 
   Future<bool> handleNextReview() async {
@@ -27,12 +30,12 @@ class ReviewUseCase {
     if (colId == null) {
       throw StateError("No collection selected");
     }
-    
+
     final result = await reviewRepository.getNextReview(colId);
 
     if (result is Node) {
       final node = result;
-      nodeStore.selectNode(node);
+      navigationUseCase.navigateTo(node.id);
       reviewStore.setReview(node.id);
     } else {
       reviewStore.endReview();
@@ -43,9 +46,9 @@ class ReviewUseCase {
 
   String transformClozeContent(
     String content, {
-      required ClozeMode mode,
-      String placeholder = "[...]",
-      String revealWrapper = "**",
+    required ClozeMode mode,
+    String placeholder = "[...]",
+    String revealWrapper = "**",
   }) {
     final regexString = reviewRepository.getClozeRegexSync();
 
@@ -56,15 +59,15 @@ class ReviewUseCase {
     final regex = RegExp(regexString);
 
     return content.replaceAllMapped(regex, (match) {
-        final value = match.group(1) ?? "";
+      final value = match.group(1) ?? "";
 
-        switch (mode) {
-          case ClozeMode.hide:
+      switch (mode) {
+        case ClozeMode.hide:
           return placeholder;
 
-          case ClozeMode.show:
+        case ClozeMode.show:
           return "$revealWrapper$value$revealWrapper";
-        }
+      }
     });
   }
 }

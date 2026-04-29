@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mycelium/core/either.dart';
 import 'package:mycelium/core/stores/collection_store.dart';
+import 'package:mycelium/core/stores/navigation_store.dart';
 import 'package:mycelium/core/stores/node_store.dart';
 import 'package:mycelium/core/stores/review_state.dart';
 import 'package:mycelium/core/stores/review_store.dart';
@@ -8,6 +9,7 @@ import 'package:mycelium/data/models/node.dart';
 import 'package:mycelium/data/models/node_type.dart';
 import 'package:mycelium/data/repositories/node_repository.dart';
 import 'package:mycelium/data/services/api_service.dart';
+import 'package:mycelium/domain/navigation_usecase.dart';
 import 'package:mycelium/domain/node_usecase.dart';
 
 class HomeViewModel extends ChangeNotifier {
@@ -17,6 +19,8 @@ class HomeViewModel extends ChangeNotifier {
   final NodeStore nodeStore;
   final NodeRepository nodeRepository;
   final CollectionStore collectionStore;
+  final NavigationUseCase navigationUseCase;
+  final NavigationStore navigationStore;
 
   bool noMoreReviewsFlag = false;
 
@@ -27,6 +31,8 @@ class HomeViewModel extends ChangeNotifier {
     required this.nodeStore,
     required this.nodeRepository,
     required this.collectionStore,
+    required this.navigationStore,
+    required this.navigationUseCase,
   }) {
     reviewStore.addListener(_onReviewChanged);
     nodeStore.addListener(_checkHasParent);
@@ -43,7 +49,33 @@ class HomeViewModel extends ChangeNotifier {
     }
   }
 
+  bool isCurrentNodeUnderReview() {
+    return nodeStore.currentNode?.id == reviewStore.currentNodeId;
+  }
+
   bool hasParent = false;
+
+  void openHistory() {
+    print("History not implemented yet");
+  }
+
+  bool hasPreviousNodes() => navigationStore.canGoBack;
+
+  bool hasNextNodes() => navigationStore.canGoForward;
+
+  void previousNode() {
+    final id = navigationStore.back();
+    if (id != null) _loadNode(id);
+  }
+
+  void nextNode() {
+    final id = navigationStore.forward();
+    if (id != null) _loadNode(id);
+  }
+
+  void navigateTo(int nodeId) {
+    navigationUseCase.navigateTo(nodeId); 
+  }
 
   void _checkHasParent() {
     if (nodeStore.currentNode?.parentId != null) {
@@ -59,9 +91,11 @@ class HomeViewModel extends ChangeNotifier {
   List<NodeType> getNodeTypes() =>
       nodeRepository.nodeTypesCache.values.toList();
 
-  Future<void> selectNode(int id) async {
+  // Navigate without pushing in history
+  Future<void> _loadNode(int id) async {
     final colId = collectionStore.currentCollection?.id;
-    final result = await nodeRepository.getNode(colId!, id);
+    if (colId == null) return;
+    final result = await nodeRepository.getNode(colId, id);
     result.fold((err) => null, (node) => nodeStore.selectNode(node));
   }
 

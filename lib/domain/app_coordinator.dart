@@ -1,4 +1,5 @@
 import 'package:mycelium/core/stores/collection_store.dart';
+import 'package:mycelium/core/stores/navigation_store.dart';
 import 'package:mycelium/core/stores/node_store.dart';
 import 'package:mycelium/data/repositories/node_repository.dart';
 
@@ -7,14 +8,21 @@ class AppCoordinator {
   final CollectionStore _collectionStore;
   final NodeRepository _nodeRepository;
   final NodeStore _nodeStore;
+  final NavigationStore _navigationStore;
 
-  AppCoordinator(this._collectionStore, this._nodeRepository, this._nodeStore) {
+  AppCoordinator(
+    this._collectionStore,
+    this._nodeRepository,
+    this._nodeStore,
+    this._navigationStore,
+  ) {
     _collectionStore.addListener(_onCollectionChanged);
   }
 
   void _onCollectionChanged() async {
     _nodeRepository.clearCache();
     _nodeStore.selectNode(null);
+    _navigationStore.clear();
     final colId = _collectionStore.currentCollection?.id;
     if (colId != null) {
       await _nodeRepository.loadNodes(colId);

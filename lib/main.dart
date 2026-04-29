@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mycelium/core/stores/api_store.dart';
 import 'package:mycelium/core/stores/collection_store.dart';
+import 'package:mycelium/core/stores/navigation_store.dart';
 import 'package:mycelium/core/stores/node_store.dart';
 import 'package:mycelium/core/stores/review_store.dart';
 import 'package:mycelium/data/api_result.dart';
@@ -12,6 +13,7 @@ import 'package:mycelium/data/services/collection_service.dart';
 import 'package:mycelium/data/services/node_service.dart';
 import 'package:mycelium/data/services/review_service.dart';
 import 'package:mycelium/domain/app_coordinator.dart';
+import 'package:mycelium/domain/navigation_usecase.dart';
 import 'package:mycelium/domain/node_usecase.dart';
 import 'package:mycelium/domain/review_usecase.dart';
 import 'package:mycelium/viewmodels/api_viewmodel.dart';
@@ -76,15 +78,23 @@ void main() async {
   final reviewRepository = ReviewRepository(reviewService);
   await nodeRepository.getNodeTypes();
   await reviewRepository.getClozeRegex();
+  final navigationStore = NavigationStore();
+  final navigationUseCase = NavigationUseCase(nodeRepository, nodeStore, navigationStore, collectionStore);
   final reviewUseCase = ReviewUseCase(
     reviewService,
     nodeStore,
     reviewStore,
     collectionStore,
     reviewRepository,
+    navigationUseCase,
   );
-  final nodeUseCase = NodeUseCase(nodeService, nodeStore, nodeRepository);
-  final appCoordinator = AppCoordinator(collectionStore, nodeRepository, nodeStore);
+  final nodeUseCase = NodeUseCase(nodeService, nodeStore, nodeRepository, navigationUseCase);
+  final appCoordinator = AppCoordinator(
+    collectionStore,
+    nodeRepository,
+    nodeStore,
+    navigationStore
+  );
 
   runApp(
     MultiProvider(
@@ -99,6 +109,8 @@ void main() async {
             nodeStore: nodeStore,
             nodeRepository: nodeRepository,
             collectionStore: collectionStore,
+            navigationStore: navigationStore,
+            navigationUseCase: navigationUseCase,
           ),
         ),
         ChangeNotifierProvider(
@@ -119,6 +131,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => reviewStore),
         Provider(create: (_) => reviewUseCase),
         Provider(create: (_) => appCoordinator),
+        Provider(create: (_) => navigationUseCase),
       ],
       child: const MyApp(),
     ),

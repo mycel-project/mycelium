@@ -29,6 +29,28 @@ class HomePage extends StatelessWidget {
           titleText: "",
           actions: [
             IconButton(
+              onPressed: vm.hasPreviousNodes()
+              ? () {
+                vm.previousNode();
+              }
+              : null,
+              onLongPress: () {
+                vm.openHistory();
+              },
+              icon: const Icon(Icons.chevron_left),
+            ),
+            IconButton(
+              onPressed: vm.hasNextNodes()
+              ? () {
+                vm.nextNode();
+              }
+              : null,
+              onLongPress: () {
+                vm.openHistory();
+              },
+              icon: const Icon(Icons.chevron_right),
+            ),
+            IconButton(
               onPressed: vm.hasParent
                   ? () {
                       vm.upPress();
@@ -40,9 +62,9 @@ class HomePage extends StatelessWidget {
               icon: const Icon(Icons.arrow_upward),
             ),
             IconButton(
-              onPressed: () {
+              onPressed: !vm.isCurrentNodeUnderReview() ? () {
                 context.read<ReviewUseCase>().handleNextReview();
-              },
+              } : null,
               icon: const Icon(Icons.school),
             ),
             IconButton(
@@ -85,7 +107,6 @@ class HomePage extends StatelessWidget {
             ? NoCollectionWidget()
             : NoNodeWidget(),
         drawer: Drawer(
-          
           child: SafeArea(
             child: Column(
               children: [
@@ -102,7 +123,7 @@ class HomePage extends StatelessWidget {
                       return type.label == "SPORE";
                     },
                     clickCallback: (int value) {
-                      vm.selectNode(value);
+                      vm.navigateTo(value);
                     },
                   ),
                 ),
