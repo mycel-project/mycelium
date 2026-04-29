@@ -11,6 +11,7 @@ import 'package:mycelium/data/services/api_service.dart';
 import 'package:mycelium/data/services/collection_service.dart';
 import 'package:mycelium/data/services/node_service.dart';
 import 'package:mycelium/data/services/review_service.dart';
+import 'package:mycelium/domain/node_usecase.dart';
 import 'package:mycelium/domain/review_usecase.dart';
 import 'package:mycelium/viewmodels/api_viewmodel.dart';
 import 'package:mycelium/viewmodels/collections_viewmodel.dart';
@@ -77,8 +78,9 @@ void main() async {
     nodeStore,
     reviewStore,
     collectionStore,
-    reviewRepository
+    reviewRepository,
   );
+  final nodeUseCase = NodeUseCase(nodeService, nodeStore, nodeRepository);
 
   runApp(
     MultiProvider(
@@ -87,8 +89,12 @@ void main() async {
         ChangeNotifierProvider(create: (_) => collectionStore),
         ChangeNotifierProvider(create: (_) => nodeViewModel),
         ChangeNotifierProvider(
-          create: (_) =>
-              HomeViewModel(apiService: apiService, reviewStore: reviewStore),
+          create: (_) => HomeViewModel(
+            apiService: apiService,
+            reviewStore: reviewStore,
+            nodeUseCase: nodeUseCase,
+            nodeStore: nodeStore,
+          ),
         ),
         ChangeNotifierProvider(
           create: (_) => ApiViewModel(apiStore, apiService),

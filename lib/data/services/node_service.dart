@@ -21,12 +21,23 @@ class NodeService {
     );
   }
 
+  Future<ApiResult<String>> getNode(int collectionId, int nodeId) async {
+    /// REF
+    return await api.get("/collections/$collectionId/nodes/$nodeId");
+  }
+  
+  Future<ApiResult<String>> getRootNode(int collectionId, int nodeId) async {
+    return await api.get("/collections/$collectionId/nodes/$nodeId/root");
+  }
+
   Future<ApiResult<String>> saveNodeContent(
     int collectionId,
     int nodeId,
     String content,
   ) async {
-    final result = await api.patch("/collections/$collectionId/nodes/$nodeId", {"content": content});
+    final result = await api.patch("/collections/$collectionId/nodes/$nodeId", {
+      "content": content,
+    });
 
     if (result is ApiError) return result;
 

@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:mycelium/core/either.dart';
+import 'package:mycelium/core/errors/node_fetch_errors.dart';
 import 'package:mycelium/core/errors/node_update_errors.dart';
 import 'package:mycelium/data/api_result.dart';
 import 'package:mycelium/data/models/node.dart';
@@ -11,9 +12,50 @@ class NodeRepository {
   final NodeService nodeService;
 
   Map<int, NodeType>? _typesCache;
+  final Map<int, Node> _nodeCache = {};
 
   NodeRepository(this.nodeService);
 
+  Future<Either<NodeFetchError, Node>> _fetchNode(
+    int colId,
+    int nodeId,
+    Future<ApiResult<String>> Function() call,
+  ) async {
+    if (_nodeCache.containsKey(nodeId)) {
+      return Right(_nodeCache[nodeId]!);
+    }
+    final result = await call();
+    if (result is ApiError) {
+      if (result.code == "NODE_NOT_FOUND") {
+        return Left(NodeNotFoundError(result.message));
+      } else {
+        return Left(UnknownNodeFetchError());
+      }
+    }
+    final success = result as ApiSuccess<String>;
+    final json = jsonDecode(success.data);
+    final node = Node.fromJson(json["node"]);
+    _nodeCache[nodeId] = node;
+    return Right(node);
+  }
+
+  Future<Either<NodeFetchError, Node>> getNode(int colId, int nodeId) =>
+  _fetchNode(colId, nodeId, () => nodeService.getNode(colId, nodeId));
+
+  Future<Either<NodeFetchError, Node>> fetchRoot(int colId, int nodeId) =>
+  _fetchNode(colId, nodeId, () => nodeService.getRootNode(colId, nodeId));
+
+  Future<Either<NodeFetchError, Node>> getRootNode(int colId, int nodeId) async {
+    var currentId = nodeId;
+    while (_nodeCache.containsKey(currentId)) {
+      // Traverse the cache upwards to check whether the root node already exists
+      final node = _nodeCache[currentId]!;
+      if (node.parentId == null) return Right(node); 
+      currentId = node.parentId!;
+    }
+    return fetchRoot(colId, currentId);
+  }
+  
   Future<Either<NodeUpdateError, Node>> updateNodeContent(
     int collectionId,
     int nodeId,

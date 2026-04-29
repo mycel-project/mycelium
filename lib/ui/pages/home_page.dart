@@ -25,12 +25,21 @@ class HomePage extends StatelessWidget {
     return ChangeNotifierProvider(
       create: (_) => LaunchReviewButtonViewmodel(context.read<ReviewUseCase>()),
       child: Scaffold(
-        drawerEdgeDragWidth: 200, 
+        drawerEdgeDragWidth: 200,
         appBar: MyAppBar(
-          titleText:
-              context.watch<CollectionStore>().currentCollection?.name ??
-              "No collection selected",
+          titleText: "",
           actions: [
+            IconButton(
+              onPressed: vm.hasParent
+                  ? () {
+                      vm.upPress();
+                    }
+                  : null,
+              onLongPress: () {
+                vm.longUpPress();
+              },
+              icon: const Icon(Icons.arrow_upward),
+            ),
             IconButton(
               onPressed: () {
                 context.read<ReviewUseCase>().handleNextReview();
