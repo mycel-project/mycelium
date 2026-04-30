@@ -90,6 +90,7 @@ class NodeRepository {
     final success = result as ApiSuccess<String>;
     final json = jsonDecode(success.data);
     final nodes = (json["nodes"] as List).map((e) => Node.fromJson(e)).toList();
+    print(json.toString());
     for (final node in nodes) {
       _nodeCache[node.id] = node;
     }
@@ -136,6 +137,24 @@ class NodeRepository {
     return fetchRoot(colId, currentId);
   }
 
+  Future<Either<NodeUpdateError, Node>> _handleUpdateResult(
+    ApiResult result,
+    int nodeId,
+  ) async {
+    if (result is ApiError) {
+      if (result.code == "INVALID_NODE_UPDATE") {
+        return Left(InvalidNodeUpdateError(result.message));
+      }
+      return Left(UnknownNodeUpdateError());
+    }
+    final success = result as ApiSuccess<String>;
+    final json = jsonDecode(success.data);
+    final node = Node.fromJson(json["node"]);
+    print(json.toString());
+    _nodeCache[nodeId] = node;
+    return Right(node);
+  }
+
   Future<Either<NodeUpdateError, Node>> updateNodeContent(
     int collectionId,
     int nodeId,
@@ -146,22 +165,20 @@ class NodeRepository {
       nodeId,
       content,
     );
+    return _handleUpdateResult(result, nodeId);
+  }
 
-    if (result is ApiError) {
-      final error = result;
-
-      if (error.code == "INVALID_NODE_UPDATE") {
-        return Left(InvalidNodeUpdateError(error.message));
-      }
-
-      return Left(UnknownNodeUpdateError());
-    }
-
-    final success = result as ApiSuccess<String>;
-    final json = jsonDecode(success.data);
-    final node = Node.fromJson(json["node"]);
-    _nodeCache[nodeId] = node;
-    return Right(node);
+  Future<Either<NodeUpdateError, Node>> updateNodeDismiss(
+    int collectionId,
+    int nodeId,
+    bool dismiss,
+  ) async {
+    final result = await nodeService.updateNodeDismiss(
+      collectionId,
+      nodeId,
+      dismiss,
+    );
+    return _handleUpdateResult(result, nodeId);
   }
 
   Future<Either<NodeError, Map<int, NodeType>>> getNodeTypes() async {

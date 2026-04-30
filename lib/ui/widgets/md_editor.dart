@@ -1,6 +1,7 @@
 import "package:flutter/material.dart";
 import "package:mycelium/core/stores/review_store.dart";
 import "package:mycelium/ui/controllers/markdown_controller.dart";
+import "package:mycelium/ui/widgets/confirmation_dialog.dart";
 import "package:mycelium/ui/widgets/next_review_button.dart";
 import "package:mycelium/ui/widgets/show_answer_button.dart";
 import "package:mycelium/ui/widgets/validation_bar.dart";
@@ -161,6 +162,23 @@ class _MdEditorState extends State<MdEditor> {
                           child: Opacity(
                             opacity: vm.hasSelection ? 1.0 : 0.4,
                             child: const Icon(Icons.quiz),
+                          ),
+                        ),
+                        FloatingActionButton(
+                          onPressed: vm.dismissState == true
+                          ? () async => await vm.toggleDismiss()
+                          : () async {
+                            focusNode.unfocus();
+                            final confirmed =  await ConfirmationDialog.show(
+                                context,
+                                title: "Confirmation",
+                                text: "Have you extracted all the relevant information from this fragment?\n\nIt won’t be shown again in future reviews."
+                            );
+                            if (confirmed == true) await vm.toggleDismiss();
+                          },
+                          child: Opacity(
+                            opacity: vm.dismissState ?? false ? 0.4 : 1.0,
+                            child: const Icon(Icons.task_alt),
                           ),
                         ),
                       ],

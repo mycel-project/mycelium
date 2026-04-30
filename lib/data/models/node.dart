@@ -1,14 +1,22 @@
 class Node {
-  const Node({required this.id, required this.type, required this.collectionId, this.parentId, this.content});
+  const Node({
+    required this.id,
+    required this.type,
+    required this.collectionId,
+    this.parentId,
+    this.content,
+    this.typeData,
+  });
   final int id;
   final int type;
   final int collectionId;
   final int? parentId;
   final Map? content;
+  final Map? typeData;
 
   factory Node.fromJson(Map<String, dynamic> json) {
     final rawContent = json['content'];
-    
+
     return Node(
       id: json['id'],
       type: json['type'],
@@ -17,6 +25,7 @@ class Node {
       content: rawContent is Map<String, dynamic>
           ? rawContent['fields'] as Map<String, dynamic>?
           : null,
+      typeData: json['type_data'],
     );
   }
 }

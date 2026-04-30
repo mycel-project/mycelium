@@ -157,6 +157,7 @@ class HomePage extends StatelessWidget {
                               context,
                               title: "Delete confirmation",
                               text: "Delete this node and all its children?",
+                              destructive: true
                             );
                             if (!context.mounted) return;
                             if (confirm == true) {

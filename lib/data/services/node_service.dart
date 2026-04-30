@@ -24,17 +24,32 @@ class NodeService {
     return await api.delete("/collections/$collectionId/nodes/$nodeId");
   }
 
-  Future<ApiResult<String>> createExtract(int collectionId, int nodeId, String text, String field, int startIndex, int endIndex, int extractType) async {
-    return await api.post(
-      "/collections/$collectionId/nodes/$nodeId/extracts",
-      {
-        "text": text,
-        "field": field,
-        "start_index": startIndex,
-        "end_index": endIndex,
-        "extract_type": extractType,
-      },
-    );
+  Future<ApiResult<String>> updateNodeDismiss(
+    int collectionId,
+    int nodeId,
+    bool dismiss,
+  ) async {
+    return await api.patch("/collections/$collectionId/nodes/$nodeId", {
+      "type_data": {"dismiss": dismiss},
+    });
+  }
+
+  Future<ApiResult<String>> createExtract(
+    int collectionId,
+    int nodeId,
+    String text,
+    String field,
+    int startIndex,
+    int endIndex,
+    int extractType,
+  ) async {
+    return await api.post("/collections/$collectionId/nodes/$nodeId/extracts", {
+      "text": text,
+      "field": field,
+      "start_index": startIndex,
+      "end_index": endIndex,
+      "extract_type": extractType,
+    });
   }
 
   Future<ApiResult<String>> saveNodeContent(

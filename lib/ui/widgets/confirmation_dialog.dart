@@ -3,17 +3,20 @@ import 'package:flutter/material.dart';
 class ConfirmationDialog extends StatelessWidget {
   final String title;
   final String text;
+  final bool destructive;
 
   const ConfirmationDialog({
     super.key,
     required this.title,
     required this.text,
+    this.destructive = false,
   });
 
   static Future<bool> show(
     BuildContext context, {
     required String title,
     required String text,
+    bool destructive = false,
   }) async {
     final result = await showGeneralDialog<bool>(
       context: context,
@@ -31,6 +34,7 @@ class ConfirmationDialog extends StatelessWidget {
                 child: ConfirmationDialog(
                   title: title,
                   text: text,
+                  destructive: destructive,
                 ),
               ),
             ),
@@ -63,9 +67,11 @@ class ConfirmationDialog extends StatelessWidget {
         ),
         TextButton(
           onPressed: () => Navigator.pop(context, true),
-          child: const Text(
-            "Confirm",
-            style: TextStyle(color: Colors.red),
+          child: Text(
+            destructive ? "Delete" : "OK",
+            style: TextStyle(
+              color: destructive ? Colors.red : null,
+            ),
           ),
         ),
       ],

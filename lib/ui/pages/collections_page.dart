@@ -131,7 +131,8 @@ class _CollectionsListState extends State<CollectionsList> {
                                 context,
                                 title: "Delete confirmation",
                                 text:
-                                    "Delete collection ${collection.name} and all data associated?",
+                                "Delete collection ${collection.name} and all data associated?",
+                                destructive: true
                               );
                               Navigator.pop(context);
                               if (confirm == true) {

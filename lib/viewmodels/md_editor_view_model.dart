@@ -41,6 +41,8 @@ class MdEditorViewModel extends ChangeNotifier {
     _onNodeStoreChanged();
   }
 
+  bool? get dismissState => node?.typeData?['dismiss'] as bool?;
+
   void _onNodeStoreChanged() {
     loadNode(nodeStore.currentNode);
   }
@@ -107,14 +109,13 @@ class MdEditorViewModel extends ChangeNotifier {
       nodeRepository.getNodeTypeByLabelSync(extractType)!.key,
     );
     result.fold((error) => _showMessage(error.toString()), (nodes) {
-        for (final node in nodes) {
-          if (node.id == this.node?.id) {
-            loadNode(node);
-          }
+      for (final node in nodes) {
+        if (node.id == this.node?.id) {
+          loadNode(node);
         }
-        notifyListeners();
       }
-    );
+      notifyListeners();
+    });
   }
 
   Future<void> createFragment() async {
@@ -125,6 +126,20 @@ class MdEditorViewModel extends ChangeNotifier {
     await createExtract("SPORE");
   }
 
+  Future<void> toggleDismiss() async {
+    final collectionId = node?.collectionId;
+    final nodeId = node?.id;
+    final dismiss = dismissState;
+    if (dismiss != null && collectionId != null && nodeId != null) {
+      final result = await nodeRepository.updateNodeDismiss(collectionId, nodeId, !dismiss);
+      result.fold(
+        (err) => null,
+        (updatedNode) => node = updatedNode,
+      );
+      notifyListeners();
+    }
+  }
+  
   bool isCurrentNodeSpore() {
     if (node != null) {
       final type = nodeRepository.getNodeTypeSync(node!.type);
