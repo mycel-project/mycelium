@@ -20,6 +20,10 @@ class NodeService {
     return await api.get("/collections/$collectionId/nodes/$nodeId/root");
   }
 
+  Future<ApiResult<String>> deleteNode(int collectionId, int nodeId) async {
+    return await api.delete("/collections/$collectionId/nodes/$nodeId");
+  }
+
   Future<ApiResult<String>> createExtract(int collectionId, int nodeId, String text, String field, int startIndex, int endIndex, int extractType) async {
     return await api.post(
       "/collections/$collectionId/nodes/$nodeId/extracts",

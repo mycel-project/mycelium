@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:collection/collection.dart';
 import 'package:mycelium/core/either.dart';
 import 'package:mycelium/core/errors/extract_errors.dart';
-import 'package:mycelium/core/errors/node_fetch_errors.dart';
+import 'package:mycelium/core/errors/node_errors.dart';
 import 'package:mycelium/core/errors/node_update_errors.dart';
 import 'package:mycelium/data/api_result.dart';
 import 'package:mycelium/data/models/node.dart';
@@ -59,13 +59,32 @@ class NodeRepository {
     return Right([extractNode, sourceNode]);
   }
 
-  Future<Either<NodeFetchError, List<Node>>> loadNodes(int colId) async {
+  Future<Either<NodeError, List<int>>> deleteNode(int colId, int nodeId) async {
+    final result = await nodeService.deleteNode(colId, nodeId);
+    
+    if (result is ApiError) {
+      if (result.code == "NODE_NOT_FOUND") {
+        return Left(NodeNotFoundError(result.message));
+      } else {
+        return Left(UnknownNodeError());
+      }
+    }
+    final success = result as ApiSuccess<String>;
+    final json = jsonDecode(success.data);
+    final deletedIds = (json["deleted_ids"] as List).cast<int>();
+    for (final id in deletedIds) {
+      _nodeCache.remove(id);
+    }
+    return Right(deletedIds);
+  }
+
+  Future<Either<NodeError, List<Node>>> loadNodes(int colId) async {
     final result = await nodeService.getNodes(colId);
     if (result is ApiError) {
       if (result.code == "NODE_NOT_FOUND") {
         return Left(NodeNotFoundError(result.message));
       } else {
-        return Left(UnknownNodeFetchError());
+        return Left(UnknownNodeError());
       }
     }
     final success = result as ApiSuccess<String>;
@@ -77,7 +96,7 @@ class NodeRepository {
     return Right(nodes);
   }
 
-  Future<Either<NodeFetchError, Node>> _fetchNode(
+  Future<Either<NodeError, Node>> _fetchNode(
     int colId,
     int nodeId,
     Future<ApiResult<String>> Function() call,
@@ -90,7 +109,7 @@ class NodeRepository {
       if (result.code == "NODE_NOT_FOUND") {
         return Left(NodeNotFoundError(result.message));
       } else {
-        return Left(UnknownNodeFetchError());
+        return Left(UnknownNodeError());
       }
     }
     final success = result as ApiSuccess<String>;
@@ -100,13 +119,13 @@ class NodeRepository {
     return Right(node);
   }
 
-  Future<Either<NodeFetchError, Node>> getNode(int colId, int nodeId) =>
+  Future<Either<NodeError, Node>> getNode(int colId, int nodeId) =>
       _fetchNode(colId, nodeId, () => nodeService.getNode(colId, nodeId));
 
-  Future<Either<NodeFetchError, Node>> fetchRoot(int colId, int nodeId) =>
+  Future<Either<NodeError, Node>> fetchRoot(int colId, int nodeId) =>
       _fetchNode(colId, nodeId, () => nodeService.getRootNode(colId, nodeId));
 
-  Future<Either<NodeFetchError, Node>> getRootNode(
+  Future<Either<NodeError, Node>> getRootNode(
     int colId,
     int nodeId,
   ) async {
@@ -147,18 +166,18 @@ class NodeRepository {
     return Right(Node.fromJson(json["node"]));
   }
 
-  Future<Either<NodeFetchError, Map<int, NodeType>>> getNodeTypes() async {
+  Future<Either<NodeError, Map<int, NodeType>>> getNodeTypes() async {
     if (_typesCache != null) return Right(_typesCache!);
     final result = await nodeService.getNodeTypes();
     if (result is ApiError) {
-      return Left(UnknownNodeFetchError());
+      return Left(UnknownNodeError());
     }
     final success = result as ApiSuccess<List<NodeType>>;
     _typesCache = {for (var type in success.data) type.key: type};
     return Right(_typesCache!);
   }
 
-  Future<Either<NodeFetchError, NodeType>> getNodeType(int key) async {
+  Future<Either<NodeError, NodeType>> getNodeType(int key) async {
     final result = await getNodeTypes();
     return result.fold(
       (err) => Left(err),

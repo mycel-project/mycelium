@@ -74,7 +74,7 @@ class HomeViewModel extends ChangeNotifier {
   }
 
   void navigateTo(int nodeId) {
-    navigationUseCase.navigateTo(nodeId); 
+    navigationUseCase.navigateTo(nodeId);
   }
 
   void _checkHasParent() {
@@ -102,6 +102,22 @@ class HomeViewModel extends ChangeNotifier {
   void dismissNoMoreReviews() {
     noMoreReviewsFlag = false;
     notifyListeners();
+  }
+
+  Future<void> deleteNode(int nodeId) async {
+    final colId = collectionStore.currentCollection?.id;
+    if (colId == null) return;
+    final result = await nodeRepository.deleteNode(colId, nodeId);
+    result.fold(
+      (err) {
+      },
+      (deletedIds) {
+        if (deletedIds.contains(nodeStore.currentNode?.id)) {
+          nodeStore.selectNode(null);
+        }
+        notifyListeners();
+      },
+    );
   }
 
   bool isCheckingConnection = false;

@@ -160,7 +160,7 @@ class HomePage extends StatelessWidget {
                             );
                             if (!context.mounted) return;
                             if (confirm == true) {
-                              // vm.deleteNode(nodeId);
+                              await vm.deleteNode(nodeId);
                             }
                           }
                         },
