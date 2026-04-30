@@ -7,6 +7,7 @@ import 'package:mycelium/domain/review_usecase.dart';
 import 'package:mycelium/ui/pages/api_config_page.dart';
 import 'package:mycelium/ui/pages/collections_page.dart';
 import 'package:mycelium/ui/widgets/app_bar.dart';
+import 'package:mycelium/ui/widgets/confirmation_dialog.dart';
 import 'package:mycelium/ui/widgets/md_editor.dart';
 import 'package:mycelium/ui/widgets/no_collection_widget.dart';
 import 'package:mycelium/ui/widgets/no_more_reviews_widget.dart';
@@ -30,10 +31,10 @@ class HomePage extends StatelessWidget {
           actions: [
             IconButton(
               onPressed: vm.hasPreviousNodes()
-              ? () {
-                vm.previousNode();
-              }
-              : null,
+                  ? () {
+                      vm.previousNode();
+                    }
+                  : null,
               onLongPress: () {
                 vm.openHistory();
               },
@@ -41,10 +42,10 @@ class HomePage extends StatelessWidget {
             ),
             IconButton(
               onPressed: vm.hasNextNodes()
-              ? () {
-                vm.nextNode();
-              }
-              : null,
+                  ? () {
+                      vm.nextNode();
+                    }
+                  : null,
               onLongPress: () {
                 vm.openHistory();
               },
@@ -62,9 +63,11 @@ class HomePage extends StatelessWidget {
               icon: const Icon(Icons.arrow_upward),
             ),
             IconButton(
-              onPressed: !vm.isCurrentNodeUnderReview() ? () {
-                context.read<ReviewUseCase>().handleNextReview();
-              } : null,
+              onPressed: !vm.isCurrentNodeUnderReview()
+                  ? () {
+                      context.read<ReviewUseCase>().handleNextReview();
+                    }
+                  : null,
               icon: const Icon(Icons.school),
             ),
             IconButton(
@@ -125,6 +128,42 @@ class HomePage extends StatelessWidget {
                     clickCallback: (int value) {
                       vm.navigateTo(value);
                     },
+                    longPressCallback:
+                        (int nodeId, LongPressStartDetails details) async {
+                          final screenWidth = MediaQuery.of(context).size.width;
+                          final position = details.globalPosition;
+
+                          double dx = position.dx - 75;
+
+                          if (dx < 8) dx = 8;
+
+                          final selected = await showMenu(
+                            context: context,
+                            position: RelativeRect.fromLTRB(
+                              dx,
+                              position.dy,
+                              screenWidth - dx,
+                              position.dy,
+                            ),
+                            items: [
+                              PopupMenuItem(
+                                value: 'delete',
+                                child: Text("Delete"),
+                              ),
+                            ],
+                          );
+                          if (selected == 'delete') {
+                            final confirm = await ConfirmationDialog.show(
+                              context,
+                              title: "Delete confirmation",
+                              text: "Delete this node and all its children?",
+                            );
+                            if (!context.mounted) return;
+                            if (confirm == true) {
+                              // vm.deleteNode(nodeId);
+                            }
+                          }
+                        },
                   ),
                 ),
               ],

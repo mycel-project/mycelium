@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mycelium/core/stores/collection_store.dart';
 import 'package:mycelium/ui/widgets/app_bar.dart';
+import 'package:mycelium/ui/widgets/confirmation_dialog.dart';
 import 'package:mycelium/viewmodels/collections_viewmodel.dart';
 import 'package:provider/provider.dart';
 
@@ -55,7 +56,7 @@ class _CollectionsListState extends State<CollectionsList> {
     super.initState();
 
     Future.microtask(() {
-        context.read<CollectionsViewModel>().init();
+      context.read<CollectionsViewModel>().init();
     });
   }
 
@@ -63,7 +64,7 @@ class _CollectionsListState extends State<CollectionsList> {
   Widget build(BuildContext context) {
     final vm = context.watch<CollectionsViewModel>();
     final store = context.watch<CollectionStore>();
-    return SafeArea (
+    return SafeArea(
       child: ListView.builder(
         itemCount: vm.collections.length,
         itemBuilder: (context, index) {
@@ -71,8 +72,8 @@ class _CollectionsListState extends State<CollectionsList> {
           return Center(
             child: ListTile(
               tileColor: collection.id == store.currentCollection?.id
-              ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.1)
-              : null,
+                  ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.1)
+                  : null,
               onTap: () {
                 vm.setCollection(collection.id);
               },
@@ -80,7 +81,7 @@ class _CollectionsListState extends State<CollectionsList> {
                 showModalBottomSheet(
                   context: context,
                   builder: (_) {
-                    return SafeArea (
+                    return SafeArea(
                       child: Wrap(
                         children: [
                           ListTile(
@@ -125,38 +126,17 @@ class _CollectionsListState extends State<CollectionsList> {
                               "Delete",
                               style: TextStyle(color: Colors.red),
                             ),
-                            onTap: () {
-                              showDialog(
-                                context: context,
-                                builder: (context) {
-                                  return AlertDialog(
-                                    title: Text("Confirmation"),
-                                    content: Text(
-                                      "Delete collection ${collection.name} and all data associated?",
-                                    ),
-                                    actions: [
-                                      TextButton(
-                                        onPressed: () => {
-                                          Navigator.pop(context, false),
-                                          Navigator.pop(context),
-                                        },
-                                        child: Text("No"),
-                                      ),
-                                      TextButton(
-                                        onPressed: () => {
-                                          Navigator.pop(context, true),
-                                          Navigator.pop(context),
-                                          vm.deleteCollection(collection.id),
-                                        },
-                                        child: Text(
-                                          "Yes",
-                                          style: TextStyle(color: Colors.red),
-                                        ),
-                                      ),
-                                    ],
-                                  );
-                                },
+                            onTap: () async {
+                              final confirm = await ConfirmationDialog.show(
+                                context,
+                                title: "Delete confirmation",
+                                text:
+                                    "Delete collection ${collection.name} and all data associated?",
                               );
+                              Navigator.pop(context);
+                              if (confirm == true) {
+                                vm.deleteCollection(collection.id);
+                              }
                             },
                           ),
                         ],
