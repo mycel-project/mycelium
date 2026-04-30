@@ -173,6 +173,7 @@ class HomePage extends StatelessWidget {
         ),
         onDrawerChanged: (isOpened) {
           if (isOpened) vm.refreshNodes();
+          FocusManager.instance.primaryFocus?.unfocus();
         },
       ),
     );

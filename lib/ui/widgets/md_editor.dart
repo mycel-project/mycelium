@@ -62,6 +62,7 @@ class _MdEditorState extends State<MdEditor> {
     markdownController.removeListener(_onSelectionChanged);
     markdownController.dispose();
     vm.removeListener(_syncFromVm);
+    focusNode.dispose();
     super.dispose();
   }
 
@@ -84,18 +85,34 @@ class _MdEditorState extends State<MdEditor> {
                       right: 16,
                       bottom: 120,
                     ),
-                    child: TextField(
-                      focusNode: focusNode,
-                      readOnly: vm.isLocked(),
-                      onTap: vm.isLocked() ? null : vm.editMode,
-                      maxLines: null,
-                      expands: false,
-                      controller: markdownController,
-                      onChanged: (value) {
-                        vm.updateContent(value);
-                      },
-                      decoration: const InputDecoration(
-                        border: InputBorder.none,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        border: Border(
+                          bottom: BorderSide(
+                            color: Colors.grey.withValues(alpha: 0.3),
+                            width: 0.5,
+                          ),
+                        ),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.only(top: 8, bottom: 8), 
+                        child: TextField(
+                          onTapOutside: (_) {
+                            FocusManager.instance.primaryFocus?.unfocus();
+                          },
+                          focusNode: focusNode,
+                          readOnly: vm.isLocked(),
+                          onTap: vm.isLocked() ? null : vm.editMode,
+                          maxLines: null,
+                          expands: false,
+                          controller: markdownController,
+                          onChanged: (value) {
+                            vm.updateContent(value);
+                          },
+                          decoration: const InputDecoration(
+                            border: InputBorder.none,
+                          ),
+                        ),
                       ),
                     ),
                   ),
@@ -123,10 +140,10 @@ class _MdEditorState extends State<MdEditor> {
                     ),
                   ),
                 Positioned(
-                  bottom: 32,
-                  right: 32,
+                  bottom: 16,
+                  left: 16,
                   child: Wrap(
-                    spacing: 24,
+                    spacing: 16,
                     children: [
                       FloatingActionButton(
                         onPressed: vm.isDirty ? vm.saveContent : null,
@@ -137,14 +154,31 @@ class _MdEditorState extends State<MdEditor> {
                       ),
                       if (!vm.isCurrentNodeSpore()) ...[
                         FloatingActionButton(
+                          onPressed: vm.dismissState == true
+                          ? () async => await vm.toggleDismiss()
+                          : () async {
+                            focusNode.unfocus();
+                            final confirmed =  await ConfirmationDialog.show(
+                              context,
+                              title: "Confirmation",
+                              text: "Have you extracted all the relevant information from this fragment?\n\nIt won’t be shown again in future reviews."
+                            );
+                            if (confirmed == true) await vm.toggleDismiss();
+                          },
+                          child: Opacity(
+                            opacity: vm.dismissState ?? false ? 0.4 : 1.0,
+                            child: const Icon(Icons.task_alt),
+                          ),
+                        ),
+                        FloatingActionButton(
                           onPressed: vm.hasSelection
-                              ? () async {
-                                  await vm.createFragment();
-                                  markdownController.selection =
-                                      const TextSelection.collapsed(offset: -1);
-                                  focusNode.unfocus();
-                                }
-                              : null,
+                          ? () async {
+                            await vm.createFragment();
+                            markdownController.selection =
+                            const TextSelection.collapsed(offset: -1);
+                            focusNode.unfocus();
+                          }
+                          : null,
                           child: Opacity(
                             opacity: vm.hasSelection ? 1.0 : 0.4,
                             child: const Icon(Icons.content_cut),
@@ -152,33 +186,16 @@ class _MdEditorState extends State<MdEditor> {
                         ),
                         FloatingActionButton(
                           onPressed: vm.hasSelection
-                              ? () async {
-                                  await vm.createSpore();
-                                  markdownController.selection =
-                                      const TextSelection.collapsed(offset: -1);
-                                  focusNode.unfocus();
-                                }
-                              : null,
+                          ? () async {
+                            await vm.createSpore();
+                            markdownController.selection =
+                            const TextSelection.collapsed(offset: -1);
+                            focusNode.unfocus();
+                          }
+                          : null,
                           child: Opacity(
                             opacity: vm.hasSelection ? 1.0 : 0.4,
                             child: const Icon(Icons.quiz),
-                          ),
-                        ),
-                        FloatingActionButton(
-                          onPressed: vm.dismissState == true
-                          ? () async => await vm.toggleDismiss()
-                          : () async {
-                            focusNode.unfocus();
-                            final confirmed =  await ConfirmationDialog.show(
-                                context,
-                                title: "Confirmation",
-                                text: "Have you extracted all the relevant information from this fragment?\n\nIt won’t be shown again in future reviews."
-                            );
-                            if (confirmed == true) await vm.toggleDismiss();
-                          },
-                          child: Opacity(
-                            opacity: vm.dismissState ?? false ? 0.4 : 1.0,
-                            child: const Icon(Icons.task_alt),
                           ),
                         ),
                       ],

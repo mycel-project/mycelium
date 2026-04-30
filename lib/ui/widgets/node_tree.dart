@@ -128,7 +128,7 @@ class _NodeTreeState extends State<NodeTree> {
                             decoration: BoxDecoration(
                               color: 
                               isSelected
-                              ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.4)
+                              ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.3)
                               : isSporeNode ?
                               Theme.of(context).colorScheme.primary.withValues(alpha: 0.1)
                               :
@@ -139,8 +139,12 @@ class _NodeTreeState extends State<NodeTree> {
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: TextStyle(
-                                color: typedNode.typeData?["dismiss"] == true
-                                ? Colors.grey
+                                color: typedNode.typeData?["dismiss"] == true 
+                                ? isSelected
+                                ?
+                                Theme.of(context).textTheme.bodyMedium?.color // To make sure it is visible
+                                :
+                                Colors.grey.shade400
                                 : Theme.of(context).textTheme.bodyMedium?.color,
                               ),
                             ),
