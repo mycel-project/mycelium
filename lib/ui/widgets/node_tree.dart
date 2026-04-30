@@ -103,11 +103,26 @@ class _NodeTreeState extends State<NodeTree> {
                         child: AnimatedRotation(
                           turns: node.isExpanded ? 0.25 : 0,
                           duration: const Duration(milliseconds: 200),
-                          child: const Icon(Icons.chevron_right, size: 20),
+                          child: const Icon(
+                            Icons.chevron_right,
+                            size: 20,
+                          ),
                         ),
                       ),
                     )
-                    : const SizedBox(),
+                    :
+                    isSporeNode
+                    ?
+                    const SizedBox()
+                    :
+                    InkWell(
+                      borderRadius: BorderRadius.circular(20),
+                      child: Icon(
+                        Icons.chevron_right,
+                        size: 20,
+                        color: Colors.grey.withValues(alpha: 0.5),
+                      ),
+                    )
                   ),
                   Expanded(
                     child: GestureDetector(
@@ -128,9 +143,9 @@ class _NodeTreeState extends State<NodeTree> {
                             decoration: BoxDecoration(
                               color: 
                               isSelected
-                              ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.3)
+                              ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.1)
                               : isSporeNode ?
-                              Theme.of(context).colorScheme.primary.withValues(alpha: 0.1)
+                              Theme.of(context).colorScheme.primary.withValues(alpha: 0)
                               :
                               Colors.transparent,
                             ),
@@ -140,12 +155,10 @@ class _NodeTreeState extends State<NodeTree> {
                               overflow: TextOverflow.ellipsis,
                               style: TextStyle(
                                 color: typedNode.typeData?["dismiss"] == true 
-                                ? isSelected
                                 ?
-                                Theme.of(context).textTheme.bodyMedium?.color // To make sure it is visible
+                                Colors.grey.withValues(alpha: 0.5)
                                 :
-                                Colors.grey.shade400
-                                : Theme.of(context).textTheme.bodyMedium?.color,
+                                Theme.of(context).textTheme.bodyMedium?.color,
                               ),
                             ),
                           ),
