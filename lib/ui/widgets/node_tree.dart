@@ -121,7 +121,7 @@ class _NodeTreeState extends State<NodeTree> {
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Text(
-                            "${typedNode.content?['0']}",
+                            "${typedNode.content?['0'].trim()}",
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
