@@ -24,6 +24,13 @@ class NodeService {
     return await api.delete("/collections/$collectionId/nodes/$nodeId");
   }
 
+  Future<ApiResult<String>> fetchRessourceFromUrl(int collectionId, String url) async {
+    return await api.post("/collections/$collectionId/nodes", {
+        "type": "url",
+        "url": url
+    });
+  }
+
   Future<ApiResult<String>> updateNodeDismiss(
     int collectionId,
     int nodeId,

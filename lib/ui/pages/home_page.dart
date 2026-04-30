@@ -8,6 +8,7 @@ import 'package:mycelium/ui/pages/api_config_page.dart';
 import 'package:mycelium/ui/pages/collections_page.dart';
 import 'package:mycelium/ui/widgets/app_bar.dart';
 import 'package:mycelium/ui/widgets/confirmation_dialog.dart';
+import 'package:mycelium/ui/widgets/input_dialog.dart';
 import 'package:mycelium/ui/widgets/md_editor.dart';
 import 'package:mycelium/ui/widgets/no_collection_widget.dart';
 import 'package:mycelium/ui/widgets/no_more_reviews_widget.dart';
@@ -113,7 +114,7 @@ class HomePage extends StatelessWidget {
           child: SafeArea(
             child: Column(
               children: [
-                const _DrawerHeader(),
+                _DrawerHeader(vm: vm),
                 const Divider(height: 1),
                 Expanded(
                   child: NodeTree(
@@ -157,7 +158,7 @@ class HomePage extends StatelessWidget {
                               context,
                               title: "Delete confirmation",
                               text: "Delete this node and all its children?",
-                              destructive: true
+                              destructive: true,
                             );
                             if (!context.mounted) return;
                             if (confirm == true) {
@@ -181,21 +182,94 @@ class HomePage extends StatelessWidget {
 }
 
 class _DrawerHeader extends StatelessWidget {
-  const _DrawerHeader();
+  final HomeViewModel vm;
+  const _DrawerHeader({required this.vm});
 
   @override
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
         children: [
-          const Text(
-            "Nodes",
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          Expanded(
+            child: Text(
+              context.watch<CollectionStore>().currentCollection?.name ??
+                  "No collection selected",
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _iconButton(context, Icons.search, () {
+                print("salut");
+                Navigator.pop(context);
+
+              }),
+              const SizedBox(width: 8),
+              PopupMenuButton<String>(
+                onSelected: (value) async {
+                  if (value == "url") {
+                    final request = await showInputDialog(
+                      context: context,
+                      title: "Enter ressource URL",
+                      placeholder: "https://example.com/page",
+                    );
+                    await vm.fetchRessourceFromUrl(request);
+                    Navigator.pop(context);
+                  }
+                },
+                itemBuilder: (context) => const [
+                  PopupMenuItem(
+                    value: 'url',
+                    child: Text("New ressource from url"),
+                  ),
+                ],
+                style: ButtonStyle(
+                  shape: WidgetStatePropertyAll(const CircleBorder()),
+                  backgroundColor: WidgetStatePropertyAll(
+                    Theme.of(context).colorScheme.surfaceContainerHighest,
+                  ),
+                  padding: const WidgetStatePropertyAll(EdgeInsets.all(8)),
+                ),
+                icon: const Icon(Icons.post_add, size: 18),
+              ),
+            ],
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _iconButton(BuildContext context, IconData icon, VoidCallback onTap) {
+    return Material(
+      color: Colors.transparent,
+      shape: const CircleBorder(),
+      clipBehavior: Clip.antiAlias,
+      child: Ink(
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surfaceContainerHighest,
+          shape: BoxShape.circle,
+        ),
+        child: InkResponse(
+          onTap: onTap,
+          radius: 18,
+          splashColor: Theme.of(
+            context,
+          ).colorScheme.primary.withValues(alpha: 0.2),
+          highlightShape: BoxShape.circle,
+          child: SizedBox(
+            width: 40,
+            height: 40,
+            child: Icon(
+              icon,
+              size: 18,
+              color: Theme.of(context).iconTheme.color,
+            ),
+          ),
+        ),
       ),
     );
   }

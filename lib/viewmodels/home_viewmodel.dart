@@ -139,4 +139,15 @@ class HomeViewModel extends ChangeNotifier {
   void longUpPress() {
     nodeUseCase.selectRootNode();
   }
+
+  Future<void> fetchRessourceFromUrl(String? url) async {
+    if (url == null) return;
+    final colId = collectionStore.currentCollection?.id;
+    if (colId == null) return;
+    final result = await nodeRepository.fetchRessourceFromUrl(colId, url);
+    result.fold((error) {}, (node) async {
+      await navigationUseCase.navigateTo(node.id);
+      notifyListeners();
+    });
+  }
 }

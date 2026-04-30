@@ -32,6 +32,8 @@ class _MdEditorState extends State<MdEditor> {
     vm.addListener(_syncFromVm);
   }
 
+  final ScrollController scrollController = ScrollController();
+  
   int? _lastNodeId;
 
   void _syncFromVm() {
@@ -63,6 +65,7 @@ class _MdEditorState extends State<MdEditor> {
     markdownController.dispose();
     vm.removeListener(_syncFromVm);
     focusNode.dispose();
+    scrollController.dispose();
     super.dispose();
   }
 
@@ -79,38 +82,44 @@ class _MdEditorState extends State<MdEditor> {
               fit: StackFit.expand,
               children: [
                 Positioned.fill(
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.only(
-                      left: 16,
-                      right: 16,
-                      bottom: 120,
-                    ),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        border: Border(
-                          bottom: BorderSide(
-                            color: Colors.grey.withValues(alpha: 0.3),
-                            width: 0.5,
+                  child: Scrollbar(
+                    thumbVisibility: true,
+                    interactive: true,
+                    controller: scrollController,
+                    child: SingleChildScrollView(
+                      controller: scrollController,
+                      padding: const EdgeInsets.only(
+                        left: 16,
+                        right: 16,
+                        bottom: 120,
+                      ),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          border: Border(
+                            bottom: BorderSide(
+                              color: Colors.grey.withValues(alpha: 0.3),
+                              width: 0.5,
+                            ),
                           ),
                         ),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.only(top: 8, bottom: 8), 
-                        child: TextField(
-                          onTapOutside: (_) {
-                            FocusManager.instance.primaryFocus?.unfocus();
-                          },
-                          focusNode: focusNode,
-                          readOnly: vm.isLocked(),
-                          onTap: vm.isLocked() ? null : vm.editMode,
-                          maxLines: null,
-                          expands: false,
-                          controller: markdownController,
-                          onChanged: (value) {
-                            vm.updateContent(value);
-                          },
-                          decoration: const InputDecoration(
-                            border: InputBorder.none,
+                        child: Padding(
+                          padding: const EdgeInsets.only(top: 8, bottom: 8),
+                          child: TextField(
+                            onTapOutside: (_) {
+                              FocusManager.instance.primaryFocus?.unfocus();
+                            },
+                            focusNode: focusNode,
+                            readOnly: vm.isLocked(),
+                            onTap: vm.isLocked() ? null : vm.editMode,
+                            maxLines: null,
+                            expands: false,
+                            controller: markdownController,
+                            onChanged: (value) {
+                              vm.updateContent(value);
+                            },
+                            decoration: const InputDecoration(
+                              border: InputBorder.none,
+                            ),
                           ),
                         ),
                       ),
