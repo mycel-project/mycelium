@@ -59,21 +59,21 @@ class HomeViewModel extends ChangeNotifier {
     print("History not implemented yet");
   }
 
-  bool hasPreviousNodes() => navigationStore.canGoBack;
+  bool hasPreviousNodes() => navigationUseCase.canGoBack;
 
-  bool hasNextNodes() => navigationStore.canGoForward;
+  bool hasNextNodes() => navigationUseCase.canGoForward;
 
-  void previousNode() {
-    final id = navigationStore.back();
+  void previousNode() async {
+    final id = await navigationUseCase.back();
     if (id != null) _loadNode(id);
   }
 
-  void nextNode() {
-    final id = navigationStore.forward();
+  void nextNode() async {
+    final id = await navigationUseCase.forward();
     if (id != null) _loadNode(id);
   }
 
-  void navigateTo(int nodeId) {
+  void navigateTo(int nodeId) async {
     navigationUseCase.navigateTo(nodeId);
   }
 
@@ -108,16 +108,13 @@ class HomeViewModel extends ChangeNotifier {
     final colId = collectionStore.currentCollection?.id;
     if (colId == null) return;
     final result = await nodeRepository.deleteNode(colId, nodeId);
-    result.fold(
-      (err) {
-      },
-      (deletedIds) {
-        if (deletedIds.contains(nodeStore.currentNode?.id)) {
-          nodeStore.selectNode(null);
-        }
-        notifyListeners();
-      },
-    );
+    result.fold((err) {}, (deletedIds) {
+      if (deletedIds.contains(nodeStore.currentNode?.id)) {
+        nodeStore.selectNode(null);
+      }
+      navigationUseCase.onNodesDeleted(deletedIds);
+      notifyListeners();
+    });
   }
 
   bool isCheckingConnection = false;
