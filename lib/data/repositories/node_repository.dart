@@ -61,7 +61,7 @@ class NodeRepository {
 
   Future<Either<NodeError, List<int>>> deleteNode(int colId, int nodeId) async {
     final result = await nodeService.deleteNode(colId, nodeId);
-    
+
     if (result is ApiError) {
       if (result.code == "NODE_NOT_FOUND") {
         return Left(NodeNotFoundError(result.message));
@@ -125,10 +125,7 @@ class NodeRepository {
   Future<Either<NodeError, Node>> fetchRoot(int colId, int nodeId) =>
       _fetchNode(colId, nodeId, () => nodeService.getRootNode(colId, nodeId));
 
-  Future<Either<NodeError, Node>> getRootNode(
-    int colId,
-    int nodeId,
-  ) async {
+  Future<Either<NodeError, Node>> getRootNode(int colId, int nodeId) async {
     var currentId = nodeId;
     while (_nodeCache.containsKey(currentId)) {
       // Traverse the cache upwards to check whether the root node already exists
@@ -162,8 +159,9 @@ class NodeRepository {
 
     final success = result as ApiSuccess<String>;
     final json = jsonDecode(success.data);
-
-    return Right(Node.fromJson(json["node"]));
+    final node = Node.fromJson(json["node"]);
+    _nodeCache[nodeId] = node;
+    return Right(node);
   }
 
   Future<Either<NodeError, Map<int, NodeType>>> getNodeTypes() async {
