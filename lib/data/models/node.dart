@@ -1,3 +1,5 @@
+import 'package:mycelium/data/models/node_data.dart';
+
 class Node {
   const Node({
     required this.id,
@@ -6,6 +8,7 @@ class Node {
     this.parentId,
     this.content,
     this.typeData,
+    this.data,
   });
   final int id;
   final int type;
@@ -13,6 +16,7 @@ class Node {
   final int? parentId;
   final Map? content;
   final Map? typeData;
+  final NodeData? data;
 
   factory Node.fromJson(Map<String, dynamic> json) {
     final rawContent = json['content'];
@@ -26,6 +30,7 @@ class Node {
           ? rawContent['fields'] as Map<String, dynamic>?
           : null,
       typeData: json['type_data'],
+      data: json['data'] != null ? NodeData.fromJson(json['data']) : null,
     );
   }
 }

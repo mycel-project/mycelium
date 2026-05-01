@@ -187,7 +187,7 @@ class _NodeTreeState extends State<NodeTree> {
                                           child: Transform.translate(
                                             offset: const Offset(10, 0),
                                             child: Text(
-                                              formatNodeTitle(typedNode.content?['0']),
+                                              formatNodeTitle(typedNode.data?.title ?? typedNode.content?['0']),
                                               maxLines: 1,
                                               overflow: TextOverflow.ellipsis,
                                               style: TextStyle(
