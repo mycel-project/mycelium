@@ -33,11 +33,10 @@ class _MdEditorState extends State<MdEditor> {
   }
 
   final ScrollController scrollController = ScrollController();
-  
+
   int? _lastNodeId;
 
   void _syncFromVm() {
-    
     final currentId = vm.node?.id;
 
     if (_lastNodeId != currentId) {
@@ -51,12 +50,10 @@ class _MdEditorState extends State<MdEditor> {
       markdownController.text = vm.content;
       markdownController.selection = selection;
     }
-
   }
 
   void _onSelectionChanged() {
     vm.updateSelection(markdownController.selection);
-
   }
 
   @override
@@ -127,27 +124,27 @@ class _MdEditorState extends State<MdEditor> {
                   ),
                 ),
                 if (vm.uiMessage != null)
-                  Positioned(
-                    bottom: 110,
-                    right: 30,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 6,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.red.withValues(alpha: 0.9),
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      child: Text(
-                        vm.uiMessage!,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 12,
-                        ),
+                Positioned(
+                  bottom: 110,
+                  right: 30,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.red.withValues(alpha: 0.9),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Text(
+                      vm.uiMessage!,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 12,
                       ),
                     ),
                   ),
+                ),
                 Positioned(
                   bottom: 16,
                   left: 16,
@@ -167,12 +164,23 @@ class _MdEditorState extends State<MdEditor> {
                           ? () async => await vm.toggleDismiss()
                           : () async {
                             focusNode.unfocus();
-                            final confirmed =  await ConfirmationDialog.show(
+                            final confirmed = await ConfirmationDialog.show(
                               context,
                               title: "Confirmation",
-                              text: "Have you extracted all the relevant information from this fragment?\n\nIt won’t be shown again in future reviews."
+                              text:
+                              "Have you extracted all the relevant information from this fragment?\n\nIt won’t be shown again in future reviews.",
                             );
-                            if (confirmed == true) await vm.toggleDismiss();
+                            if (confirmed == true) {
+                              if (!vm.hasChildren()) {
+                                final confirmed = await ConfirmationDialog.show(
+                                  context,
+                                  title: "No children",
+                                  text: "This fragment has no children.\n\nOnly confirm if it is not valuable to you, as it will not be shown again in reviews.",
+                                );
+                                if (!confirmed) return;
+                              }
+                              await vm.toggleDismiss();
+                            }
                           },
                           child: Opacity(
                             opacity: vm.dismissState ?? false ? 0.4 : 1.0,
@@ -215,31 +223,31 @@ class _MdEditorState extends State<MdEditor> {
             ),
           ),
           reviewNodeId == vm.node?.id
-              ? vm.isCurrentNodeSpore()
-                    ? vm.isAnswerVisible
-                          ? ValidationBar(
-                              onSelected: (value) {
-                                vm.saveContent;
-                                vm.reviewSpore(value);
-                                focusNode.unfocus();
-                                vm.nextReview();
-                              },
-                            )
-                          : ShowAnswerButton(
-                              onPressed: () {
-                                vm.showAnswer();
-                                focusNode.unfocus();
-                              },
-                            )
-                    : NextReviewButton(
-                        onPressed: () {
-                          vm.saveContent;
-                          focusNode.unfocus();
-                          vm.reviewFragment();
-                          vm.nextReview();
-                        },
-                      )
-              : SizedBox.shrink(),
+          ? vm.isCurrentNodeSpore()
+          ? vm.isAnswerVisible
+          ? ValidationBar(
+            onSelected: (value) {
+              vm.saveContent;
+              vm.reviewSpore(value);
+              focusNode.unfocus();
+              vm.nextReview();
+            },
+          )
+          : ShowAnswerButton(
+            onPressed: () {
+              vm.showAnswer();
+              focusNode.unfocus();
+            },
+          )
+          : NextReviewButton(
+            onPressed: () {
+              vm.saveContent;
+              focusNode.unfocus();
+              vm.reviewFragment();
+              vm.nextReview();
+            },
+          )
+          : SizedBox.shrink(),
         ],
       ),
     );

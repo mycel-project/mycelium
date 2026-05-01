@@ -51,4 +51,10 @@ class NodeUseCase {
       );
     }
   }
+
+  bool hasChildren(int nodeId) {
+      // Only looking in cache because we suppose that if we have access to a node we have fetched its subtree
+    return nodeRepository.nodeCache.values
+    .any((n) => n.parentId == nodeId);
+  }
 }

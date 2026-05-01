@@ -8,6 +8,7 @@ import 'package:mycelium/data/repositories/node_repository.dart';
 import 'package:mycelium/data/repositories/review_repository.dart';
 import 'package:mycelium/data/services/node_service.dart';
 import 'package:mycelium/domain/cloze_mode.dart';
+import 'package:mycelium/domain/node_usecase.dart';
 import 'package:mycelium/domain/review_usecase.dart';
 
 class MdEditorViewModel extends ChangeNotifier {
@@ -23,6 +24,7 @@ class MdEditorViewModel extends ChangeNotifier {
   bool hasSelection = false;
 
   final ReviewUseCase reviewUseCase;
+  final NodeUseCase nodeUseCase;
   TextSelection? selection;
 
   String? uiMessage;
@@ -36,6 +38,7 @@ class MdEditorViewModel extends ChangeNotifier {
     required this.nodeRepository,
     required this.reviewUseCase,
     required this.reviewRepository,
+    required this.nodeUseCase,
   }) {
     nodeStore.addListener(_onNodeStoreChanged);
     _onNodeStoreChanged();
@@ -131,15 +134,16 @@ class MdEditorViewModel extends ChangeNotifier {
     final nodeId = node?.id;
     final dismiss = dismissState;
     if (dismiss != null && collectionId != null && nodeId != null) {
-      final result = await nodeRepository.updateNodeDismiss(collectionId, nodeId, !dismiss);
-      result.fold(
-        (err) => null,
-        (updatedNode) => node = updatedNode,
+      final result = await nodeRepository.updateNodeDismiss(
+        collectionId,
+        nodeId,
+        !dismiss,
       );
+      result.fold((err) => null, (updatedNode) => node = updatedNode);
       notifyListeners();
     }
   }
-  
+
   bool isCurrentNodeSpore() {
     if (node != null) {
       final type = nodeRepository.getNodeTypeSync(node!.type);
@@ -199,6 +203,12 @@ class MdEditorViewModel extends ChangeNotifier {
     content = value;
     isDirty = true;
     notifyListeners();
+  }
+
+  bool hasChildren() {
+    final currentNode = node;
+    if (currentNode == null) return false;
+    return nodeUseCase.hasChildren(currentNode.id);
   }
 
   Future<void> saveContent() async {

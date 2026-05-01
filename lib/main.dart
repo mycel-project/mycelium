@@ -126,6 +126,7 @@ void main() async {
             reviewUseCase: reviewUseCase,
             reviewRepository: reviewRepository,
             reviewStore: reviewStore,
+            nodeUseCase: nodeUseCase,
           ),
         ),
         ChangeNotifierProvider(create: (_) => reviewStore),
