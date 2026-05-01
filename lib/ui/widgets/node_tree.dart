@@ -5,8 +5,10 @@ import "package:mycelium/data/models/node.dart";
 import 'package:provider/provider.dart';
 import 'package:collection/collection.dart';
 
+import 'package:flutter_svg/flutter_svg.dart';
 
-/// ClaudeAI used to handle tree building and layouting, is a bit hacky, especially for guide line when expanding element
+
+/// Based on ClaudAI to handle tree building and layouting, is a bit hacky, especially for guide line when expanding element, maybe my manual modifications make it even more hacky ?
 class NodeTree extends StatefulWidget {
   final List<Node> nodes;
   final void Function(int id)? clickCallback;
@@ -68,6 +70,9 @@ class _NodeTreeState extends State<NodeTree> {
         TreeSliver(
           tree: _tree,
           controller: controller,
+          toggleAnimationStyle: AnimationStyle(
+            duration: Duration.zero, // Disable animation due to a bug in the first subtree animation
+          ),
           treeNodeBuilder: (
             BuildContext context,
             TreeSliverNode<dynamic> node,
@@ -79,13 +84,13 @@ class _NodeTreeState extends State<NodeTree> {
             final isSporeNode = widget.isSpore?.call(typedNode) ?? false;
             final depth = _getDepth(node);
 
-            return Transform.translate(     
-              offset: Offset(-(depth * 10.0), 0),
+            return Transform.translate(
+              offset: Offset(-(depth * 10.0)+5, 0), // To modify floor spacing, adjust the +int here (nodeTree global offset), and adjust 2 and 3 too
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   ...List.generate(depth, (i) => SizedBox(
-                      width: 30,
+                      width: 30, // 2
                       child: Center(
                         child: Container(
                           width: 1,
@@ -93,36 +98,42 @@ class _NodeTreeState extends State<NodeTree> {
                         ),
                       ),
                   )),
+                  if (!isSporeNode)
                   SizedBox(
-                    width: 30,
-                    child: hasChildren
-                    ? InkWell(
-                      borderRadius: BorderRadius.circular(20),
-                      onTap: () => setState(() => controller.toggleNode(node)),
-                      child: Center(
-                        child: AnimatedRotation(
-                          turns: node.isExpanded ? 0.25 : 0,
-                          duration: const Duration(milliseconds: 200),
-                          child: const Icon(
-                            Icons.chevron_right,
-                            size: 20,
+                    width: 40,
+                    child: Transform.translate(
+                      offset: const Offset(-5, 0), // 3
+                      child: hasChildren
+                      ? InkWell(
+                        borderRadius: BorderRadius.circular(20),
+                        onTap: () => setState(() => controller.toggleNode(node)),
+                        child: Center(
+                          child: AnimatedRotation(
+                            turns: node.isExpanded ? 0.25 : 0,
+                            duration: const Duration(milliseconds: 200),
+                            child: SvgPicture.asset(
+                              'assets/icons/triangle_full.svg',
+                              width: 12,
+                              height: 12,
+                            ),
+                          ),
+                        ),
+                      )
+                      : InkWell(
+                        borderRadius: BorderRadius.circular(20),
+                        child: Center(
+                          child: AnimatedRotation(
+                            turns: node.isExpanded ? 0.25 : 0,
+                            duration: const Duration(milliseconds: 200),
+                            child: SvgPicture.asset(
+                              'assets/icons/triangle_empty.svg',
+                              width: 12,
+                              height: 12,
+                            ),
                           ),
                         ),
                       ),
-                    )
-                    :
-                    isSporeNode
-                    ?
-                    const SizedBox()
-                    :
-                    InkWell(
-                      borderRadius: BorderRadius.circular(20),
-                      child: Icon(
-                        Icons.chevron_right,
-                        size: 20,
-                        color: Colors.grey.withValues(alpha: 0.5),
-                      ),
-                    )
+                    ),
                   ),
                   Expanded(
                     child: GestureDetector(
@@ -138,27 +149,23 @@ class _NodeTreeState extends State<NodeTree> {
                             Navigator.pop(context);
                           },
                           child: Container(
-                            alignment: Alignment.centerLeft,
-                            padding: const EdgeInsets.symmetric(horizontal: 8),
                             decoration: BoxDecoration(
-                              color: 
-                              isSelected
+                              color: isSelected
                               ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.1)
-                              : isSporeNode ?
-                              Theme.of(context).colorScheme.primary.withValues(alpha: 0)
-                              :
-                              Colors.transparent,
+                              : Colors.transparent,
                             ),
-                            child: Text(
-                              formatNodeTitle(typedNode.content?['0']),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                color: typedNode.typeData?["dismiss"] == true 
-                                ?
-                                Colors.grey.withValues(alpha: 0.5)
-                                :
-                                Theme.of(context).textTheme.bodyMedium?.color,
+                            alignment: Alignment.centerLeft,
+                            child: Transform.translate(
+                              offset: const Offset(10, 0),
+                                child: Text(
+                                  formatNodeTitle(typedNode.content?['0']),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    color: typedNode.typeData?["dismiss"] == true
+                                    ? Colors.grey.withValues(alpha: 0.5)
+                                    : Theme.of(context).textTheme.bodyMedium?.color,
+                                  ),
                               ),
                             ),
                           ),
