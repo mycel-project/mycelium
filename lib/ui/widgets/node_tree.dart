@@ -97,15 +97,16 @@ class _NodeTreeState extends State<NodeTree> {
 
                 return Transform.translate(
                   offset: Offset(
-                    -(depth * 10.0) + 5,
+                    -(depth * 10.0),
                     0,
-                  ), // To modify floor spacing, adjust the +int here (nodeTree global offset), and adjust 2 and 3 too
+                  ), 
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       ...List.generate(
                         depth,
-                        (i) => SizedBox(
+                        (i) => Container(
+                          padding: EdgeInsetsGeometry.only(left: 10), // To modify floor spacing, adjust the int here, and adjust 2 and 3 too
                           width: 30, // 2
                           child: Center(
                             child: Container(
@@ -121,7 +122,7 @@ class _NodeTreeState extends State<NodeTree> {
                         SizedBox(
                           width: 40,
                           child: Transform.translate(
-                            offset: const Offset(-5, 0), // 3
+                            offset: const Offset(-0, 0), // 3
                             child: hasChildren
                                 ? InkWell(
                                     borderRadius: BorderRadius.circular(20),
@@ -152,65 +153,68 @@ class _NodeTreeState extends State<NodeTree> {
                                       height: 12,
                                       colorFilter: typedNode.typeData?["dismiss"] == true
                                       ? ColorFilter.mode(Colors.grey.withValues(alpha: 0.8), BlendMode.srcIn)
-                                          : null,
-                                    ),
-                                  ),
-                          ),
-                        ),
-                      Expanded(
-                        child: GestureDetector(
-                          onLongPressStart: (details) {
-                            widget.longPressCallback?.call(
-                              typedNode.id,
-                              details,
-                            );
-                          },
-                          child: Material(
-                            color: Colors.transparent,
-                            child: InkWell(
-                              onTap: () {
-                                widget.clickCallback?.call(typedNode.id);
-                                FocusManager.instance.primaryFocus?.unfocus();
-                                Navigator.pop(context);
-                              },
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  color: isSelected
-                                      ? Theme.of(context).colorScheme.primary
-                                            .withValues(alpha: 0.1)
-                                      : Colors.transparent,
-                                ),
-                                alignment: Alignment.centerLeft,
-                                child: Transform.translate(
-                                  offset: const Offset(10, 0),
-                                  child: Text(
-                                    formatNodeTitle(typedNode.content?['0']),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: TextStyle(
-                                      color:
-                                          typedNode.typeData?["dismiss"] == true
-                                          ? Colors.grey.withValues(alpha: 0.5)
-                                          : Theme.of(
-                                              context,
-                                            ).textTheme.bodyMedium?.color,
+                                      : null,
                                     ),
                                   ),
                                 ),
                               ),
-                            ),
+                              Expanded(
+                                child: Padding(
+                                  padding: isSporeNode ? EdgeInsetsGeometry.only(left: 0) : EdgeInsetsGeometry.only(left: 0),
+                                  child: GestureDetector(
+                                    onLongPressStart: (details) {
+                                      widget.longPressCallback?.call(
+                                        typedNode.id,
+                                        details,
+                                      );
+                                    },
+                                    child: Material(
+                                      color: Colors.transparent,
+                                      child: InkWell(
+                                        onTap: () {
+                                          widget.clickCallback?.call(typedNode.id);
+                                          FocusManager.instance.primaryFocus?.unfocus();
+                                          Navigator.pop(context);
+                                        },
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                            color: isSelected
+                                            ? Theme.of(context).colorScheme.primary
+                                            .withValues(alpha: 0.1)
+                                            : Colors.transparent,
+                                          ),
+                                          alignment: Alignment.centerLeft,
+                                          child: Transform.translate(
+                                            offset: const Offset(10, 0),
+                                            child: Text(
+                                              formatNodeTitle(typedNode.content?['0']),
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                              style: TextStyle(
+                                                color:
+                                                typedNode.typeData?["dismiss"] == true
+                                                ? Colors.grey.withValues(alpha: 0.5)
+                                                : Theme.of(
+                                                  context,
+                                                ).textTheme.bodyMedium?.color,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
-                        ),
-                      ),
-                    ],
-                  ),
+                        );
+                      },
+                    ),
+                  ],
                 );
-              },
-        ),
-      ],
-    );
-  }
-}
+              }
+            }
 
 bool isSubtreeDismissed(TreeSliverNode node, bool Function(Node)? isSpore) {
   final typedNode = node.content as Node;
