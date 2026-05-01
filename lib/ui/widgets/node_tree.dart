@@ -93,6 +93,7 @@ class _NodeTreeState extends State<NodeTree> {
                 final hasChildren = node.children.isNotEmpty;
                 final isSporeNode = widget.isSpore?.call(typedNode) ?? false;
                 final depth = _getDepth(node);
+                final bool allDismissed = hasChildren && isSubtreeDismissed(node, widget.isSpore);
 
                 return Transform.translate(
                   offset: Offset(
@@ -137,6 +138,9 @@ class _NodeTreeState extends State<NodeTree> {
                                           'assets/icons/triangle_full.svg',
                                           width: 12,
                                           height: 12,
+                                          colorFilter: allDismissed
+                                          ? ColorFilter.mode(Colors.grey.withValues(alpha: 0.8), BlendMode.srcIn)
+                                          : null,
                                         ),
                                       ),
                                     ),
@@ -146,6 +150,9 @@ class _NodeTreeState extends State<NodeTree> {
                                       'assets/icons/triangle_empty.svg',
                                       width: 12,
                                       height: 12,
+                                      colorFilter: typedNode.typeData?["dismiss"] == true
+                                      ? ColorFilter.mode(Colors.grey.withValues(alpha: 0.8), BlendMode.srcIn)
+                                          : null,
                                     ),
                                   ),
                           ),
@@ -203,6 +210,21 @@ class _NodeTreeState extends State<NodeTree> {
       ],
     );
   }
+}
+
+bool isSubtreeDismissed(TreeSliverNode node, bool Function(Node)? isSpore) {
+  final typedNode = node.content as Node;
+  final fragmentChildren = node.children
+      .where((c) => isSpore?.call(c.content as Node) == false)
+      .toList();
+
+  // Que des spores (ou aucun enfant) : grisé si le nœud est dismiss OU s'il n'a que des spores
+  if (fragmentChildren.isEmpty) {
+    final hasOnlySpores = node.children.isNotEmpty;
+    return hasOnlySpores || typedNode.typeData?["dismiss"] == true;
+  }
+
+  return fragmentChildren.every((c) => isSubtreeDismissed(c, isSpore));
 }
 
 String formatNodeTitle(String? raw) {
