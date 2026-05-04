@@ -95,7 +95,7 @@ class MdEditorViewModel extends ChangeNotifier {
   bool _isUpdatingCursor = false;
   bool get isUpdatingCursor => _isUpdatingCursor;
 
-  bool _activeKeyobard = true;
+  bool _activeKeyobard = false;
   bool get activeKeyboard => _activeKeyobard;
 
   void toggleKeyboard() {
@@ -220,6 +220,21 @@ class MdEditorViewModel extends ChangeNotifier {
       notifyListeners();
       isDirty = false;
     }
+  }
+  int? targetCursorPosition; // used to move cursor manually
+
+  void deleteBeforeCursor() {
+    final pos = cursorPosition;
+    if (pos == null) return;
+    targetCursorPosition = 0;
+    updateContent(content.substring(pos));
+  }
+
+  void deleteAfterCursor() {
+    final pos = cursorPosition;
+    if (pos == null) return;
+    targetCursorPosition = pos;
+    updateContent(content.substring(0, pos));
   }
 
   void updateContent(String value) {

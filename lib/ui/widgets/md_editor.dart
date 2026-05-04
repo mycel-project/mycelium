@@ -34,6 +34,8 @@ class _MdEditorState extends State<MdEditor> {
     });
 
     vm.addListener(_syncFromVm);
+
+    _syncFromVm();
   }
 
   final ScrollController scrollController = ScrollController();
@@ -63,9 +65,30 @@ class _MdEditorState extends State<MdEditor> {
     if (vm.isUpdatingSelection || vm.isUpdatingCursor) return;
 
     if (markdownController.text != vm.content) {
-      final selection = markdownController.selection;
-      markdownController.text = vm.content;
-      markdownController.selection = selection;
+      final target = vm.targetCursorPosition;
+      markdownController.value = TextEditingValue(
+        text: vm.content,
+        selection: TextSelection.collapsed(
+          offset:
+              target ??
+              markdownController.selection.baseOffset.clamp(
+                0,
+                vm.content.length,
+              ),
+        ),
+      );
+      if (target != null) {
+        vm.targetCursorPosition = null;
+        final cursorOffset =
+            target *
+            scrollController.position.maxScrollExtent /
+            vm.content.length;
+        scrollController.animateTo(
+          cursorOffset,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
+      }
     }
   }
 
@@ -123,7 +146,8 @@ class _MdEditorState extends State<MdEditor> {
                             focusNode: focusNode,
                             readOnly: vm.isLocked() == true
                                 ? true
-                                : !vm.activeKeyboard && !vm.isCurrentNodeSpore(),
+                                : !vm.activeKeyboard &&
+                                      !vm.isCurrentNodeSpore(),
                             showCursor: true,
                             onTap: vm.isLocked() ? null : vm.editMode,
                             maxLines: null,
@@ -243,7 +267,9 @@ class _MdEditorState extends State<MdEditor> {
                             }
                             vm.toggleKeyboard();
                           },
-                          child: vm.activeKeyboard ?  const Icon(Icons.keyboard_hide) : const Icon(Icons.keyboard),
+                          child: vm.activeKeyboard
+                              ? const Icon(Icons.keyboard_hide)
+                              : const Icon(Icons.keyboard),
                         ),
                         FloatingActionButton(
                           child: Icon(Icons.more_vert),
@@ -263,6 +289,7 @@ class _MdEditorState extends State<MdEditor> {
                                           'Delete all content before cursor',
                                         ),
                                         onTap: () {
+                                          vm.deleteBeforeCursor();
                                           Navigator.pop(context);
                                         },
                                       ),
@@ -276,6 +303,7 @@ class _MdEditorState extends State<MdEditor> {
                                           'Delete all content after cursor',
                                         ),
                                         onTap: () {
+                                          vm.deleteAfterCursor();
                                           Navigator.pop(context);
                                         },
                                       ),
