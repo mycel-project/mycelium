@@ -24,11 +24,22 @@ class NodeService {
     return await api.delete("/collections/$collectionId/nodes/$nodeId");
   }
 
-  Future<ApiResult<String>> fetchRessourceFromUrl(int collectionId, String url) async {
+  Future<ApiResult<String>> fetchRessourceFromUrl(
+    int collectionId,
+    String url,
+  ) async {
     return await api.post("/collections/$collectionId/nodes", {
-        "type": "url",
-        "url": url
+      "type": "url",
+      "url": url,
     });
+  }
+
+  Future<ApiResult<String>> updateNode(
+    int collectionId,
+    int nodeId,
+    Map<String, dynamic> data,
+  ) async {
+    return await api.patch("/collections/$collectionId/nodes/$nodeId", data);
   }
 
   Future<ApiResult<String>> updateNodeDismiss(

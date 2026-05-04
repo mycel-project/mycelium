@@ -1,8 +1,11 @@
 import 'package:mycelium/core/stores/node_store.dart';
+import 'package:mycelium/data/models/node_data.dart';
+import 'package:mycelium/data/models/node_update.dart';
 import 'package:mycelium/data/repositories/node_repository.dart';
 import 'package:mycelium/data/services/node_service.dart';
 import 'package:mycelium/core/either.dart';
 import 'package:mycelium/domain/navigation_usecase.dart';
+import 'package:mycelium/data/models/node.dart';
 
 class NodeUseCase {
   NodeService nodeService;
@@ -53,8 +56,34 @@ class NodeUseCase {
   }
 
   bool hasChildren(int nodeId) {
-      // Only looking in cache because we suppose that if we have access to a node we have fetched its subtree
-    return nodeRepository.nodeCache.values
-    .any((n) => n.parentId == nodeId);
+    // Only looking in cache because we suppose that if we have access to a node we have fetched its subtree
+    return nodeRepository.nodeCache.values.any((n) => n.parentId == nodeId);
+  }
+
+  Future<String?> getNodeTitle(int colId, int nodeId) async {
+    final result = await nodeRepository.getNode(colId, nodeId);
+    return result.fold(
+      (error) {
+        print("Can't get node title: $error");
+      },
+      (node) {
+        final title = node.data?.title;
+        return title;
+      },
+    );
+  }
+
+  Future<Node?> updateNodeTitle(int colId, int nodeId, String title) async {
+    final data = NodeUpdate(data: NodeData(title: title == "" ? null : title)).toJson();
+    final result = await nodeRepository.updateNode(colId, nodeId, data);
+    return result.fold(
+      (error) {
+        print("Can't update node title: $error");
+        return null;
+      },
+      (node) {
+        return node;
+      },
+    );
   }
 }

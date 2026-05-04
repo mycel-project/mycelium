@@ -199,6 +199,19 @@ class NodeRepository {
     return _handleUpdateResult(result, nodeId);
   }
 
+  Future<Either<NodeUpdateError, Node>> updateNode(
+    int collectionId,
+    int nodeId,
+    Map<String, dynamic> data,
+  ) async {
+    final result = await nodeService.updateNode(
+      collectionId,
+      nodeId,
+      data,
+    );
+    return _handleUpdateResult(result, nodeId);
+  }
+
   Future<Either<NodeError, Map<int, NodeType>>> getNodeTypes() async {
     if (_typesCache != null) return Right(_typesCache!);
     final result = await nodeService.getNodeTypes();

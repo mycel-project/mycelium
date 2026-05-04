@@ -151,6 +151,10 @@ class HomePage extends StatelessWidget {
                                 value: 'delete',
                                 child: Text("Delete"),
                               ),
+                              PopupMenuItem(
+                                value: 'rename',
+                                child: Text("Rename"),
+                              ),
                             ],
                           );
                           if (selected == 'delete') {
@@ -164,6 +168,15 @@ class HomePage extends StatelessWidget {
                             if (confirm == true) {
                               await vm.deleteNode(nodeId);
                             }
+                          } else if (selected == "rename") {
+                            final name = await vm.getNodeTitle(nodeId) ?? "";
+                            final newName = await showInputDialog(
+                              context: context,
+                              title: "Enter new title",
+                              placeholder: "Node title",
+                              initialValue: name,
+                            );
+                            vm.updateNodeTitle(nodeId, newName ?? "");
                           }
                         },
                   ),
@@ -206,7 +219,6 @@ class _DrawerHeader extends StatelessWidget {
               _iconButton(context, Icons.search, () {
                 print("salut");
                 Navigator.pop(context);
-
               }),
               const SizedBox(width: 8),
               PopupMenuButton<String>(

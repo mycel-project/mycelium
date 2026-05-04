@@ -5,9 +5,10 @@ Future<String?> showInputDialog({
   required BuildContext context,
   required String title,
   String? placeholder,
+  String? initialValue = "",
   TextInputType keyboardType = TextInputType.text,
 }) async {
-  final controller = TextEditingController();
+  final controller = TextEditingController(text: initialValue);
 
   return showDialog<String>(
     context: context,
