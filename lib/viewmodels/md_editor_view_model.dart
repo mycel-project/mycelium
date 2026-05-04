@@ -29,6 +29,8 @@ class MdEditorViewModel extends ChangeNotifier {
 
   String? uiMessage;
 
+  int? cursorPosition;
+
   final ReviewRepository reviewRepository;
 
   MdEditorViewModel({
@@ -90,10 +92,31 @@ class MdEditorViewModel extends ChangeNotifier {
   bool _isUpdatingSelection = false;
   bool get isUpdatingSelection => _isUpdatingSelection;
 
-  void updateSelection(TextSelection newSelection) {
+  bool _isUpdatingCursor = false;
+  bool get isUpdatingCursor => _isUpdatingCursor;
+
+  bool _activeKeyobard = true;
+  bool get activeKeyboard => _activeKeyobard;
+
+  void toggleKeyboard() {
+    _activeKeyobard = !_activeKeyobard;
+    notifyListeners();
+  }
+
+  void onCursorChanged(int? position) {
+    _isUpdatingCursor = true;
+    cursorPosition = (position == null || position < 0) ? null : position;
+    print('onCursorChanged: $position, hasCursor: $hasCursor');
+    notifyListeners();
+    _isUpdatingCursor = false;
+  }
+
+  bool get hasCursor => cursorPosition != null;
+
+  void updateSelection(TextSelection? newSelection) {
     _isUpdatingSelection = true;
     selection = newSelection;
-    hasSelection = !selection!.isCollapsed;
+    hasSelection = newSelection != null && !newSelection.isCollapsed;
     notifyListeners();
     _isUpdatingSelection = false;
   }
