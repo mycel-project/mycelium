@@ -34,8 +34,9 @@ class _MdEditorState extends State<MdEditor> {
     });
 
     vm.addListener(_syncFromVm);
-
-    _syncFromVm();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+        _syncFromVm();
+    });
   }
 
   final ScrollController scrollController = ScrollController();
@@ -309,8 +310,18 @@ class _MdEditorState extends State<MdEditor> {
                                       ),
                                       ListTile(
                                         leading: Icon(Icons.delete),
-                                        title: Text('Delete node'),
-                                        onTap: () {
+                                        title: Text('Delete this fragment'),
+                                        onTap: () async {
+                                          final confirm = await ConfirmationDialog.show(
+                                            context,
+                                            title: "Delete confirmation",
+                                            text: "Delete this fragment and all its children?",
+                                            destructive: true,
+                                          );
+                                          if (!context.mounted) return;
+                                          if (confirm == true) {
+                                            await vm.deleteNode();
+                                          }
                                           Navigator.pop(context);
                                         },
                                       ),

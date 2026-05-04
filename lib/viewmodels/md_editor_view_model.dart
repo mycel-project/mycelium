@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mycelium/core/either.dart';
 import 'package:mycelium/core/errors/node_update_errors.dart';
+import 'package:mycelium/core/stores/collection_store.dart';
 import 'package:mycelium/core/stores/node_store.dart';
 import 'package:mycelium/core/stores/review_store.dart';
 import 'package:mycelium/data/models/node.dart';
@@ -17,6 +18,7 @@ class MdEditorViewModel extends ChangeNotifier {
   NodeService nodeService;
   NodeStore nodeStore;
   ReviewStore reviewStore;
+  CollectionStore collectionStore;
   NodeRepository nodeRepository;
 
   bool isAnswerVisible = false;
@@ -41,6 +43,7 @@ class MdEditorViewModel extends ChangeNotifier {
     required this.reviewUseCase,
     required this.reviewRepository,
     required this.nodeUseCase,
+    required this.collectionStore,
   }) {
     nodeStore.addListener(_onNodeStoreChanged);
     _onNodeStoreChanged();
@@ -119,6 +122,14 @@ class MdEditorViewModel extends ChangeNotifier {
     hasSelection = newSelection != null && !newSelection.isCollapsed;
     notifyListeners();
     _isUpdatingSelection = false;
+  }
+
+  Future<void> deleteNode() async {
+    final colId = collectionStore.currentCollection?.id;
+    final node = this.node;
+    if (colId == null || node == null) return;
+    await nodeUseCase.deleteNode(colId, node.id);
+    notifyListeners();
   }
 
   Future<void> createExtract(String extractType) async {
@@ -221,6 +232,7 @@ class MdEditorViewModel extends ChangeNotifier {
       isDirty = false;
     }
   }
+
   int? targetCursorPosition; // used to move cursor manually
 
   void deleteBeforeCursor() {

@@ -73,8 +73,20 @@ class NodeUseCase {
     );
   }
 
+  Future<void> deleteNode(int colId, int nodeId) async {
+    final result = await nodeRepository.deleteNode(colId, nodeId);
+    result.fold((err) {}, (deletedIds) {
+      if (deletedIds.contains(nodeStore.currentNode?.id)) {
+        nodeStore.selectNode(null);
+      }
+      navigationUseCase.onNodesDeleted(deletedIds);
+    });
+  }
+
   Future<Node?> updateNodeTitle(int colId, int nodeId, String title) async {
-    final data = NodeUpdate(data: NodeData(title: title == "" ? null : title)).toJson();
+    final data = NodeUpdate(
+      data: NodeData(title: title == "" ? null : title),
+    ).toJson();
     final result = await nodeRepository.updateNode(colId, nodeId, data);
     return result.fold(
       (error) {
