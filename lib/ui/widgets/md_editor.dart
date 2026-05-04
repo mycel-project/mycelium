@@ -110,6 +110,7 @@ class _MdEditorState extends State<MdEditor> {
                             onTap: vm.isLocked() ? null : vm.editMode,
                             maxLines: null,
                             expands: false,
+                            keyboardType: TextInputType.multiline,
                             controller: markdownController,
                             onChanged: (value) {
                               vm.updateContent(value);

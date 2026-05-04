@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:mycelium/ui/render/blockquote_renderer.dart';
-import 'package:mycelium/ui/render/registry.dart';
+import "package:markdown_mycel_fork/markdown.dart";
+import 'package:mycelium/utils/markdown_debug.dart';
 
 class MarkdownController extends TextEditingController {
-  final blockRegistry = BlockRegistry();
-  final blockQuoteRenderer = BlockQuoteRenderer();
+  // Never change text or value here, it's just for visual rendering
 
   @override
   TextSpan buildTextSpan({
@@ -15,50 +14,27 @@ class MarkdownController extends TextEditingController {
     final baseStyle =
         style ?? const TextStyle(fontSize: 16, color: Colors.black);
 
-    final parts = <InlineSpan>[];
-    final lines = text.split('\n');
+    final (markdown, ast) = markdownToFormattedMarkdown(
+      text,
+            blockSyntaxes: [
+        // No EmptyBlockSyntax() to convert it as paragraph and make it editable
+        HeaderSyntax(),
+        const BlockquoteSyntax(),
+        ParagraphSyntax(),
+      ], // Be careful with order, see block_parser.dart
+      inlineSyntaxes: [
+        // LineBreakSyntax(),
+        // EmphasisSyntax.asterisk(),
+        // CodeSyntax(),
+        // SoftLineBreakSyntax(),
+        // EscapeSyntax(),
+      ],
+      withDefaultBlockSyntaxes: false,
+      withDefaultInlineSyntaxes: false,
+    );
 
-    for (int i = 0; i < lines.length; i++) {
-      final rawLine = lines[i];
-
-      String line = "";
-      String quoteStart = "";
-
-      final match = RegExp(r'^(\s*>+\s*)').firstMatch(rawLine);
-
-      if (match != null) {
-        quoteStart = match.group(1)!;
-        line = rawLine.replaceFirst(RegExp(r'^\s*>+\s*'), '');
-      } else {
-        line = rawLine;
-      }
-
-      bool matched = false;
-      TextSpan built = const TextSpan(text: "");
-
-      for (final renderer in blockRegistry.renderers) {
-        if (renderer.canBuild(line)) {
-          built = renderer.build(line);
-          matched = true;
-          break;
-        }
-      }
-
-      if (!matched) {
-        built = TextSpan(text: line);
-      }
-
-      if (quoteStart.isEmpty) {
-        parts.add(built);
-      } else {
-        parts.add(blockQuoteRenderer.wrap(built, quoteStart));
-      }
-
-      if (i != lines.length - 1) {
-        parts.add(const TextSpan(text: '\n'));
-      }
-    }
-
-    return TextSpan(style: baseStyle, children: parts);
+//    printAst(ast);
+    
+    return TextSpan(children: markdown, style: baseStyle);
   }
 }
