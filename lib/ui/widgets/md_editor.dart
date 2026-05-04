@@ -293,8 +293,8 @@ class _MdEditorState extends State<MdEditor> {
                                             title: Text(
                                               'Delete all content before cursor',
                                             ),
-                                            onTap: () {
-                                              vm.deleteBeforeCursor();
+                                            onTap: () async {
+                                              await vm.deleteBeforeCursor();
                                               Navigator.pop(context);
                                             },
                                           ),
@@ -307,8 +307,8 @@ class _MdEditorState extends State<MdEditor> {
                                             title: Text(
                                               'Delete all content after cursor',
                                             ),
-                                            onTap: () {
-                                              vm.deleteAfterCursor();
+                                            onTap: () async {
+                                              await vm.deleteAfterCursor();
                                               Navigator.pop(context);
                                             },
                                           ),

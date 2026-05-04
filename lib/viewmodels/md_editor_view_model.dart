@@ -235,18 +235,20 @@ class MdEditorViewModel extends ChangeNotifier {
 
   int? targetCursorPosition; // used to move cursor manually
 
-  void deleteBeforeCursor() {
+  Future<void> deleteBeforeCursor() async {
     final pos = cursorPosition;
     if (pos == null) return;
     targetCursorPosition = 0;
     updateContent(content.substring(pos));
+    await saveContent();
   }
 
-  void deleteAfterCursor() {
+  Future<void> deleteAfterCursor() async {
     final pos = cursorPosition;
     if (pos == null) return;
     targetCursorPosition = pos;
     updateContent(content.substring(0, pos));
+    await saveContent();
   }
 
   void updateContent(String value) {
