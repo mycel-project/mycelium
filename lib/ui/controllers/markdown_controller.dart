@@ -24,8 +24,9 @@ class MarkdownController extends TextEditingController {
       ], // Be careful with order, see block_parser.dart
       inlineSyntaxes: [
         // LineBreakSyntax(),
-        // EmphasisSyntax.asterisk(),
-        // CodeSyntax(),
+        LinkSyntax(),
+        EmphasisSyntax.asterisk(),
+        CodeSyntax(),
         // SoftLineBreakSyntax(),
         // EscapeSyntax(),
       ],
@@ -33,7 +34,7 @@ class MarkdownController extends TextEditingController {
       withDefaultInlineSyntaxes: false,
     );
 
-//    printAst(ast);
+    printAst(ast);
     
     return TextSpan(children: markdown, style: baseStyle);
   }
