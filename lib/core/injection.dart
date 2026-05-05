@@ -63,8 +63,10 @@ Future<void> setup() async {
   
   // ViewModels
   sl.registerFactory(() => CollectionsViewModel(sl(), sl(), sl()));
-  sl.registerFactory(() => HomeViewModel(sl(), sl(), sl(), sl(), sl(), sl(), sl(),  sl(), sl()));
+  //// should reduce dependencies ?
+  sl.registerFactory(() => HomeViewModel(sl(), sl(), sl(), sl(), sl(), sl(), sl(),  sl(), sl())); 
   sl.registerFactory(() => ApiViewModel(sl(), sl(), sl()));
+  //// should reduce dependencies ?
   sl.registerFactory(() => MdEditorViewModel(sl(), sl(), sl(), sl(), sl(), sl(), sl(), sl()));
   sl.registerFactory(() => LaunchReviewButtonViewmodel(sl()));
 }
