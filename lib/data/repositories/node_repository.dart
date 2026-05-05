@@ -26,11 +26,15 @@ class NodeRepository {
     _nodeCache.clear();
   }
 
+  void clearTypesCache() {
+    _typesCache = {};
+  }
+
   Future<Either<RessourceError, Node>> fetchRessourceFromUrl(
     int colId,
     String url,
   ) async {
-    final result = await  nodeService.fetchRessourceFromUrl(colId, url);
+    final result = await nodeService.fetchRessourceFromUrl(colId, url);
 
     if (result is ApiError) {
       if (["UNKNOWN_RESSOURCE_TYPE", "INVALID_URL"].contains(result.code)) {
@@ -204,11 +208,7 @@ class NodeRepository {
     int nodeId,
     Map<String, dynamic> data,
   ) async {
-    final result = await nodeService.updateNode(
-      collectionId,
-      nodeId,
-      data,
-    );
+    final result = await nodeService.updateNode(collectionId, nodeId, data);
     return _handleUpdateResult(result, nodeId);
   }
 

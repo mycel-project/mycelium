@@ -9,6 +9,7 @@ import 'package:mycelium/data/repositories/review_repository.dart';
 import 'package:mycelium/domain/api_status.dart';
 import 'package:mycelium/domain/init_api_usecase.dart';
 import 'package:mycelium/domain/init_collections_usecase.dart';
+import 'package:mycelium/domain/init_data_usecase.dart';
 import 'package:mycelium/ui/pages/api_config_page.dart';
 import 'package:mycelium/viewmodels/api_viewmodel.dart';
 import 'package:mycelium/viewmodels/collections_viewmodel.dart';
@@ -29,9 +30,7 @@ void main() async {
 
   final apiStatus = await sl<InitApiUseCase>().execute();
   if (apiStatus == ApiStatus.reachable) {
-    await sl<InitCollectionsUseCase>().execute();
-    await sl<NodeRepository>().getNodeTypes();
-    await sl<ReviewRepository>().getClozeRegex();
+    await sl<InitDataUseCase>().execute();
   }
 
   runApp(

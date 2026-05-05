@@ -10,6 +10,7 @@ class UpdateApiUrlUseCase {
   UpdateApiUrlUseCase(this.apiStore, this.apiPreferences, this.checkApiUseCase);
 
   Future<void> execute(String newUrl) async {
+    if (newUrl == apiStore.baseUrl) return;
     await apiPreferences.saveBaseUrl(newUrl);
     apiStore.setBaseUrl(newUrl);
   }

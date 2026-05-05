@@ -78,11 +78,8 @@ class _ApiConfigPageState extends State<ApiConfigPage> {
                           suffixIcon: IconButton(
                             icon: const Icon(Icons.arrow_circle_right_outlined),
                             onPressed: () async {
-                              await vm.setUrl(controller.text);
-                              if (store.apiStatus == ApiStatus.reachable) {
-                                if (!context.mounted) return;
-                                FocusScope.of(context).unfocus();
-                              }
+                              vm.setUrl(controller.text);
+                              FocusScope.of(context).unfocus();
                             },
                           ),
                         ),

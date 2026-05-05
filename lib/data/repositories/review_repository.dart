@@ -78,4 +78,8 @@ class ReviewRepository {
   String? getClozeRegexSync() {
     return _clozeRegex;
   }
+
+  void clearClozeRegex() {
+    _clozeRegex = null;
+  }
 }

@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 
 class CollectionsPage extends StatelessWidget {
   const CollectionsPage({super.key});
+
   
   @override
   Widget build(BuildContext context) {
@@ -61,6 +62,14 @@ class CollectionsList extends StatefulWidget {
 }
 
 class _CollectionsListState extends State<CollectionsList> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<CollectionsViewModel>().reloadIfEmpty();
+    });
+  }
+  
   @override
   Widget build(BuildContext context) {
     final vm = context.watch<CollectionsViewModel>();

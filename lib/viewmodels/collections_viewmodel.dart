@@ -22,6 +22,12 @@ class CollectionsViewModel extends ChangeNotifier {
 
   Collection? get currentCollection => collectionStore.currentCollection;
 
+  Future<void> reloadIfEmpty() async {
+    if (collections.isEmpty) {
+      await loadCollections();
+    }
+  }
+
   Future<void> loadCollections() async {
     collections = [];
     notifyListeners();

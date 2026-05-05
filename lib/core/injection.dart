@@ -17,6 +17,7 @@ import 'package:mycelium/data/services/review_service.dart';
 import 'package:mycelium/domain/app_coordinator.dart';
 import 'package:mycelium/domain/init_api_usecase.dart';
 import 'package:mycelium/domain/init_collections_usecase.dart';
+import 'package:mycelium/domain/init_data_usecase.dart';
 import 'package:mycelium/domain/navigation_usecase.dart';
 import 'package:mycelium/domain/node_usecase.dart';
 import 'package:mycelium/domain/check_api_usecase.dart';
@@ -60,13 +61,18 @@ Future<void> setup() async {
   sl.registerSingleton(ReviewUseCase(sl(), sl(), sl(), sl()));
   sl.registerSingleton(NodeUseCase(sl(), sl(), sl(), sl()));
   sl.registerSingleton(AppCoordinator(sl(), sl(), sl(), sl()));
-  
+  sl.registerSingleton(InitDataUseCase(sl(), sl(), sl()));
+
   // ViewModels
   sl.registerFactory(() => CollectionsViewModel(sl(), sl(), sl()));
   //// should reduce dependencies ?
-  sl.registerFactory(() => HomeViewModel(sl(), sl(), sl(), sl(), sl(), sl(), sl(),  sl(), sl())); 
-  sl.registerFactory(() => ApiViewModel(sl(), sl(), sl()));
+  sl.registerFactory(
+    () => HomeViewModel(sl(), sl(), sl(), sl(), sl(), sl(), sl(), sl(), sl()),
+  );
+  sl.registerFactory(() => ApiViewModel(sl(), sl(), sl(), sl()));
   //// should reduce dependencies ?
-  sl.registerFactory(() => MdEditorViewModel(sl(), sl(), sl(), sl(), sl(), sl(), sl(), sl()));
+  sl.registerFactory(
+    () => MdEditorViewModel(sl(), sl(), sl(), sl(), sl(), sl(), sl(), sl()),
+  );
   sl.registerFactory(() => LaunchReviewButtonViewmodel(sl()));
 }
