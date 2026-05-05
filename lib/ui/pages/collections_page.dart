@@ -12,7 +12,15 @@ class CollectionsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: MyAppBar(titleText: "Collections manager"),
+      appBar: MyAppBar(
+        titleText: "Collections manager",
+        actions:[
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: () => context.read<CollectionsViewModel>().loadCollections(),
+          ),
+        ]
+      ),
       body: Padding(
         padding: const EdgeInsets.all(64),
         child: Column(
@@ -53,14 +61,6 @@ class CollectionsList extends StatefulWidget {
 }
 
 class _CollectionsListState extends State<CollectionsList> {
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-        context.read<CollectionsViewModel>().loadCollections();
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     final vm = context.watch<CollectionsViewModel>();

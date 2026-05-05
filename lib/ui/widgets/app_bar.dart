@@ -17,7 +17,10 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
       title: Text(titleText),
       backgroundColor: Theme.of(context).colorScheme.primary,
       foregroundColor: Colors.white,
-      actions: actions,
+      actions: actions == null ? null : [
+        ...actions!,
+        const SizedBox(width: 8),
+      ],
     );
   }
 

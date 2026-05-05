@@ -4,7 +4,6 @@ import 'package:mycelium/core/either.dart';
 import 'package:mycelium/core/errors/collection_errors.dart';
 import 'package:mycelium/data/api_result.dart';
 import 'package:mycelium/data/models/collection.dart';
-import 'package:mycelium/data/models/node.dart';
 import 'package:mycelium/data/services/collection_service.dart';
 
 class CollectionRepository {
@@ -14,7 +13,7 @@ class CollectionRepository {
 
   CollectionRepository(this.collectionService);
 
-  Map<int, Node> get collectionCache => Map.unmodifiable(_collectionCache);
+  Map<int, Collection> get collectionCache => Map.unmodifiable(_collectionCache);
 
   void clearCache() {
     _collectionCache.clear();

@@ -16,22 +16,21 @@ class CollectionsViewModel extends ChangeNotifier {
     this.collectionStore,
     this.collectionRepository,
     this.selectCollectionUseCase,
-  );
+  ) {
+    collections = collectionRepository.collectionCache.values.toList();
+  }
 
   Collection? get currentCollection => collectionStore.currentCollection;
 
-  Future<void> selectCollection(Collection collection) async {
-    await selectCollectionUseCase.execute(collection);
-  }
-
   Future<void> loadCollections() async {
+    collections = [];
     notifyListeners();
     final result = await collectionRepository.loadCollections();
     result.fold((error) => print("Can't load collections: ${error.message}"), (
-        data,
-      ) {
-        collections = data;
-        notifyListeners();
+      data,
+    ) {
+      collections = data;
+      notifyListeners();
     });
   }
 
@@ -39,10 +38,10 @@ class CollectionsViewModel extends ChangeNotifier {
     final result = await collectionRepository.createCollection(name);
 
     result.fold((error) => print("Can't create collection: ${error.message}"), (
-        data,
-      ) {
-        collections.add(data);
-        notifyListeners();
+      data,
+    ) {
+      collections.add(data);
+      notifyListeners();
     });
   }
 
@@ -64,10 +63,10 @@ class CollectionsViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setCollection(int id) {
+  Future<void> setCollection(int id) async {
     final candidates = collections.where((c) => c.id == id);
     if (candidates.isNotEmpty && currentCollection?.id != id) {
-      collectionStore.selectCollection(candidates.first);
+      await selectCollectionUseCase.execute(candidates.first);
     }
   }
 }
