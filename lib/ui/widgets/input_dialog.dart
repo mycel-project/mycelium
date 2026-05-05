@@ -23,6 +23,7 @@ Future<String?> showInputDialog({
           decoration: InputDecoration(
             hintText: placeholder,
           ),
+          onSubmitted: (value) => Navigator.pop(context, value),
         ),
         actions: [
           TextButton(

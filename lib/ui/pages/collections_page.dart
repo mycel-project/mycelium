@@ -86,6 +86,7 @@ class _CollectionsListState extends State<CollectionsList> {
               : null,
               onTap: () {
                 vm.setCollection(collection.id);
+                Navigator.pop(context);
               },
               onLongPress: () {
                 showModalBottomSheet(

@@ -96,7 +96,7 @@ class _ApiConfigPageState extends State<ApiConfigPage> {
                             Icon(
                               switch (store.apiStatus) {
                                 ApiStatus.unknown ||
-                                ApiStatus.emptyUrl => Icons.help,
+                                ApiStatus.emptyUrl => Icons.circle,
                                 ApiStatus.reachable => Icons.check,
                                 ApiStatus.unreachable => Icons.cancel,
                               },
