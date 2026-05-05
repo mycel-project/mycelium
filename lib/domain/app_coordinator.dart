@@ -3,7 +3,7 @@ import 'package:mycelium/core/stores/navigation_store.dart';
 import 'package:mycelium/core/stores/node_store.dart';
 import 'package:mycelium/data/repositories/node_repository.dart';
 
-/// Coordinates cross-cutting reactions to app-level state changes, such as invalidating caches, ...
+/// Coordinates cross-cutting reactions to app-level state changes, such as invalidating caches, ... withut notifying
 class AppCoordinator {
   final CollectionStore _collectionStore;
   final NodeRepository _nodeRepository;

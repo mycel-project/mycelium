@@ -35,16 +35,16 @@ class MdEditorViewModel extends ChangeNotifier {
 
   final ReviewRepository reviewRepository;
 
-  MdEditorViewModel({
-    required this.nodeService,
-    required this.nodeStore,
-    required this.reviewStore,
-    required this.nodeRepository,
-    required this.reviewUseCase,
-    required this.reviewRepository,
-    required this.nodeUseCase,
-    required this.collectionStore,
-  }) {
+  MdEditorViewModel(
+    this.nodeService,
+    this.nodeStore,
+    this.reviewStore,
+    this.nodeRepository,
+    this.reviewUseCase,
+    this.reviewRepository,
+    this.nodeUseCase,
+    this.collectionStore,
+  ) {
     nodeStore.addListener(_onNodeStoreChanged);
     _onNodeStoreChanged();
   }

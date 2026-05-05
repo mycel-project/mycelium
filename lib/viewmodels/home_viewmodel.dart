@@ -24,16 +24,16 @@ class HomeViewModel extends ChangeNotifier {
 
   bool noMoreReviewsFlag = false;
 
-  HomeViewModel({
-    required this.apiService,
-    required this.reviewStore,
-    required this.nodeUseCase,
-    required this.nodeStore,
-    required this.nodeRepository,
-    required this.collectionStore,
-    required this.navigationStore,
-    required this.navigationUseCase,
-  }) {
+  HomeViewModel(
+    this.apiService,
+    this.reviewStore,
+    this.nodeUseCase,
+    this.nodeStore,
+    this.nodeRepository,
+    this.collectionStore,
+    this.navigationStore,
+    this.navigationUseCase,
+  ) {
     reviewStore.addListener(_onReviewChanged);
     nodeStore.addListener(_checkHasParent);
   }

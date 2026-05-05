@@ -1,24 +1,17 @@
 import 'package:mycelium/core/stores/collection_store.dart';
-import 'package:mycelium/core/stores/node_store.dart';
 import 'package:mycelium/core/stores/review_store.dart';
 import 'package:mycelium/data/models/node.dart';
 import 'package:mycelium/data/repositories/review_repository.dart';
-import 'package:mycelium/data/services/review_service.dart';
 import 'package:mycelium/domain/cloze_mode.dart';
 import 'package:mycelium/domain/navigation_usecase.dart';
 
 class ReviewUseCase {
-  // Must pass trough review repository i guess
-  final ReviewService reviewService;
-  final NodeStore nodeStore;
   final ReviewStore reviewStore;
   final CollectionStore collectionStore;
   final ReviewRepository reviewRepository;
   final NavigationUseCase navigationUseCase;
 
   ReviewUseCase(
-    this.reviewService,
-    this.nodeStore,
     this.reviewStore,
     this.collectionStore,
     this.reviewRepository,

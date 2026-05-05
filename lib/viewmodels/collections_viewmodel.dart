@@ -1,33 +1,44 @@
 import 'package:flutter/material.dart';
-import 'package:mycelium/core/stores/api_store.dart';
+import 'package:mycelium/core/either.dart';
 import 'package:mycelium/core/stores/collection_store.dart';
 import 'package:mycelium/data/api_result.dart';
 import 'package:mycelium/data/models/collection.dart';
+import 'package:mycelium/data/repositories/collection_repository.dart';
 import 'package:mycelium/data/services/collection_service.dart';
+import 'package:mycelium/domain/select_collection_usecase.dart';
 
 class CollectionsViewModel extends ChangeNotifier {
-  final CollectionService service;
+  final CollectionService service; // To delete, use repo instead
   final CollectionStore collectionStore;
-  final ApiStore apiStore;
+  final CollectionRepository collectionRepository;
+  final SelectCollectionUseCase selectCollectionUseCase;
 
   List<Collection> collections = [];
 
-  CollectionsViewModel(this.service, this.collectionStore, this.apiStore);
+  CollectionsViewModel(
+    this.service,
+    this.collectionStore,
+    this.collectionRepository,
+    this.selectCollectionUseCase,
+  );
 
   Collection? get currentCollection => collectionStore.currentCollection;
 
-  Future<void> init() async {
+  Future<void> selectCollection(Collection collection) async {
+    await selectCollectionUseCase.execute(collection);
+  }
+
+  Future<void> loadCollections() async {
     collections = [];
     notifyListeners();
-
-    final result = await service.getCollections();
-
-    if (result is ApiSuccess<List<Collection>>) {
-      collections = result.data;
-      notifyListeners();
-    } else if (result is ApiError) {
-      print("Can't get collections: ${result.code}");
-    }
+    final result = await collectionRepository.loadCollections();
+    result.fold(
+      (error) => print("Can't load collections: ${error.message}"),
+      (data) {
+        collections = data;
+        notifyListeners();
+      },
+    );
   }
 
   Future<void> createCollection(String name) async {

@@ -7,19 +7,8 @@ class CollectionService {
   final ApiService api;
   CollectionService(this.api);
 
-  Future<ApiResult<List<Collection>>> getCollections() async {
-    final result = await api.get("/collections");
-
-    if (result is ApiError) return result;
-
-    final success = result as ApiSuccess<String>;
-    final json = jsonDecode(success.data);
-
-    return ApiSuccess<List<Collection>>(
-      (json["collections"] as List)
-          .map((e) => Collection.fromJson(e))
-          .toList(),
-    );
+  Future<ApiResult<String>> getCollections() async {
+    return await api.get("/collections");
   }
 
   Future<ApiResult<Collection>> createCollection(String name) async {
@@ -30,9 +19,7 @@ class CollectionService {
     final success = result as ApiSuccess<String>;
     final json = jsonDecode(success.data);
 
-    return ApiSuccess<Collection>(
-      Collection.fromJson(json["collection"]),
-    );
+    return ApiSuccess<Collection>(Collection.fromJson(json["collection"]));
   }
 
   Future<ApiResult<void>> deleteCollection(int id) async {
@@ -44,10 +31,7 @@ class CollectionService {
   }
 
   Future<ApiResult<void>> renameCollection(int id, String newName) async {
-    final result = await api.patch(
-      "/collections/$id",
-      {"newName": newName},
-    );
+    final result = await api.patch("/collections/$id", {"newName": newName});
 
     if (result is ApiError) return result;
 

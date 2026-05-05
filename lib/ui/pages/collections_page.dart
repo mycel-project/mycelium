@@ -54,9 +54,8 @@ class _CollectionsListState extends State<CollectionsList> {
   @override
   void initState() {
     super.initState();
-
-    Future.microtask(() {
-      context.read<CollectionsViewModel>().init();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+        context.read<CollectionsViewModel>().loadCollections();
     });
   }
 
@@ -131,8 +130,8 @@ class _CollectionsListState extends State<CollectionsList> {
                                 context,
                                 title: "Delete confirmation",
                                 text:
-                                "Delete collection ${collection.name} and all data associated?",
-                                destructive: true
+                                    "Delete collection ${collection.name} and all data associated?",
+                                destructive: true,
                               );
                               Navigator.pop(context);
                               if (confirm == true) {

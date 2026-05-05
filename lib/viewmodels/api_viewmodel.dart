@@ -1,26 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:mycelium/core/stores/api_store.dart';
-import 'package:mycelium/data/services/api_service.dart';
+import 'package:mycelium/domain/check_api_usecase.dart';
+import 'package:mycelium/domain/update_api_usecase.dart';
 
 class ApiViewModel extends ChangeNotifier {
+  final UpdateApiUrlUseCase updateApiUrlUseCase;
+  final CheckApiUseCase checkApiUseCase;
   final ApiStore apiStore;
-  final ApiService apiService;
-
   bool isChecking = false;
 
-  ApiViewModel(this.apiStore, this.apiService);
+  String get baseUrl => apiStore.baseUrl;
+
+  ApiViewModel(this.updateApiUrlUseCase, this.checkApiUseCase, this.apiStore);
 
   Future<void> setUrl(String newUrl) async {
-    await apiStore.setBaseUrl(newUrl);
-    final state = await checkReachability();
-    apiStore.setReachable(state);
+    await updateApiUrlUseCase.execute(newUrl);
     notifyListeners();
   }
 
-  Future<bool> checkReachability() async {
+  Future<void> checkReachability() async {
     isChecking = true;
-    final result = await apiService.checkReachability();
+    notifyListeners();
+    await checkApiUseCase.execute();
     isChecking = false;
-    return result;
+    notifyListeners();
   }
 }

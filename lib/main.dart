@@ -1,21 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:mycelium/core/injection.dart';
 import 'package:mycelium/core/stores/api_store.dart';
 import 'package:mycelium/core/stores/collection_store.dart';
-import 'package:mycelium/core/stores/navigation_store.dart';
 import 'package:mycelium/core/stores/node_store.dart';
 import 'package:mycelium/core/stores/review_store.dart';
-import 'package:mycelium/data/api_result.dart';
-import 'package:mycelium/data/models/collection.dart';
 import 'package:mycelium/data/repositories/node_repository.dart';
 import 'package:mycelium/data/repositories/review_repository.dart';
-import 'package:mycelium/data/services/api_service.dart';
-import 'package:mycelium/data/services/collection_service.dart';
-import 'package:mycelium/data/services/node_service.dart';
-import 'package:mycelium/data/services/review_service.dart';
-import 'package:mycelium/domain/app_coordinator.dart';
-import 'package:mycelium/domain/navigation_usecase.dart';
-import 'package:mycelium/domain/node_usecase.dart';
-import 'package:mycelium/domain/review_usecase.dart';
+import 'package:mycelium/domain/init_api_usecase.dart';
+import 'package:mycelium/domain/init_collections_usecase.dart';
 import 'package:mycelium/viewmodels/api_viewmodel.dart';
 import 'package:mycelium/viewmodels/collections_viewmodel.dart';
 import 'package:mycelium/viewmodels/home_viewmodel.dart';
@@ -25,115 +17,26 @@ import 'package:provider/provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await setup();
 
-  final apiStore = ApiStore();
-  await apiStore.init();
-  final apiService = ApiService(apiStore);
-
-  final collectionService = CollectionService(apiService);
-  final collectionStore = CollectionStore();
-
-  final collectionView = CollectionsViewModel(
-    collectionService,
-    collectionStore,
-    apiStore,
-  );
-
-  // restore selected collection
-  try {
-    final savedId = await collectionStore.getSavedId();
-    final result = await collectionService.getCollections();
-
-    List<Collection> collections = [];
-    if (result is ApiSuccess<List<Collection>>) {
-      collections = result.data;
-    } else if (result is ApiError) {
-      print("Can't get collections: ${result.code}");
-    }
-    if (savedId != null && collections.isNotEmpty) {
-      final candidates = collections.where((c) => c.id == savedId);
-      if (candidates.isNotEmpty) {
-        collectionStore.selectCollection(candidates.first);
-      }
-    }
-    await collectionView.init();
-  } catch (e) {
-    print("No access to API");
+  final isReachable = await sl<InitApiUseCase>().execute();
+  if (isReachable) {
+    await sl<InitCollectionsUseCase>().execute();
+    await sl<NodeRepository>().getNodeTypes();
+    await sl<ReviewRepository>().getClozeRegex();
   }
-
-  final nodeService = NodeService(apiService);
-  final nodeStore = NodeStore();
-
-  final reviewStore = ReviewStore();
-
-  final reviewService = ReviewService(
-    apiService,
-  ); // No direct access to reviewService, only through reviewUseCase?
-
-  final nodeRepository = NodeRepository(nodeService);
-  final colId = collectionStore.currentCollection?.id;
-  if (colId != null) {
-    nodeRepository.loadNodes(colId);
-  }
-  final reviewRepository = ReviewRepository(reviewService);
-  await nodeRepository.getNodeTypes();
-  await reviewRepository.getClozeRegex();
-  final navigationStore = NavigationStore();
-  final navigationUseCase = NavigationUseCase(nodeRepository, nodeStore, navigationStore, collectionStore);
-  final reviewUseCase = ReviewUseCase(
-    reviewService,
-    nodeStore,
-    reviewStore,
-    collectionStore,
-    reviewRepository,
-    navigationUseCase,
-  );
-  final nodeUseCase = NodeUseCase(nodeService, nodeStore, nodeRepository, navigationUseCase);
-  final appCoordinator = AppCoordinator(
-    collectionStore,
-    nodeRepository,
-    nodeStore,
-    navigationStore
-  );
 
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => collectionView),
-        ChangeNotifierProvider(create: (_) => collectionStore),
-        ChangeNotifierProvider(
-          create: (_) => HomeViewModel(
-            apiService: apiService,
-            reviewStore: reviewStore,
-            nodeUseCase: nodeUseCase,
-            nodeStore: nodeStore,
-            nodeRepository: nodeRepository,
-            collectionStore: collectionStore,
-            navigationStore: navigationStore,
-            navigationUseCase: navigationUseCase,
-          ),
-        ),
-        ChangeNotifierProvider(
-          create: (_) => ApiViewModel(apiStore, apiService),
-        ),
-        ChangeNotifierProvider(create: (_) => apiStore),
-        ChangeNotifierProvider(create: (_) => nodeStore),
-        ChangeNotifierProvider(
-          create: (_) => MdEditorViewModel(
-            nodeService: nodeService,
-            nodeStore: nodeStore,
-            nodeRepository: nodeRepository,
-            reviewUseCase: reviewUseCase,
-            reviewRepository: reviewRepository,
-            reviewStore: reviewStore,
-            nodeUseCase: nodeUseCase,
-            collectionStore: collectionStore,
-          ),
-        ),
-        ChangeNotifierProvider(create: (_) => reviewStore),
-        Provider(create: (_) => reviewUseCase),
-        Provider(create: (_) => appCoordinator),
-        Provider(create: (_) => navigationUseCase),
+        ChangeNotifierProvider(create: (_) => sl<CollectionsViewModel>()),
+        ChangeNotifierProvider(create: (_) => sl<ApiViewModel>()),
+        ChangeNotifierProvider(create: (_) => sl<HomeViewModel>()),
+        ChangeNotifierProvider(create: (_) => sl<MdEditorViewModel>()),
+        ChangeNotifierProvider(create: (_) => sl<CollectionStore>()),
+        ChangeNotifierProvider(create: (_) => sl<ApiStore>()),
+        ChangeNotifierProvider(create: (_) => sl<NodeStore>()),
+        ChangeNotifierProvider(create: (_) => sl<ReviewStore>()),
       ],
       child: const MyApp(),
     ),

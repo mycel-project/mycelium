@@ -15,7 +15,7 @@ class _ApiConfigPageState extends State<ApiConfigPage> {
   void initState() {
     super.initState();
     controller = TextEditingController(
-      text: context.read<ApiViewModel>().apiStore.baseUrl,
+      text: context.read<ApiViewModel>().baseUrl,
     );
   }
 
