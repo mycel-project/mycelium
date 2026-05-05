@@ -7,6 +7,7 @@ import 'package:mycelium/domain/api_status.dart';
 import 'package:mycelium/domain/review_usecase.dart';
 import 'package:mycelium/ui/pages/api_config_page.dart';
 import 'package:mycelium/ui/pages/collections_page.dart';
+import 'package:mycelium/ui/widgets/api_not_reachable_widget.dart';
 import 'package:mycelium/ui/widgets/app_bar.dart';
 import 'package:mycelium/ui/widgets/confirmation_dialog.dart';
 import 'package:mycelium/ui/widgets/input_dialog.dart';
@@ -88,7 +89,7 @@ class HomePage extends StatelessWidget {
                     switch (apiStore.apiStatus) {
                       ApiStatus.unknown || ApiStatus.emptyUrl => Icons.circle,
                       ApiStatus.reachable => Icons.circle,
-                      ApiStatus.unreachable => Icons.circle,
+                      ApiStatus.unreachable => Icons.error,
                     },
                     color: switch (apiStore.apiStatus) {
                       ApiStatus.unknown || ApiStatus.emptyUrl => Colors.grey,
@@ -122,6 +123,8 @@ class HomePage extends StatelessWidget {
           ? NoMoreReviewsWidget(onDismiss: vm.dismissNoMoreReviews)
           : context.watch<NodeStore>().currentNode != null
           ? MdEditor()
+          : apiStore.apiStatus != ApiStatus.reachable
+          ? ApiNotReachableWidget()
           : context.watch<CollectionStore>().currentCollection == null
           ? NoCollectionWidget()
           : NoNodeWidget(),
@@ -222,7 +225,7 @@ class _DrawerHeader extends StatelessWidget {
           Expanded(
             child: Text(
               context.watch<CollectionStore>().currentCollection?.name ??
-                  "No collection selected",
+                  "No collection",
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               overflow: TextOverflow.ellipsis,
             ),
