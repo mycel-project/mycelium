@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:mycelium/core/either.dart';
 import 'package:mycelium/core/errors/node_update_errors.dart';
@@ -51,9 +53,12 @@ class MdEditorViewModel extends ChangeNotifier {
 
   bool? get dismissState => node?.typeData?['dismiss'] as bool?;
 
-  void _onNodeStoreChanged() {
+  Future<void> _onNodeStoreChanged() async {
+    await saveContent();
     loadNode(nodeStore.currentNode);
   }
+
+  Timer? _debounceTimer;
 
   @override
   void dispose() {
@@ -136,6 +141,12 @@ class MdEditorViewModel extends ChangeNotifier {
     final node = this.node;
     if (node == null) return;
 
+    final nodeType = nodeRepository.getNodeTypeByLabelSync(extractType);
+    if (nodeType == null) {
+      _showMessage("Cannot extract: unknown node type: $extractType");
+      return;
+    }
+
     final result = await nodeRepository.createExtract(
       node.collectionId,
       node.id,
@@ -143,12 +154,12 @@ class MdEditorViewModel extends ChangeNotifier {
       "0",
       selection!.start,
       selection!.end,
-      nodeRepository.getNodeTypeByLabelSync(extractType)!.key,
+      nodeType.key,
     );
     result.fold((error) => _showMessage(error.toString()), (nodes) {
       for (final node in nodes) {
         if (node.id == this.node?.id) {
-          loadNode(node);
+          nodeStore.selectNode(node);
         }
       }
       notifyListeners();
@@ -254,6 +265,10 @@ class MdEditorViewModel extends ChangeNotifier {
   void updateContent(String value) {
     content = value;
     isDirty = true;
+    _debounceTimer?.cancel();
+    _debounceTimer = Timer(const Duration(milliseconds: 1000), () {
+      saveContent();
+    });
     notifyListeners();
   }
 
@@ -287,7 +302,6 @@ class MdEditorViewModel extends ChangeNotifier {
           (node) {
             isDirty = false;
             isEditing = false;
-            nodeStore.selectNode(node);
             notifyListeners();
           },
         );
