@@ -13,6 +13,7 @@ import 'package:mycelium/ui/pages/api_config_page.dart';
 import 'package:mycelium/viewmodels/api_viewmodel.dart';
 import 'package:mycelium/viewmodels/collections_viewmodel.dart';
 import 'package:mycelium/viewmodels/home_viewmodel.dart';
+import 'package:mycelium/viewmodels/launch_review_button_viewmodel.dart';
 import 'package:mycelium/viewmodels/md_editor_view_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'ui/pages/home_page.dart';
@@ -44,6 +45,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => sl<ApiStore>()),
         ChangeNotifierProvider(create: (_) => sl<NodeStore>()),
         ChangeNotifierProvider(create: (_) => sl<ReviewStore>()),
+        Provider(create: (_) => sl<LaunchReviewButtonViewmodel>()),
       ],
       child: MyApp(apiStatus: apiStatus),
     ),

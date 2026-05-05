@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mycelium/domain/review_usecase.dart';
 
-class LaunchReviewButtonViewmodel extends ChangeNotifier {
+class LaunchReviewButtonViewmodel {
   final ReviewUseCase reviewUseCase;
   LaunchReviewButtonViewmodel(this.reviewUseCase);
 

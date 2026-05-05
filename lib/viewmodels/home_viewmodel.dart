@@ -11,6 +11,7 @@ import 'package:mycelium/data/repositories/node_repository.dart';
 import 'package:mycelium/data/services/api_service.dart';
 import 'package:mycelium/domain/navigation_usecase.dart';
 import 'package:mycelium/domain/node_usecase.dart';
+import 'package:mycelium/domain/review_usecase.dart';
 
 class HomeViewModel extends ChangeNotifier {
   final ApiService apiService;
@@ -21,6 +22,7 @@ class HomeViewModel extends ChangeNotifier {
   final CollectionStore collectionStore;
   final NavigationUseCase navigationUseCase;
   final NavigationStore navigationStore;
+  final ReviewUseCase reviewUseCase;
 
   bool noMoreReviewsFlag = false;
 
@@ -33,6 +35,7 @@ class HomeViewModel extends ChangeNotifier {
     this.collectionStore,
     this.navigationStore,
     this.navigationUseCase,
+    this.reviewUseCase,
   ) {
     reviewStore.addListener(_onReviewChanged);
     nodeStore.addListener(_checkHasParent);
@@ -145,6 +148,10 @@ class HomeViewModel extends ChangeNotifier {
 
   void longUpPress() {
     nodeUseCase.selectRootNode();
+  }
+
+  void handleNextReview() {
+    reviewUseCase.handleNextReview();
   }
 
   Future<void> fetchRessourceFromUrl(String? url) async {

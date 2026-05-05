@@ -15,7 +15,6 @@ import 'package:mycelium/ui/widgets/no_collection_widget.dart';
 import 'package:mycelium/ui/widgets/no_more_reviews_widget.dart';
 import 'package:mycelium/ui/widgets/no_node_widget.dart';
 import 'package:mycelium/ui/widgets/node_tree.dart';
-import 'package:mycelium/viewmodels/launch_review_button_viewmodel.dart';
 import 'package:provider/provider.dart';
 import 'package:mycelium/viewmodels/home_viewmodel.dart';
 
@@ -24,190 +23,187 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     final vm = context.watch<HomeViewModel>();
     final apiStore = context.watch<ApiStore>();
-    return ChangeNotifierProvider(
-      create: (_) => LaunchReviewButtonViewmodel(context.read<ReviewUseCase>()),
-      child: Scaffold(
-        drawerEdgeDragWidth: 200,
-        appBar: MyAppBar(
-          titleText: "",
-          actions: [
-            IconButton(
-              onPressed: vm.hasPreviousNodes()
-                  ? () {
-                      vm.previousNode();
-                    }
-                  : null,
-              onLongPress: () {
-                vm.openHistory();
-              },
-              icon: const Icon(Icons.chevron_left),
-            ),
-            IconButton(
-              onPressed: vm.hasNextNodes()
-                  ? () {
-                      vm.nextNode();
-                    }
-                  : null,
-              onLongPress: () {
-                vm.openHistory();
-              },
-              icon: const Icon(Icons.chevron_right),
-            ),
-            IconButton(
-              onPressed: vm.hasParent
-                  ? () {
-                      vm.upPress();
-                    }
-                  : null,
-              onLongPress: () {
-                vm.longUpPress();
-              },
-              icon: const Icon(Icons.arrow_upward),
-            ),
-            IconButton(
-              onPressed: !vm.isCurrentNodeUnderReview()
-                  ? () {
-                      context.read<ReviewUseCase>().handleNextReview();
-                    }
-                  : null,
-              icon: const Icon(Icons.school),
-            ),
-            IconButton(
-              onPressed: () => vm.connectionStatusClick(),
-              splashRadius: 20,
-              icon: vm.isCheckingConnection
-              ? 
-              const SizedBox(
-                width: 16,
-                height: 16,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.lightBlue),
-                ),
-              )
-              :
-              Icon(
-                size: 16,
-                switch (apiStore.apiStatus) {
-                  ApiStatus.unknown || ApiStatus.emptyUrl => Icons.circle,
-                  ApiStatus.reachable => Icons.circle,
-                  ApiStatus.unreachable => Icons.circle,
-                },
-                color: switch (apiStore.apiStatus) {
-                  ApiStatus.unknown || ApiStatus.emptyUrl => Colors.grey,
-                  ApiStatus.reachable => Colors.green,
-                  ApiStatus.unreachable => Colors.red,
-                },
-              )
-            ),
-            PopupMenuButton(
-              onSelected: (value) {
-                if (value == 1) {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => CollectionsPage()),
-                  );
-                } else if (value == 2) {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => ApiConfigPage()),
-                  );
-                }
-              },
-              itemBuilder: (BuildContext context) => [
-                PopupMenuItem(value: 1, child: Text("Manage collections")),
-                PopupMenuItem(value: 2, child: Text("API configuration")),
-              ],
-            ),
-          ],
-        ),
-        body: vm.noMoreReviewsFlag
-            ? NoMoreReviewsWidget(onDismiss: vm.dismissNoMoreReviews)
-            : context.watch<NodeStore>().currentNode != null
-            ? MdEditor()
-            : context.watch<CollectionStore>().currentCollection == null
-            ? NoCollectionWidget()
-            : NoNodeWidget(),
-        drawer: Drawer(
-          child: SafeArea(
-            child: Column(
-              children: [
-                _DrawerHeader(vm: vm),
-                const Divider(height: 1),
-                Expanded(
-                  child: NodeTree(
-                    nodes: vm.getNodes(),
-                    isSpore: (node) {
-                      final type = vm.getNodeTypes().firstWhere(
-                        (t) => t.key == node.type,
-                        orElse: () => NodeType(label: "", key: -1),
-                      );
-                      return type.label == "SPORE";
+    return Scaffold(
+      drawerEdgeDragWidth: 200,
+      appBar: MyAppBar(
+        titleText: "",
+        actions: [
+          IconButton(
+            onPressed: vm.hasPreviousNodes()
+                ? () {
+                    vm.previousNode();
+                  }
+                : null,
+            onLongPress: () {
+              vm.openHistory();
+            },
+            icon: const Icon(Icons.chevron_left),
+          ),
+          IconButton(
+            onPressed: vm.hasNextNodes()
+                ? () {
+                    vm.nextNode();
+                  }
+                : null,
+            onLongPress: () {
+              vm.openHistory();
+            },
+            icon: const Icon(Icons.chevron_right),
+          ),
+          IconButton(
+            onPressed: vm.hasParent
+                ? () {
+                    vm.upPress();
+                  }
+                : null,
+            onLongPress: () {
+              vm.longUpPress();
+            },
+            icon: const Icon(Icons.arrow_upward),
+          ),
+          IconButton(
+            onPressed: !vm.isCurrentNodeUnderReview()
+                ? () {
+                    vm.handleNextReview();
+                  }
+                : null,
+            icon: const Icon(Icons.school),
+          ),
+          IconButton(
+            onPressed: () => vm.connectionStatusClick(),
+            splashRadius: 20,
+            icon: vm.isCheckingConnection
+                ? const SizedBox(
+                    width: 16,
+                    height: 16,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        Colors.lightBlue,
+                      ),
+                    ),
+                  )
+                : Icon(
+                    size: 16,
+                    switch (apiStore.apiStatus) {
+                      ApiStatus.unknown || ApiStatus.emptyUrl => Icons.circle,
+                      ApiStatus.reachable => Icons.circle,
+                      ApiStatus.unreachable => Icons.circle,
                     },
-                    clickCallback: (int value) {
-                      vm.navigateTo(value);
+                    color: switch (apiStore.apiStatus) {
+                      ApiStatus.unknown || ApiStatus.emptyUrl => Colors.grey,
+                      ApiStatus.reachable => Colors.green,
+                      ApiStatus.unreachable => Colors.red,
                     },
-                    longPressCallback:
-                        (int nodeId, LongPressStartDetails details) async {
-                          final screenWidth = MediaQuery.of(context).size.width;
-                          final position = details.globalPosition;
-
-                          double dx = position.dx - 75;
-
-                          if (dx < 8) dx = 8;
-
-                          final selected = await showMenu(
-                            context: context,
-                            position: RelativeRect.fromLTRB(
-                              dx,
-                              position.dy,
-                              screenWidth - dx,
-                              position.dy,
-                            ),
-                            items: [
-                              PopupMenuItem(
-                                value: 'delete',
-                                child: Text("Delete"),
-                              ),
-                              PopupMenuItem(
-                                value: 'rename',
-                                child: Text("Rename"),
-                              ),
-                            ],
-                          );
-                          if (selected == 'delete') {
-                            final confirm = await ConfirmationDialog.show(
-                              context,
-                              title: "Delete confirmation",
-                              text: "Delete this node and all its children?",
-                              destructive: true,
-                            );
-                            if (!context.mounted) return;
-                            if (confirm == true) {
-                              await vm.deleteNode(nodeId);
-                            }
-                          } else if (selected == "rename") {
-                            final name = await vm.getNodeTitle(nodeId) ?? "";
-                            final newName = await showInputDialog(
-                              context: context,
-                              title: "Enter new title",
-                              placeholder: "Node title",
-                              initialValue: name,
-                            );
-                            vm.updateNodeTitle(nodeId, newName ?? "");
-                          }
-                        },
                   ),
+          ),
+          PopupMenuButton(
+            onSelected: (value) {
+              if (value == 1) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => CollectionsPage()),
+                );
+              } else if (value == 2) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => ApiConfigPage()),
+                );
+              }
+            },
+            itemBuilder: (BuildContext context) => [
+              PopupMenuItem(value: 1, child: Text("Manage collections")),
+              PopupMenuItem(value: 2, child: Text("API configuration")),
+            ],
+          ),
+        ],
+      ),
+      body: vm.noMoreReviewsFlag
+          ? NoMoreReviewsWidget(onDismiss: vm.dismissNoMoreReviews)
+          : context.watch<NodeStore>().currentNode != null
+          ? MdEditor()
+          : context.watch<CollectionStore>().currentCollection == null
+          ? NoCollectionWidget()
+          : NoNodeWidget(),
+      drawer: Drawer(
+        child: SafeArea(
+          child: Column(
+            children: [
+              _DrawerHeader(vm: vm),
+              const Divider(height: 1),
+              Expanded(
+                child: NodeTree(
+                  nodes: vm.getNodes(),
+                  isSpore: (node) {
+                    final type = vm.getNodeTypes().firstWhere(
+                      (t) => t.key == node.type,
+                      orElse: () => NodeType(label: "", key: -1),
+                    );
+                    return type.label == "SPORE";
+                  },
+                  clickCallback: (int value) {
+                    vm.navigateTo(value);
+                  },
+                  longPressCallback:
+                      (int nodeId, LongPressStartDetails details) async {
+                        final screenWidth = MediaQuery.of(context).size.width;
+                        final position = details.globalPosition;
+
+                        double dx = position.dx - 75;
+
+                        if (dx < 8) dx = 8;
+
+                        final selected = await showMenu(
+                          context: context,
+                          position: RelativeRect.fromLTRB(
+                            dx,
+                            position.dy,
+                            screenWidth - dx,
+                            position.dy,
+                          ),
+                          items: [
+                            PopupMenuItem(
+                              value: 'delete',
+                              child: Text("Delete"),
+                            ),
+                            PopupMenuItem(
+                              value: 'rename',
+                              child: Text("Rename"),
+                            ),
+                          ],
+                        );
+                        if (selected == 'delete') {
+                          final confirm = await ConfirmationDialog.show(
+                            context,
+                            title: "Delete confirmation",
+                            text: "Delete this node and all its children?",
+                            destructive: true,
+                          );
+                          if (!context.mounted) return;
+                          if (confirm == true) {
+                            await vm.deleteNode(nodeId);
+                          }
+                        } else if (selected == "rename") {
+                          final name = await vm.getNodeTitle(nodeId) ?? "";
+                          final newName = await showInputDialog(
+                            context: context,
+                            title: "Enter new title",
+                            placeholder: "Node title",
+                            initialValue: name,
+                          );
+                          vm.updateNodeTitle(nodeId, newName ?? "");
+                        }
+                      },
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
-        onDrawerChanged: (isOpened) {
-          if (isOpened) vm.refreshNodes();
-          FocusManager.instance.primaryFocus?.unfocus();
-        },
       ),
+      onDrawerChanged: (isOpened) {
+        if (isOpened) vm.refreshNodes();
+        FocusManager.instance.primaryFocus?.unfocus();
+      },
     );
   }
 }

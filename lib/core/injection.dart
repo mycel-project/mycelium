@@ -26,6 +26,7 @@ import 'package:mycelium/domain/update_api_usecase.dart';
 import 'package:mycelium/viewmodels/api_viewmodel.dart';
 import 'package:mycelium/viewmodels/collections_viewmodel.dart';
 import 'package:mycelium/viewmodels/home_viewmodel.dart';
+import 'package:mycelium/viewmodels/launch_review_button_viewmodel.dart';
 import 'package:mycelium/viewmodels/md_editor_view_model.dart';
 
 final sl = GetIt.instance;
@@ -59,10 +60,11 @@ Future<void> setup() async {
   sl.registerSingleton(ReviewUseCase(sl(), sl(), sl(), sl()));
   sl.registerSingleton(NodeUseCase(sl(), sl(), sl(), sl()));
   sl.registerSingleton(AppCoordinator(sl(), sl(), sl(), sl()));
-
+  
   // ViewModels
   sl.registerFactory(() => CollectionsViewModel(sl(), sl(), sl(), sl()));
-  sl.registerFactory(() => HomeViewModel(sl(), sl(), sl(), sl(), sl(), sl(), sl(),  sl()));
+  sl.registerFactory(() => HomeViewModel(sl(), sl(), sl(), sl(), sl(), sl(), sl(),  sl(), sl()));
   sl.registerFactory(() => ApiViewModel(sl(), sl(), sl()));
   sl.registerFactory(() => MdEditorViewModel(sl(), sl(), sl(), sl(), sl(), sl(), sl(), sl()));
+  sl.registerFactory(() => LaunchReviewButtonViewmodel(sl()));
 }
