@@ -127,7 +127,19 @@ class HomePage extends StatelessWidget {
           ? ApiNotReachableWidget()
           : context.watch<CollectionStore>().currentCollection == null
           ? NoCollectionWidget()
-          : NoNodeWidget(),
+          : Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                if (vm.currentCollectionName() != null)
+                Text(
+                  vm.currentCollectionName()!,
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                ),
+                NoNodeWidget(),
+              ],
+            ),
+          ),
       drawer: Drawer(
         child: SafeArea(
           child: Column(

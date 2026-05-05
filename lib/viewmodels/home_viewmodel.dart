@@ -154,6 +154,10 @@ class HomeViewModel extends ChangeNotifier {
     reviewUseCase.handleNextReview();
   }
 
+  String? currentCollectionName() {
+    return collectionStore.currentCollection?.name;
+  }
+
   Future<void> fetchRessourceFromUrl(String? url) async {
     if (url == null) return;
     final colId = collectionStore.currentCollection?.id;
