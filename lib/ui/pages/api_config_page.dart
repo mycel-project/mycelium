@@ -103,9 +103,10 @@ class _ApiConfigPageState extends State<ApiConfigPage> {
                     if (store.apiStatus == ApiStatus.reachable)
                     ElevatedButton(
                       onPressed: () {
-                        Navigator.pushReplacement(
+                        Navigator.pushAndRemoveUntil(
                           context,
                           MaterialPageRoute(builder: (_) => HomePage()),
+                          (route) => false,
                         );
                       },
                       child: Text("Go to home page"),
