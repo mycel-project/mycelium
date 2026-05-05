@@ -27,7 +27,7 @@ class NodeRepository {
   }
 
   void clearTypesCache() {
-    _typesCache = {};
+    _typesCache = null;
   }
 
   Future<Either<RessourceError, Node>> fetchRessourceFromUrl(
