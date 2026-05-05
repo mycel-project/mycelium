@@ -3,6 +3,7 @@ import 'package:mycelium/core/stores/api_store.dart';
 import 'package:mycelium/core/stores/collection_store.dart';
 import 'package:mycelium/core/stores/node_store.dart';
 import 'package:mycelium/data/models/node_type.dart';
+import 'package:mycelium/domain/api_status.dart';
 import 'package:mycelium/domain/review_usecase.dart';
 import 'package:mycelium/ui/pages/api_config_page.dart';
 import 'package:mycelium/ui/pages/collections_page.dart';
@@ -75,12 +76,29 @@ class HomePage extends StatelessWidget {
               onPressed: () => vm.connectionStatusClick(),
               splashRadius: 20,
               icon: vm.isCheckingConnection
-                  ? const Icon(Icons.sync, size: 16, color: Colors.white)
-                  : apiStore.apiStatus == null
-                  ? const Icon(Icons.circle, size: 16, color: Colors.grey)
-                  : apiStore.apiStatus == true
-                  ? const Icon(Icons.circle, size: 16, color: Colors.green)
-                  : const Icon(Icons.refresh, size: 16, color: Colors.red),
+              ? 
+              const SizedBox(
+                width: 16,
+                height: 16,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.lightBlue),
+                ),
+              )
+              :
+              Icon(
+                size: 16,
+                switch (apiStore.apiStatus) {
+                  ApiStatus.unknown || ApiStatus.emptyUrl => Icons.circle,
+                  ApiStatus.reachable => Icons.circle,
+                  ApiStatus.unreachable => Icons.circle,
+                },
+                color: switch (apiStore.apiStatus) {
+                  ApiStatus.unknown || ApiStatus.emptyUrl => Colors.grey,
+                  ApiStatus.reachable => Colors.green,
+                  ApiStatus.unreachable => Colors.red,
+                },
+              )
             ),
             PopupMenuButton(
               onSelected: (value) {
