@@ -76,9 +76,9 @@ class HomePage extends StatelessWidget {
               splashRadius: 20,
               icon: vm.isCheckingConnection
                   ? const Icon(Icons.sync, size: 16, color: Colors.white)
-                  : apiStore.isReachable == null
+                  : apiStore.apiStatus == null
                   ? const Icon(Icons.circle, size: 16, color: Colors.grey)
-                  : apiStore.isReachable == true
+                  : apiStore.apiStatus == true
                   ? const Icon(Icons.circle, size: 16, color: Colors.green)
                   : const Icon(Icons.refresh, size: 16, color: Colors.red),
             ),

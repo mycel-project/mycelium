@@ -64,7 +64,7 @@ class ApiService {
     try {
       final response = await call();
 
-      apiStore.setReachable(true);
+      apiStore.setReachable();
 
       if (response.statusCode >= 200 && response.statusCode < 300) {
         return ApiSuccess(response.body);
@@ -87,10 +87,10 @@ class ApiService {
 
       return ApiError(code, statusCode: response.statusCode, message: reason);
     } on TimeoutException {
-      apiStore.setReachable(false);
+      apiStore.setUnreachable();
       return ApiError("timeout", statusCode: 408);
     } on SocketException {
-      apiStore.setReachable(false);
+      apiStore.setUnreachable();
       return ApiError("no_connection", statusCode: 503);
     } catch (e) {
       return ApiError("unknown", message: e.toString());

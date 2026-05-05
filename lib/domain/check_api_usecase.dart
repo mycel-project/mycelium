@@ -1,5 +1,6 @@
 import 'package:mycelium/core/stores/api_store.dart';
 import 'package:mycelium/data/services/api_service.dart';
+import 'package:mycelium/domain/api_status.dart';
 
 class CheckApiUseCase {
   final ApiService apiService;
@@ -7,14 +8,20 @@ class CheckApiUseCase {
 
   CheckApiUseCase(this.apiService, this.apiStore);
 
-  Future<bool> execute() async {
+  Future<ApiStatus> execute() async {
     try {
       final isReachable = await apiService.checkReachability();
-      apiStore.setReachable(isReachable);
-      return isReachable;
+      if (isReachable) {
+        apiStore.setReachable();
+      } else {
+        if (!(apiStore.apiStatus == ApiStatus.emptyUrl)) {
+          apiStore.setUnreachable();
+        }
+      }
+      return apiStore.apiStatus;
     } catch (_) {
-      apiStore.setReachable(false);
-      return false;
+      apiStore.setUnreachable();
+      return apiStore.apiStatus;
     }
   }
 }

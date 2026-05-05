@@ -43,6 +43,7 @@ dependencies:
   collection: ^1.19.1
   flutter_svg: ^2.2.4
   get_it: ^9.2.1
+  url_launcher: ^6.3.2
 
 dev_dependencies:
   flutter_test:

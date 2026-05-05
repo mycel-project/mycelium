@@ -16,6 +16,7 @@ class ApiViewModel extends ChangeNotifier {
   Future<void> setUrl(String newUrl) async {
     await updateApiUrlUseCase.execute(newUrl);
     notifyListeners();
+    checkReachability();
   }
 
   Future<void> checkReachability() async {
