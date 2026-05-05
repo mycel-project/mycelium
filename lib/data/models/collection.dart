@@ -9,4 +9,11 @@ class Collection {
       name: json['name'],
     );
   }
+
+  Collection copyWith({int? id, String? name}) {
+    return Collection(
+      id: id ?? this.id,
+      name: name ?? this.name,
+    );
+  }
 }

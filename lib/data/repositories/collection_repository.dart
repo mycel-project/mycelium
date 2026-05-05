@@ -20,19 +20,74 @@ class CollectionRepository {
     _collectionCache.clear();
   }
 
-  Future<Either<CollectionError, List<Collection>>> loadCollections(
+  Future<Either<CollectionError, Collection>> createCollection(
+    String name,
   ) async {
+    final result = await collectionService.createCollection(name);
+
+    if (result is ApiError) {
+      return Left(UnknownCollectionError(result.message));
+    }
+
+    final success = result as ApiSuccess<String>;
+    final json = jsonDecode(success.data);
+    final collection = Collection.fromJson(json["collection"]);
+    _collectionCache[collection.id] = collection;
+    return Right(collection);
+  }
+
+  Future<Either<CollectionError, Collection>> renameCollection(
+    int id,
+    String newName,
+  ) async {
+    final result = await collectionService.renameCollection(id, newName);
+    if (result is ApiError) {
+      return Left(UnknownCollectionError(result.message));
+    }
+
+    final cached = _collectionCache[id];
+    if (cached == null) {
+      return Left(NotFoundCollectionError(id.toString()));
+    }
+
+    final updated = cached.copyWith(name: newName);
+    _collectionCache[id] = updated;
+    return Right(updated);
+  }
+
+  Future<Either<CollectionError, int>> deleteCollection(
+    int id,
+  ) async {
+    final result = await collectionService.deleteCollection(id);
+
+    if (result is ApiError) {
+      return Left(UnknownCollectionError(result.message));
+    }
+
+    final cached = _collectionCache[id];
+    if (cached == null) {
+      return Left(NotFoundCollectionError(id.toString()));
+    }
+
+    _collectionCache.remove(id);
+    return Right(id);
+  }
+
+  Future<Either<CollectionError, List<Collection>>> loadCollections() async {
     final result = await collectionService.getCollections();
 
     if (result is ApiError) {
       return Left(UnknownCollectionError(result.message));
     }
-    
+
     final success = result as ApiSuccess<String>;
     final json = jsonDecode(success.data);
-    final collections = (json["collections"] as List).map((e) => Collection.fromJson(e)).toList();
+    final collections = (json["collections"] as List)
+        .map((e) => Collection.fromJson(e))
+        .toList();
     for (final collection in collections) {
       _collectionCache[collection.id] = collection;
-    }    return Right(collections);
+    }
+    return Right(collections);
   }
 }

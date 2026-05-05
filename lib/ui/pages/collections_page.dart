@@ -6,6 +6,7 @@ import 'package:mycelium/viewmodels/collections_viewmodel.dart';
 import 'package:provider/provider.dart';
 
 class CollectionsPage extends StatelessWidget {
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(

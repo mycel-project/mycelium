@@ -62,7 +62,7 @@ Future<void> setup() async {
   sl.registerSingleton(AppCoordinator(sl(), sl(), sl(), sl()));
   
   // ViewModels
-  sl.registerFactory(() => CollectionsViewModel(sl(), sl(), sl(), sl()));
+  sl.registerFactory(() => CollectionsViewModel(sl(), sl(), sl()));
   sl.registerFactory(() => HomeViewModel(sl(), sl(), sl(), sl(), sl(), sl(), sl(),  sl(), sl()));
   sl.registerFactory(() => ApiViewModel(sl(), sl(), sl()));
   sl.registerFactory(() => MdEditorViewModel(sl(), sl(), sl(), sl(), sl(), sl(), sl(), sl()));
