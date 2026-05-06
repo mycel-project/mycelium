@@ -1,5 +1,6 @@
 import 'package:get_it/get_it.dart';
 import 'package:mycelium/core/debug/network_logger.dart';
+import 'package:mycelium/core/notifications/notification_bus.dart';
 
 import 'package:mycelium/core/stores/api_store.dart';
 import 'package:mycelium/core/stores/collection_store.dart';
@@ -34,6 +35,7 @@ import 'package:mycelium/viewmodels/md_editor_view_model.dart';
 final sl = GetIt.instance;
 
 Future<void> setup() async {
+  sl.registerSingleton(NotificationBus());
   sl.registerSingleton(NetworkLogger());
   // Infra
   sl.registerSingleton(ApiPreferences());
@@ -69,12 +71,26 @@ Future<void> setup() async {
   sl.registerFactory(() => CollectionsViewModel(sl(), sl(), sl()));
   //// should reduce dependencies ?
   sl.registerFactory(
-    () => HomeViewModel(sl(), sl(), sl(), sl(), sl(), sl(), sl(), sl(), sl(), sl(), sl()),
+    () => HomeViewModel(
+      sl(),
+      sl(),
+      sl(),
+      sl(),
+      sl(),
+      sl(),
+      sl(),
+      sl(),
+      sl(),
+      sl(),
+      sl(),
+      sl(),
+    ),
   );
   sl.registerFactory(() => ApiViewModel(sl(), sl(), sl(), sl()));
   //// should reduce dependencies ?
   sl.registerFactory(
-    () => MdEditorViewModel(sl(), sl(), sl(), sl(), sl(), sl(), sl(), sl(), sl()),
+    () =>
+    MdEditorViewModel(sl(), sl(), sl(), sl(), sl(), sl(), sl(), sl(), sl()),
   );
   sl.registerFactory(() => LaunchReviewButtonViewmodel(sl()));
 }

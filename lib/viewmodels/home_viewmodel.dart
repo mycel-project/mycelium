@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:mycelium/core/either.dart';
+import 'package:mycelium/core/notifications/notification.dart';
+import 'package:mycelium/core/notifications/notification_bus.dart';
 import 'package:mycelium/core/stores/api_store.dart';
 import 'package:mycelium/core/stores/collection_store.dart';
 import 'package:mycelium/core/stores/navigation_store.dart';
@@ -30,6 +32,7 @@ class HomeViewModel extends ChangeNotifier {
   final ReviewUseCase reviewUseCase;
   final ApiStore apiStore;
   final CheckApiUseCase checkApiUseCase;
+  final NotificationBus notificationBus;
 
   bool noMoreReviewsFlag = false;
 
@@ -45,6 +48,7 @@ class HomeViewModel extends ChangeNotifier {
     this.reviewUseCase,
     this.apiStore,
     this.checkApiUseCase,
+    this.notificationBus,
   ) {
     reviewStore.addListener(_onReviewChanged);
     nodeStore.addListener(_checkHasParent);
@@ -173,6 +177,7 @@ class HomeViewModel extends ChangeNotifier {
   }
 
   void handleNextReview() {
+    notificationBus.show("Salut", NotificationType.error);
     reviewUseCase.handleNextReview();
   }
 
