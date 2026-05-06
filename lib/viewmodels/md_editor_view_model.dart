@@ -398,8 +398,8 @@ class MdEditorViewModel extends ChangeNotifier {
     );
     switch (result) {
       case ApiSuccess():
+        node = result.data;
         isDirty = false;
-        isEditing = false;
         notifyListeners();
         return true;
       case ApiError error:
