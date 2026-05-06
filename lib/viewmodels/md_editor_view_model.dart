@@ -70,7 +70,10 @@ class MdEditorViewModel extends ChangeNotifier {
 
   Future<void> _onNodeStoreChanged() async {
     if (_showUnsavedChangesDialog) return;
-    if (node?.id == nodeStore.currentNode?.id && node?.id != null) return;
+    if (_pendingNode != null) {
+      _pendingNode = null;
+      return;
+    }
     if (!await saveContent()) {
       _pendingNode = node;
       _showUnsavedChangesDialog = true;
@@ -91,7 +94,6 @@ class MdEditorViewModel extends ChangeNotifier {
     _showUnsavedChangesDialog = false;
     nodeStore.selectNode(_pendingNode);
     navigationUseCase.undoLastNavigation();
-    _pendingNode = null;
     notifyListeners();
   }
 
@@ -315,12 +317,10 @@ class MdEditorViewModel extends ChangeNotifier {
 
   void loadNode(Node? node, {bool forceReload = false}) {
     isAnswerVisible = false;
-    if (this.node?.id == node?.id && node?.id != null) return;
     if (node != null) {
       this.node = node;
       isDirty = false;
       isEditing = false;
-
       if (isCurrentNodeSpore()) {
         if (reviewStore.currentNodeId == node.id) {
           content = reviewUseCase.transformClozeContent(
