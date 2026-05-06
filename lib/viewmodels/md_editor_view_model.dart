@@ -2,7 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:mycelium/core/either.dart';
-import 'package:mycelium/core/errors/node_update_errors.dart';
+import 'package:mycelium/core/notifications/notification.dart';
+import 'package:mycelium/core/notifications/notification_bus.dart';
 import 'package:mycelium/core/stores/api_store.dart';
 import 'package:mycelium/core/stores/collection_store.dart';
 import 'package:mycelium/core/stores/node_store.dart';
@@ -25,6 +26,7 @@ class MdEditorViewModel extends ChangeNotifier {
   ReviewStore reviewStore;
   CollectionStore collectionStore;
   NodeRepository nodeRepository;
+  NotificationBus notificationBus;
 
   bool isAnswerVisible = false;
   bool isEditing = false;
@@ -35,8 +37,6 @@ class MdEditorViewModel extends ChangeNotifier {
   TextSelection? selection;
 
   ApiStore apiStore;
-
-  String? uiMessage;
 
   int? cursorPosition;
 
@@ -52,6 +52,7 @@ class MdEditorViewModel extends ChangeNotifier {
     this.nodeUseCase,
     this.collectionStore,
     this.apiStore,
+    this.notificationBus,
   ) {
     nodeStore.addListener(_onNodeStoreChanged);
     apiStore.addListener(_onApiStoreChanged);
@@ -104,17 +105,11 @@ class MdEditorViewModel extends ChangeNotifier {
 
   Future<void> nextReview() async {
     final result = await reviewUseCase.handleNextReview();
-    switch (result) {
-      case ApiSuccess():
-        break;
-      case ApiError(:final code, :final message):
-        if (code == "no_collection") {
-          _showMessage("No collection selected");
-        }
-        if (code == "no_connection" || code == "timeout") {
-          _showMessage("Cannot load next review");
-          return;
-        }
+    if (result case ApiError error) {
+      final msg = error.code == "no_collection"
+      ? "No collection selected"
+      : "Cannot load next review";
+        notificationBus.showError(msg, error);
     }
   }
 
@@ -122,16 +117,6 @@ class MdEditorViewModel extends ChangeNotifier {
     return reviewStore.currentNodeId == node?.id &&
         isCurrentNodeSpore() &&
         !isAnswerVisible;
-  }
-
-  void _showMessage(String message) {
-    uiMessage = message;
-    notifyListeners();
-
-    Future.delayed(const Duration(seconds: 3), () {
-      uiMessage = null;
-      notifyListeners();
-    });
   }
 
   bool _isUpdatingSelection = false;
@@ -180,7 +165,10 @@ class MdEditorViewModel extends ChangeNotifier {
 
     final nodeType = nodeRepository.getNodeTypeByLabelSync(extractType);
     if (nodeType == null) {
-      _showMessage("Cannot extract: unknown node type: $extractType");
+      notificationBus.show(
+        "Cannot extract: unknown node type: $extractType",
+        NotificationType.error,
+      );
       return;
     }
 
@@ -193,14 +181,17 @@ class MdEditorViewModel extends ChangeNotifier {
       selection!.end,
       nodeType.key,
     );
-    result.fold((error) => _showMessage(error.toString()), (nodes) {
-      for (final node in nodes) {
-        if (node.id == this.node?.id) {
-          nodeStore.selectNode(node);
+    result.fold(
+      (error) => notificationBus.show(error.toString(), NotificationType.error),
+      (nodes) {
+        for (final node in nodes) {
+          if (node.id == this.node?.id) {
+            nodeStore.selectNode(node);
+          }
         }
-      }
-      notifyListeners();
-    });
+        notifyListeners();
+      },
+    );
   }
 
   Future<void> createFragment() async {
@@ -215,14 +206,22 @@ class MdEditorViewModel extends ChangeNotifier {
     final collectionId = node?.collectionId;
     final nodeId = node?.id;
     final dismiss = dismissState;
-    if (dismiss != null && collectionId != null && nodeId != null) {
-      final result = await nodeRepository.updateNodeDismiss(
-        collectionId,
-        nodeId,
-        !dismiss,
-      );
-      result.fold((err) => null, (updatedNode) => node = updatedNode);
-      notifyListeners();
+    if (dismiss == null || collectionId == null || nodeId == null) return;
+
+    final result = await nodeRepository.updateNodeDismiss(
+      collectionId,
+      nodeId,
+      !dismiss,
+    );
+    switch (result) {
+      case ApiSuccess(:final data):
+        node = data;
+        notifyListeners();
+      case ApiError(:final code):
+        notificationBus.show(
+          "Can't toggle dismiss : $code",
+          NotificationType.error,
+        );
     }
   }
 
@@ -322,33 +321,23 @@ class MdEditorViewModel extends ChangeNotifier {
   }
 
   Future<void> saveContent() async {
-    if (isDirty) {
-      final collectionId = node?.collectionId;
-      final nodeId = node?.id;
+    if (!isDirty) return;
+    final collectionId = node?.collectionId;
+    final nodeId = node?.id;
+    if (collectionId == null || nodeId == null) return;
 
-      if (collectionId != null && nodeId != null) {
-        final result = await nodeRepository.updateNodeContent(
-          collectionId,
-          nodeId,
-          content,
-        );
-
-        result.fold(
-          (error) {
-            print("Can't update node: $error");
-            if (error is InvalidNodeUpdateError) {
-              _showMessage("Spore must contain at least one cloze field");
-            } else {
-              _showMessage("Can't update node");
-            }
-          },
-          (node) {
-            isDirty = false;
-            isEditing = false;
-            notifyListeners();
-          },
-        );
-      }
+    final result = await nodeRepository.updateNodeContent(
+      collectionId,
+      nodeId,
+      content,
+    );
+    switch (result) {
+      case ApiSuccess():
+      isDirty = false;
+      isEditing = false;
+      notifyListeners();
+      case ApiError error:
+      notificationBus.showError("Cannot save content", error);
     }
   }
 }

@@ -160,24 +160,19 @@ class NodeRepository {
     return fetchRoot(colId, currentId);
   }
 
-  Future<Either<NodeUpdateError, Node>> _handleUpdateResult(
+  Future<ApiResult<Node>> _handleUpdateResult(
     ApiResult result,
     int nodeId,
   ) async {
-    if (result is ApiError) {
-      if (result.code == "INVALID_NODE_UPDATE") {
-        return Left(InvalidNodeUpdateError(result.message));
-      }
-      return Left(UnknownNodeUpdateError());
-    }
+    if (result is ApiError) return result;
     final success = result as ApiSuccess<String>;
     final json = jsonDecode(success.data);
     final node = Node.fromJson(json["node"]);
     _nodeCache[nodeId] = node;
-    return Right(node);
+    return ApiSuccess(node);
   }
 
-  Future<Either<NodeUpdateError, Node>> updateNodeContent(
+  Future<ApiResult<Node>> updateNodeContent(
     int collectionId,
     int nodeId,
     String content,
@@ -190,7 +185,7 @@ class NodeRepository {
     return _handleUpdateResult(result, nodeId);
   }
 
-  Future<Either<NodeUpdateError, Node>> updateNodeDismiss(
+  Future<ApiResult<Node>> updateNodeDismiss(
     int collectionId,
     int nodeId,
     bool dismiss,
@@ -203,7 +198,7 @@ class NodeRepository {
     return _handleUpdateResult(result, nodeId);
   }
 
-  Future<Either<NodeUpdateError, Node>> updateNode(
+  Future<ApiResult<Node>> updateNode(
     int collectionId,
     int nodeId,
     Map<String, dynamic> data,

@@ -167,28 +167,6 @@ class _MdEditorState extends State<MdEditor> {
                     ),
                   ),
                 ),
-                if (vm.uiMessage != null)
-                  Positioned(
-                    bottom: 110,
-                    right: 30,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 6,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.red.withValues(alpha: 0.9),
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      child: Text(
-                        vm.uiMessage!,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 12,
-                        ),
-                      ),
-                    ),
-                  ),
                 Positioned(
                   bottom: 16,
                   left: 8,

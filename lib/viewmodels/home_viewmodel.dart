@@ -10,6 +10,7 @@ import 'package:mycelium/core/stores/navigation_store.dart';
 import 'package:mycelium/core/stores/node_store.dart';
 import 'package:mycelium/core/stores/review_state.dart';
 import 'package:mycelium/core/stores/review_store.dart';
+import 'package:mycelium/data/api_result.dart';
 import 'package:mycelium/data/models/node.dart';
 import 'package:mycelium/data/models/node_type.dart';
 import 'package:mycelium/data/repositories/node_repository.dart';
@@ -176,8 +177,14 @@ class HomeViewModel extends ChangeNotifier {
     nodeUseCase.selectRootNode();
   }
 
-  void handleNextReview() {
-    reviewUseCase.handleNextReview();
+  Future<void> handleNextReview() async {
+    final result = await reviewUseCase.handleNextReview();
+    if (result case ApiError error) {
+      final msg = error.code == "no_collection"
+      ? "No collection selected"
+      : "Cannot load next review";
+      notificationBus.showError(msg, error);
+    }
   }
 
   String? currentCollectionName() {

@@ -1,4 +1,7 @@
+import 'package:mycelium/core/notifications/notification.dart';
+import 'package:mycelium/core/notifications/notification_bus.dart';
 import 'package:mycelium/core/stores/node_store.dart';
+import 'package:mycelium/data/api_result.dart';
 import 'package:mycelium/data/models/node_data.dart';
 import 'package:mycelium/data/models/node_update.dart';
 import 'package:mycelium/data/repositories/node_repository.dart';
@@ -12,12 +15,14 @@ class NodeUseCase {
   NodeStore nodeStore;
   NodeRepository nodeRepository;
   NavigationUseCase navigationUseCase;
+  NotificationBus notificationBus;
 
   NodeUseCase(
     this.nodeService,
     this.nodeStore,
     this.nodeRepository,
     this.navigationUseCase,
+    this.notificationBus,
   );
 
   void selectParentNode() async {
@@ -76,10 +81,10 @@ class NodeUseCase {
   Future<void> deleteNode(int colId, int nodeId) async {
     final result = await nodeRepository.deleteNode(colId, nodeId);
     result.fold((err) {}, (deletedIds) {
-      if (deletedIds.contains(nodeStore.currentNode?.id)) {
-        nodeStore.selectNode(null);
-      }
-      navigationUseCase.onNodesDeleted(deletedIds);
+        if (deletedIds.contains(nodeStore.currentNode?.id)) {
+          nodeStore.selectNode(null);
+        }
+        navigationUseCase.onNodesDeleted(deletedIds);
     });
   }
 
@@ -88,14 +93,13 @@ class NodeUseCase {
       data: NodeData(title: title == "" ? null : title),
     ).toJson();
     final result = await nodeRepository.updateNode(colId, nodeId, data);
-    return result.fold(
-      (error) {
-        print("Can't update node title: $error");
-        return null;
-      },
-      (node) {
-        return node;
-      },
-    );
+
+    switch (result) {
+      case ApiSuccess(:final data):
+      return data;
+      case ApiError error:
+      notificationBus.showError("Can't update node title", error);
+      return null;
+    }
   }
 }

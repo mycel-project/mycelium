@@ -75,15 +75,9 @@ class NodeService {
     int nodeId,
     String content,
   ) async {
-    final result = await api.patch("/collections/$collectionId/nodes/$nodeId", {
-      "content": content,
+    return api.patch("/collections/$collectionId/nodes/$nodeId", {
+        "content": content,
     });
-
-    if (result is ApiError) return result;
-
-    final success = result as ApiSuccess<String>;
-
-    return ApiSuccess<String>(success.data);
   }
 
   Future<ApiResult<List<NodeType>>> getNodeTypes() async {
