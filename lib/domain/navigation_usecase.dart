@@ -20,6 +20,7 @@ class NavigationUseCase extends ChangeNotifier {
 
   bool get canGoBack => _canGoBack;
   bool get canGoForward => _canGoForward;
+  int? _cursorBeforeNavigation; // to allow 1 undo when not discarding action for instance
 
   NavigationUseCase(
     this._nodeRepository,
@@ -61,6 +62,7 @@ class NavigationUseCase extends ChangeNotifier {
   Future<void> navigateTo(int nodeId) async {
     final colId = _collectionStore.currentCollection?.id;
     if (colId == null) return;
+    _cursorBeforeNavigation = _navigationStore.cursorIndex;
 
     final result = await _nodeRepository.getNode(colId, nodeId);
     result.fold((err) => null, (node) {
@@ -77,7 +79,7 @@ class NavigationUseCase extends ChangeNotifier {
   Future<int?> back() async {
     final colId = _collectionStore.currentCollection?.id;
     if (colId == null) return null;
-
+    _cursorBeforeNavigation = _navigationStore.cursorIndex;
     for (int i = _navigationStore.cursorIndex - 1; i >= 0; i--) {
       final id = _navigationStore.idAtIndex(i);
       if (id == null || !_isValidDestination(id)) continue;
@@ -98,7 +100,7 @@ class NavigationUseCase extends ChangeNotifier {
   Future<int?> forward() async {
     final colId = _collectionStore.currentCollection?.id;
     if (colId == null) return null;
-
+    _cursorBeforeNavigation = _navigationStore.cursorIndex;
     for (
       int i = _navigationStore.cursorIndex + 1;
       i < _navigationStore.historyLength;
@@ -118,5 +120,12 @@ class NavigationUseCase extends ChangeNotifier {
       }
     }
     return null;
+  }
+
+  void undoLastNavigation() {
+    if (_cursorBeforeNavigation == null) return;
+    _navigationStore.moveCursorTo(_cursorBeforeNavigation!);
+    _cursorBeforeNavigation = null;
+    _updateCanNavigate();
   }
 }
