@@ -95,7 +95,7 @@ class HomeViewModel extends ChangeNotifier {
   }
 
   bool isCurrentNodeUnderReview() {
-    return nodeStore.currentNode?.id == reviewStore.currentNodeId;
+    return nodeStore.currentNode?.id == reviewStore.currentNodeId && reviewStore.currentNodeId != null;
   }
 
   bool hasParent = false;

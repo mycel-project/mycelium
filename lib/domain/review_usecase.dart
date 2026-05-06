@@ -19,18 +19,20 @@ class ReviewUseCase {
     this.navigationUseCase,
   );
 
-
   Future<ApiResult<void>> handleNextReview() async {
     final colId = collectionStore.currentCollection?.id;
     if (colId == null) return ApiError("no_collection");
-    
+
     final result = await reviewRepository.getNextReview(colId);
     if (result is ApiError) return result;
-    if (result is ApiSuccess<Node>) {
-      navigationUseCase.navigateTo(result.data.id);
-      reviewStore.setReview(result.data.id);
-    } else {
-      reviewStore.endReview();
+    if (result is ApiSuccess) {
+      final node = (result as ApiSuccess).data;
+      if (node != null) {
+        navigationUseCase.navigateTo(node.id);
+        reviewStore.setReview(node.id);
+      } else {
+        reviewStore.endReview();
+      }
     }
     return ApiSuccess(null);
   }

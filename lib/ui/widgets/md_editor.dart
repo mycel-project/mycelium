@@ -149,7 +149,7 @@ class _MdEditorState extends State<MdEditor> {
                                 ? true
                                 : !vm.activeKeyboard &&
                                       !vm.isCurrentNodeSpore(),
-                            showCursor: true,
+                            showCursor: !vm.isLocked(),
                             onTap: vm.isLocked() ? null : vm.editMode,
                             maxLines: null,
                             expands: false,
