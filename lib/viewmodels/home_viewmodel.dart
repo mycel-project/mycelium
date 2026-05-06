@@ -52,15 +52,25 @@ class HomeViewModel extends ChangeNotifier {
     this.notificationBus,
   ) {
     reviewStore.addListener(_onReviewChanged);
-    nodeStore.addListener(_checkHasParent);
+    nodeStore.addListener(_onNodeStoreChange);
     apiStore.addListener(handleRetry);
     reviewStore.addListener(_onReviewChange);
   }
 
   @override
   void dispose() {
+    reviewStore.removeListener(_onReviewChanged);
+    nodeStore.removeListener(_onNodeStoreChange);
+    apiStore.removeListener(handleRetry);
+    reviewStore.removeListener(_onReviewChange);
+
     _retryTimer?.cancel();
+
     super.dispose();
+  }
+  void _onNodeStoreChange() {
+    dismissNoMoreReviews();
+    _checkHasParent();
   }
 
   void _onReviewChange() {
@@ -142,11 +152,11 @@ class HomeViewModel extends ChangeNotifier {
   }
 
   void _checkHasParent() {
-    if (nodeStore.currentNode?.parentId != null) {
-      hasParent = true;
-    } else {
-      hasParent = false;
-    }
+    final newValue = nodeStore.currentNode?.parentId != null;
+
+    if (hasParent == newValue) return;
+
+    hasParent = newValue;
     notifyListeners();
   }
 
@@ -163,7 +173,10 @@ class HomeViewModel extends ChangeNotifier {
     result.fold((err) => null, (node) => nodeStore.selectNode(node));
   }
 
+
   void dismissNoMoreReviews() {
+    if (!noMoreReviewsFlag) return;
+
     noMoreReviewsFlag = false;
     notifyListeners();
   }
