@@ -1,4 +1,5 @@
 import 'package:get_it/get_it.dart';
+import 'package:mycelium/core/debug/network_logger.dart';
 
 import 'package:mycelium/core/stores/api_store.dart';
 import 'package:mycelium/core/stores/collection_store.dart';
@@ -33,10 +34,11 @@ import 'package:mycelium/viewmodels/md_editor_view_model.dart';
 final sl = GetIt.instance;
 
 Future<void> setup() async {
+  sl.registerSingleton(NetworkLogger());
   // Infra
   sl.registerSingleton(ApiPreferences());
   sl.registerSingleton(ApiStore());
-  sl.registerSingleton(ApiService(sl()));
+  sl.registerSingleton(ApiService(sl(), sl()));
 
   // Data
   sl.registerSingleton(CollectionPreferences());

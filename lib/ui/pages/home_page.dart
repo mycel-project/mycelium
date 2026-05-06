@@ -4,10 +4,10 @@ import 'package:mycelium/core/stores/collection_store.dart';
 import 'package:mycelium/core/stores/node_store.dart';
 import 'package:mycelium/data/models/node_type.dart';
 import 'package:mycelium/domain/api_status.dart';
-import 'package:mycelium/domain/review_usecase.dart';
 import 'package:mycelium/ui/pages/api_config_page.dart';
 import 'package:mycelium/ui/pages/collections_page.dart';
 import 'package:mycelium/ui/widgets/api_not_reachable_widget.dart';
+import 'package:mycelium/ui/widgets/api_status_dot_widget.dart';
 import 'package:mycelium/ui/widgets/app_bar.dart';
 import 'package:mycelium/ui/widgets/confirmation_dialog.dart';
 import 'package:mycelium/ui/widgets/input_dialog.dart';
@@ -70,34 +70,7 @@ class HomePage extends StatelessWidget {
                 : null,
             icon: const Icon(Icons.school),
           ),
-          IconButton(
-            onPressed: () => vm.connectionStatusClick(),
-            splashRadius: 20,
-            icon: vm.isCheckingConnection
-                ? const SizedBox(
-                    width: 16,
-                    height: 16,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      valueColor: AlwaysStoppedAnimation<Color>(
-                        Colors.lightBlue,
-                      ),
-                    ),
-                  )
-                : Icon(
-                    size: 16,
-                    switch (apiStore.apiStatus) {
-                      ApiStatus.unknown || ApiStatus.emptyUrl => Icons.circle,
-                      ApiStatus.reachable => Icons.circle,
-                      ApiStatus.unreachable => Icons.error,
-                    },
-                    color: switch (apiStore.apiStatus) {
-                      ApiStatus.unknown || ApiStatus.emptyUrl => Colors.grey,
-                      ApiStatus.reachable => Colors.green,
-                      ApiStatus.unreachable => Colors.red,
-                    },
-                  ),
-          ),
+          ApiStatusDotWidget(),
           PopupMenuButton(
             onSelected: (value) {
               if (value == 1) {

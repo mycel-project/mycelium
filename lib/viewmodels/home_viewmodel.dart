@@ -126,22 +126,7 @@ class HomeViewModel extends ChangeNotifier {
     await nodeUseCase.deleteNode(colId, nodeId);
     notifyListeners();
   }
-
-  bool isCheckingConnection = false;
-  Future<void> connectionStatusClick() async {
-    // only ui state
-    isCheckingConnection = true;
-    notifyListeners();
-
-    await Future.wait([
-      apiService.checkReachability(),
-      Future.delayed(const Duration(milliseconds: 500)),
-    ]);
-
-    isCheckingConnection = false;
-    notifyListeners();
-  }
-
+  
   void upPress() {
     nodeUseCase.selectParentNode();
   }

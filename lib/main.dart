@@ -1,20 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:mycelium/core/debug/network_logger.dart';
 import 'package:mycelium/core/injection.dart';
 import 'package:mycelium/core/stores/api_store.dart';
 import 'package:mycelium/core/stores/collection_store.dart';
 import 'package:mycelium/core/stores/node_store.dart';
 import 'package:mycelium/core/stores/review_store.dart';
-import 'package:mycelium/data/repositories/node_repository.dart';
-import 'package:mycelium/data/repositories/review_repository.dart';
 import 'package:mycelium/domain/api_status.dart';
 import 'package:mycelium/domain/init_api_usecase.dart';
-import 'package:mycelium/domain/init_collections_usecase.dart';
 import 'package:mycelium/domain/init_data_usecase.dart';
 import 'package:mycelium/ui/pages/api_config_page.dart';
 import 'package:mycelium/viewmodels/api_viewmodel.dart';
 import 'package:mycelium/viewmodels/collections_viewmodel.dart';
 import 'package:mycelium/viewmodels/home_viewmodel.dart';
-import 'package:mycelium/viewmodels/launch_review_button_viewmodel.dart';
 import 'package:mycelium/viewmodels/md_editor_view_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'ui/pages/home_page.dart';
@@ -45,6 +42,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => sl<NodeStore>()),
         ChangeNotifierProvider(create: (_) => sl<ReviewStore>()),
         Provider(create: (_) => sl<LaunchReviewButtonViewmodel>()),
+        ChangeNotifierProvider(create: (_) => sl<NetworkLogger>()),
       ],
       child: MyApp(apiStatus: apiStatus),
     ),
