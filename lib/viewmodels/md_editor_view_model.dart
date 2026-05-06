@@ -74,7 +74,7 @@ class MdEditorViewModel extends ChangeNotifier {
   /// Reference value to restore autosave to when connection comes back.
   bool defaultAutoSave = autosaveFromParam;
 
-  /// Current autosave state — disabled when offline, restored to [defaultAutoSave] on reconnect.
+  /// Current autosave state — disabled when offline, restored to [defaultAutoSave] on reconnect. Not instanciated from defaultAutoSave because it is not static
   bool _autosave = autosaveFromParam;
 
   @override
@@ -95,22 +95,55 @@ class MdEditorViewModel extends ChangeNotifier {
   String content = "";
   bool isDirty = false;
 
-  void reviewSpore(int rating) {
-    reviewRepository.reviewSpore(node!.collectionId, node!.id, 10, rating);
+  Future<bool> reviewSpore(int rating) async {
+    final result = reviewRepository.reviewSpore(
+      node!.collectionId,
+      node!.id,
+      10,
+      rating,
+    );
+    if (result case ApiError error) {
+      notificationBus.showError("Cannot complete Spore review", error);
+      return false;
+    }
+    return true;
   }
 
-  void reviewFragment() {
-    reviewRepository.reviewFragment(node!.collectionId, node!.id, 10);
+  Future<bool> reviewFragment() async {
+    final result = reviewRepository.reviewFragment(
+      node!.collectionId,
+      node!.id,
+      10,
+    );
+    if (result case ApiError error) {
+      notificationBus.showError("Cannot complete Fragment review", error);
+      return false;
+    }
+    return true;
   }
 
-  Future<void> nextReview() async {
+  Future<void> _handleReview(Future<bool> Function() reviewAction) async {
+    if (!await saveContent()) return;
+    if (!await reviewAction()) return;
+    if (!await nextReview()) {
+      reviewStore.setLoading();
+    }
+  }
+
+  Future<void> handleSporeReview(int rating) =>
+      _handleReview(() => reviewSpore(rating));
+  Future<void> handleFragmentReview() => _handleReview(reviewFragment);
+
+  Future<bool> nextReview() async {
     final result = await reviewUseCase.handleNextReview();
     if (result case ApiError error) {
       final msg = error.code == "no_collection"
-      ? "No collection selected"
-      : "Cannot load next review";
-        notificationBus.showError(msg, error);
+          ? "No collection selected"
+          : "Cannot load next review";
+      notificationBus.showError(msg, error);
+      return false;
     }
+    return true;
   }
 
   bool isLocked() {
@@ -320,11 +353,12 @@ class MdEditorViewModel extends ChangeNotifier {
     return nodeUseCase.hasChildren(currentNode.id);
   }
 
-  Future<void> saveContent() async {
-    if (!isDirty) return;
+  Future<bool> saveContent() async {
+    /// Returns true if the save completed or was not required, false if it failed.
+    if (!isDirty) return true;
     final collectionId = node?.collectionId;
     final nodeId = node?.id;
-    if (collectionId == null || nodeId == null) return;
+    if (collectionId == null || nodeId == null) return false;
 
     final result = await nodeRepository.updateNodeContent(
       collectionId,
@@ -333,11 +367,13 @@ class MdEditorViewModel extends ChangeNotifier {
     );
     switch (result) {
       case ApiSuccess():
-      isDirty = false;
-      isEditing = false;
-      notifyListeners();
+        isDirty = false;
+        isEditing = false;
+        notifyListeners();
+        return true;
       case ApiError error:
-      notificationBus.showError("Cannot save content", error);
+        notificationBus.showError("Cannot save content", error);
+        return false;
     }
   }
 }

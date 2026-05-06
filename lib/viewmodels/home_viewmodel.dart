@@ -54,12 +54,17 @@ class HomeViewModel extends ChangeNotifier {
     reviewStore.addListener(_onReviewChanged);
     nodeStore.addListener(_checkHasParent);
     apiStore.addListener(handleRetry);
+    reviewStore.addListener(_onReviewChange);
   }
 
   @override
   void dispose() {
     _retryTimer?.cancel();
     super.dispose();
+  }
+
+  void _onReviewChange() {
+    notifyListeners();
   }
 
   Timer? _retryTimer;
@@ -95,7 +100,8 @@ class HomeViewModel extends ChangeNotifier {
   }
 
   bool isCurrentNodeUnderReview() {
-    return nodeStore.currentNode?.id == reviewStore.currentNodeId && reviewStore.currentNodeId != null;
+    return nodeStore.currentNode?.id == reviewStore.currentNodeId &&
+        reviewStore.currentNodeId != null;
   }
 
   bool hasParent = false;
@@ -181,8 +187,8 @@ class HomeViewModel extends ChangeNotifier {
     final result = await reviewUseCase.handleNextReview();
     if (result case ApiError error) {
       final msg = error.code == "no_collection"
-      ? "No collection selected"
-      : "Cannot load next review";
+          ? "No collection selected"
+          : "Cannot load next review";
       notificationBus.showError(msg, error);
     }
   }

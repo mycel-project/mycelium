@@ -337,10 +337,8 @@ class _MdEditorState extends State<MdEditor> {
                     ? vm.isAnswerVisible
                           ? ValidationBar(
                               onSelected: (value) {
-                                vm.saveContent;
-                                vm.reviewSpore(value);
+                                vm.handleSporeReview(value);
                                 focusNode.unfocus();
-                                vm.nextReview();
                               },
                             )
                           : ShowAnswerButton(
@@ -351,10 +349,8 @@ class _MdEditorState extends State<MdEditor> {
                             )
                     : NextReviewButton(
                         onPressed: () {
-                          vm.saveContent;
+                          vm.handleFragmentReview();
                           focusNode.unfocus();
-                          vm.reviewFragment();
-                          vm.nextReview();
                         },
                       )
               : SizedBox.shrink(),
