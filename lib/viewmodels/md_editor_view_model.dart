@@ -385,6 +385,7 @@ class MdEditorViewModel extends ChangeNotifier {
 
   Future<bool> saveContent() async {
     /// Returns true if the save completed or was not required, false if it failed.
+    _debounceTimer?.cancel();
     if (!isDirty) return true;
     final collectionId = node?.collectionId;
     final nodeId = node?.id;
