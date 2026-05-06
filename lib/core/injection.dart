@@ -100,6 +100,7 @@ Future<void> setup() async {
       sl(),
       sl(),
       sl(),
+      sl(),
     ),
   );
   sl.registerFactory(() => LaunchReviewButtonViewmodel(sl()));

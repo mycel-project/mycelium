@@ -2,6 +2,7 @@ import "package:flutter/material.dart";
 import "package:mycelium/core/stores/review_store.dart";
 import "package:mycelium/ui/controllers/markdown_controller.dart";
 import "package:mycelium/ui/widgets/confirmation_dialog.dart";
+import "package:mycelium/ui/widgets/input_dialog.dart";
 import "package:mycelium/ui/widgets/next_review_button.dart";
 import "package:mycelium/ui/widgets/show_answer_button.dart";
 import "package:mycelium/ui/widgets/validation_bar.dart";
@@ -34,8 +35,8 @@ class _MdEditorState extends State<MdEditor> {
     });
 
     vm.addListener(_syncFromVm);
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _syncFromVm();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await _syncFromVm();
     });
   }
 
@@ -55,7 +56,20 @@ class _MdEditorState extends State<MdEditor> {
     });
   }
 
-  void _syncFromVm() {
+  bool _isShowingDialog = false;
+  Future<void> _syncFromVm() async {
+  if (vm.showUnsavedChangesDialog) {
+    if (_isShowingDialog) return; 
+    _isShowingDialog = true;
+    final response = await ConfirmationDialog.show(
+      context,
+      title: "Discard Changes?",
+      text: "Your changes couldn't be saved. Switching to another node will discard them.\n\nTo keep your changes, try restoring the API connection before switching nodes.\n\nDiscard?",
+      destructive: true,
+    );
+    _isShowingDialog = false;
+    response ? vm.confirmDiscardChanges() : vm.cancelNodeChange();
+  }
     final currentId = vm.node?.id;
 
     if (_lastNodeId != currentId) {

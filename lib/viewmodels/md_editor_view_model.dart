@@ -15,6 +15,7 @@ import 'package:mycelium/data/repositories/review_repository.dart';
 import 'package:mycelium/data/services/node_service.dart';
 import 'package:mycelium/domain/api_status.dart';
 import 'package:mycelium/domain/cloze_mode.dart';
+import 'package:mycelium/domain/navigation_usecase.dart';
 import 'package:mycelium/domain/node_usecase.dart';
 import 'package:mycelium/domain/review_usecase.dart';
 
@@ -27,6 +28,7 @@ class MdEditorViewModel extends ChangeNotifier {
   CollectionStore collectionStore;
   NodeRepository nodeRepository;
   NotificationBus notificationBus;
+  NavigationUseCase navigationUseCase;
 
   bool isAnswerVisible = false;
   bool isEditing = false;
@@ -53,6 +55,7 @@ class MdEditorViewModel extends ChangeNotifier {
     this.collectionStore,
     this.apiStore,
     this.notificationBus,
+    this.navigationUseCase,
   ) {
     nodeStore.addListener(_onNodeStoreChanged);
     apiStore.addListener(_onApiStoreChanged);
@@ -61,9 +64,35 @@ class MdEditorViewModel extends ChangeNotifier {
 
   bool? get dismissState => node?.typeData?['dismiss'] as bool?;
 
+  bool _showUnsavedChangesDialog = false;
+  bool get showUnsavedChangesDialog => _showUnsavedChangesDialog;
+  Node? _pendingNode;
+
   Future<void> _onNodeStoreChanged() async {
-    await saveContent();
+    if (_showUnsavedChangesDialog) return;
+    if (node?.id == nodeStore.currentNode?.id && node?.id != null) return;
+    if (!await saveContent()) {
+      _pendingNode = node;
+      _showUnsavedChangesDialog = true;
+      notifyListeners();
+      return;
+    }
     loadNode(nodeStore.currentNode);
+  }
+
+  void confirmDiscardChanges() {
+    _showUnsavedChangesDialog = false;
+    loadNode(nodeStore.currentNode);
+    _pendingNode = null;
+    notifyListeners();
+  }
+
+  void cancelNodeChange() {
+    _showUnsavedChangesDialog = false;
+    nodeStore.selectNode(_pendingNode);
+    navigationUseCase.undoLastNavigation();
+    _pendingNode = null;
+    notifyListeners();
   }
 
   Timer? _debounceTimer;
@@ -284,8 +313,9 @@ class MdEditorViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void loadNode(Node? node) {
+  void loadNode(Node? node, {bool forceReload = false}) {
     isAnswerVisible = false;
+    if (this.node?.id == node?.id && node?.id != null) return;
     if (node != null) {
       this.node = node;
       isDirty = false;
