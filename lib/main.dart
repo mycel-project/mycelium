@@ -41,7 +41,6 @@ void main() async {
         ChangeNotifierProvider(create: (_) => sl<ApiStore>()),
         ChangeNotifierProvider(create: (_) => sl<NodeStore>()),
         ChangeNotifierProvider(create: (_) => sl<ReviewStore>()),
-        Provider(create: (_) => sl<LaunchReviewButtonViewmodel>()),
         ChangeNotifierProvider(create: (_) => sl<NetworkLogger>()),
       ],
       child: MyApp(apiStatus: apiStatus),
