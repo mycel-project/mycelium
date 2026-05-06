@@ -7,6 +7,7 @@ import 'package:mycelium/core/stores/api_store.dart';
 import 'package:mycelium/core/stores/collection_store.dart';
 import 'package:mycelium/core/stores/node_store.dart';
 import 'package:mycelium/core/stores/review_store.dart';
+import 'package:mycelium/data/api_result.dart';
 import 'package:mycelium/data/models/node.dart';
 import 'package:mycelium/data/repositories/node_repository.dart';
 import 'package:mycelium/data/repositories/review_repository.dart';
@@ -101,8 +102,20 @@ class MdEditorViewModel extends ChangeNotifier {
     reviewRepository.reviewFragment(node!.collectionId, node!.id, 10);
   }
 
-  void nextReview() {
-    reviewUseCase.handleNextReview();
+  Future<void> nextReview() async {
+    final result = await reviewUseCase.handleNextReview();
+    switch (result) {
+      case ApiSuccess():
+        break;
+      case ApiError(:final code, :final message):
+        if (code == "no_collection") {
+          _showMessage("No collection selected");
+        }
+        if (code == "no_connection" || code == "timeout") {
+          _showMessage("Cannot load next review");
+          return;
+        }
+    }
   }
 
   bool isLocked() {

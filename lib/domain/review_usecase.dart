@@ -1,5 +1,6 @@
 import 'package:mycelium/core/stores/collection_store.dart';
 import 'package:mycelium/core/stores/review_store.dart';
+import 'package:mycelium/data/api_result.dart';
 import 'package:mycelium/data/models/node.dart';
 import 'package:mycelium/data/repositories/review_repository.dart';
 import 'package:mycelium/domain/cloze_mode.dart';
@@ -18,23 +19,20 @@ class ReviewUseCase {
     this.navigationUseCase,
   );
 
-  Future<bool> handleNextReview() async {
+
+  Future<ApiResult<void>> handleNextReview() async {
     final colId = collectionStore.currentCollection?.id;
-    if (colId == null) {
-      throw StateError("No collection selected");
-    }
-
+    if (colId == null) return ApiError("no_collection");
+    
     final result = await reviewRepository.getNextReview(colId);
-
-    if (result is Node) {
-      final node = result;
-      navigationUseCase.navigateTo(node.id);
-      reviewStore.setReview(node.id);
+    if (result is ApiError) return result;
+    if (result is ApiSuccess<Node>) {
+      navigationUseCase.navigateTo(result.data.id);
+      reviewStore.setReview(result.data.id);
     } else {
       reviewStore.endReview();
     }
-
-    return true;
+    return ApiSuccess(null);
   }
 
   String transformClozeContent(

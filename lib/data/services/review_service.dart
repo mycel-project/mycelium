@@ -19,13 +19,7 @@ class ReviewService {
   }
 
   Future<ApiResult<String>> getNextReview(int colId) async {
-    final result = await api.get("/collections/$colId/next-review");
-
-    if (result is ApiError) return result;
-
-    final success = result as ApiSuccess<String>;
-
-    return ApiSuccess<String>(success.data);
+    return await api.get("/collections/$colId/next-review");
   }
 
   Future<ApiResult<String>> completeFragmentReview(
