@@ -3,10 +3,7 @@ import 'package:flutter/material.dart';
 class ShowAnswerButton extends StatelessWidget {
   final VoidCallback onPressed;
 
-  const ShowAnswerButton({
-    super.key,
-    required this.onPressed,
-  });
+  const ShowAnswerButton({super.key, required this.onPressed});
 
   @override
   Widget build(BuildContext context) {
@@ -23,14 +20,12 @@ class ShowAnswerButton extends StatelessWidget {
             elevation: 0,
             padding: EdgeInsets.zero,
             shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.zero, 
+              borderRadius: BorderRadius.zero,
             ),
           ),
           child: const Text(
             "Show Answer",
-            style: TextStyle(
-              fontWeight: FontWeight.w600,
-            ),
+            style: TextStyle(fontWeight: FontWeight.w600),
           ),
         ),
       ),

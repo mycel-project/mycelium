@@ -1,6 +1,1 @@
-enum ApiStatus {
-  emptyUrl,
-  reachable,
-  unreachable,
-  unknown,
-}
+enum ApiStatus { emptyUrl, reachable, unreachable, unknown }

@@ -4,9 +4,6 @@ class NodeType {
   final int key;
 
   factory NodeType.fromJson(Map<String, dynamic> json) {
-    return NodeType(
-      label: json['label'],
-      key: json['value'],
-    );
+    return NodeType(label: json['label'], key: json['value']);
   }
 }

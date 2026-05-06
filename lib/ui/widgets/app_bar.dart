@@ -4,11 +4,7 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String titleText;
   final List<Widget>? actions;
 
-  const MyAppBar({
-    super.key,
-    required this.titleText,
-    this.actions,
-  });
+  const MyAppBar({super.key, required this.titleText, this.actions});
 
   @override
   Widget build(BuildContext context) {
@@ -17,10 +13,7 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
       title: Text(titleText),
       backgroundColor: Theme.of(context).colorScheme.primary,
       foregroundColor: Colors.white,
-      actions: actions == null ? null : [
-        ...actions!,
-        const SizedBox(width: 8),
-      ],
+      actions: actions == null ? null : [...actions!, const SizedBox(width: 8)],
     );
   }
 

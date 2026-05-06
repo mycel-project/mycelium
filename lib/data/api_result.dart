@@ -10,9 +10,5 @@ class ApiError extends ApiResult<Never> {
   final int? statusCode;
   final String? message;
 
-  ApiError(
-    this.code, {
-    this.statusCode,
-    this.message,
-  });
+  ApiError(this.code, {this.statusCode, this.message});
 }

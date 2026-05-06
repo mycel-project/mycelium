@@ -9,18 +9,18 @@ import 'package:provider/provider.dart';
 class CollectionsPage extends StatelessWidget {
   const CollectionsPage({super.key});
 
-  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: MyAppBar(
         titleText: "Collections manager",
-        actions:[
+        actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
-            onPressed: () => context.read<CollectionsViewModel>().loadCollections(),
+            onPressed: () =>
+                context.read<CollectionsViewModel>().loadCollections(),
           ),
-        ]
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(64),
@@ -43,7 +43,9 @@ class CollectionsPage extends StatelessWidget {
                 );
                 if (name == null) return;
                 if (!context.mounted) return;
-                await context.read<CollectionsViewModel>().createCollection(name);
+                await context.read<CollectionsViewModel>().createCollection(
+                  name,
+                );
               },
               child: Text("Create collection"),
             ),
@@ -56,7 +58,7 @@ class CollectionsPage extends StatelessWidget {
 
 class CollectionsList extends StatefulWidget {
   const CollectionsList({super.key});
-  
+
   @override
   State<CollectionsList> createState() => _CollectionsListState();
 }
@@ -69,7 +71,7 @@ class _CollectionsListState extends State<CollectionsList> {
       context.read<CollectionsViewModel>().reloadIfEmpty();
     });
   }
-  
+
   @override
   Widget build(BuildContext context) {
     final vm = context.watch<CollectionsViewModel>();
@@ -82,8 +84,8 @@ class _CollectionsListState extends State<CollectionsList> {
           return Center(
             child: ListTile(
               tileColor: collection.id == store.currentCollection?.id
-              ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.1)
-              : null,
+                  ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.1)
+                  : null,
               onTap: () {
                 vm.setCollection(collection.id);
                 Navigator.pop(context);
@@ -102,7 +104,7 @@ class _CollectionsListState extends State<CollectionsList> {
                               final name = await showInputDialog(
                                 context: context,
                                 title: "New name",
-                                initialValue: collection.name
+                                initialValue: collection.name,
                               );
                               if (!context.mounted) return;
                               Navigator.pop(context);
@@ -121,7 +123,7 @@ class _CollectionsListState extends State<CollectionsList> {
                                 context,
                                 title: "Delete confirmation",
                                 text:
-                                "Delete collection ${collection.name} and all data associated?",
+                                    "Delete collection ${collection.name} and all data associated?",
                                 destructive: true,
                               );
                               if (!context.mounted) return;

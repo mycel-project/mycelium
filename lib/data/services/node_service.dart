@@ -76,7 +76,7 @@ class NodeService {
     String content,
   ) async {
     return api.patch("/collections/$collectionId/nodes/$nodeId", {
-        "content": content,
+      "content": content,
     });
   }
 

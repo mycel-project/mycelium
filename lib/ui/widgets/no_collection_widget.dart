@@ -14,7 +14,7 @@ class NoCollectionWidget extends StatelessWidget {
               child: Text(
                 "No collection selected yet.\nCreate one or pick an existing one to get started.",
                 textAlign: TextAlign.center,
-              )
+              ),
             ),
             ElevatedButton(
               onPressed: () {

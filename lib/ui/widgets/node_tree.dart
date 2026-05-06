@@ -93,20 +93,20 @@ class _NodeTreeState extends State<NodeTree> {
                 final hasChildren = node.children.isNotEmpty;
                 final isSporeNode = widget.isSpore?.call(typedNode) ?? false;
                 final depth = _getDepth(node);
-                final bool allDismissed = hasChildren && isSubtreeDismissed(node, widget.isSpore);
+                final bool allDismissed =
+                    hasChildren && isSubtreeDismissed(node, widget.isSpore);
 
                 return Transform.translate(
-                  offset: Offset(
-                    -(depth * 10.0),
-                    0,
-                  ), 
+                  offset: Offset(-(depth * 10.0), 0),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       ...List.generate(
                         depth,
                         (i) => Container(
-                          padding: EdgeInsetsGeometry.only(left: 10), // To modify floor spacing, adjust the int here, and adjust 2 and 3 too
+                          padding: EdgeInsetsGeometry.only(
+                            left: 10,
+                          ), // To modify floor spacing, adjust the int here, and adjust 2 and 3 too
                           width: 30, // 2
                           child: Center(
                             child: Container(
@@ -140,8 +140,13 @@ class _NodeTreeState extends State<NodeTree> {
                                           width: 12,
                                           height: 12,
                                           colorFilter: allDismissed
-                                          ? ColorFilter.mode(Colors.grey.withValues(alpha: 0.8), BlendMode.srcIn)
-                                          : null,
+                                              ? ColorFilter.mode(
+                                                  Colors.grey.withValues(
+                                                    alpha: 0.8,
+                                                  ),
+                                                  BlendMode.srcIn,
+                                                )
+                                              : null,
                                         ),
                                       ),
                                     ),
@@ -151,70 +156,82 @@ class _NodeTreeState extends State<NodeTree> {
                                       'assets/icons/triangle_empty.svg',
                                       width: 12,
                                       height: 12,
-                                      colorFilter: typedNode.typeData?["dismiss"] == true
-                                      ? ColorFilter.mode(Colors.grey.withValues(alpha: 0.8), BlendMode.srcIn)
-                                      : null,
+                                      colorFilter:
+                                          typedNode.typeData?["dismiss"] == true
+                                          ? ColorFilter.mode(
+                                              Colors.grey.withValues(
+                                                alpha: 0.8,
+                                              ),
+                                              BlendMode.srcIn,
+                                            )
+                                          : null,
                                     ),
                                   ),
-                                ),
-                              ),
-                              Expanded(
-                                child: Padding(
-                                  padding: isSporeNode ? EdgeInsetsGeometry.only(left: 0) : EdgeInsetsGeometry.only(left: 0),
-                                  child: GestureDetector(
-                                    onLongPressStart: (details) {
-                                      widget.longPressCallback?.call(
-                                        typedNode.id,
-                                        details,
-                                      );
-                                    },
-                                    child: Material(
-                                      color: Colors.transparent,
-                                      child: InkWell(
-                                        onTap: () {
-                                          widget.clickCallback?.call(typedNode.id);
-                                          FocusManager.instance.primaryFocus?.unfocus();
-                                          Navigator.pop(context);
-                                        },
-                                        child: Container(
-                                          decoration: BoxDecoration(
-                                            color: isSelected
-                                            ? Theme.of(context).colorScheme.primary
-                                            .withValues(alpha: 0.1)
-                                            : Colors.transparent,
-                                          ),
-                                          alignment: Alignment.centerLeft,
-                                          child: Transform.translate(
-                                            offset: const Offset(10, 0),
-                                            child: Text(
-                                              formatNodeTitle(typedNode.data?.title ?? typedNode.content?['0']),
-                                              maxLines: 1,
-                                              overflow: TextOverflow.ellipsis,
-                                              style: TextStyle(
-                                                color:
-                                                typedNode.typeData?["dismiss"] == true
-                                                ? Colors.grey.withValues(alpha: 0.5)
-                                                : Theme.of(
-                                                  context,
-                                                ).textTheme.bodyMedium?.color,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
+                          ),
+                        ),
+                      Expanded(
+                        child: Padding(
+                          padding: isSporeNode
+                              ? EdgeInsetsGeometry.only(left: 0)
+                              : EdgeInsetsGeometry.only(left: 0),
+                          child: GestureDetector(
+                            onLongPressStart: (details) {
+                              widget.longPressCallback?.call(
+                                typedNode.id,
+                                details,
+                              );
+                            },
+                            child: Material(
+                              color: Colors.transparent,
+                              child: InkWell(
+                                onTap: () {
+                                  widget.clickCallback?.call(typedNode.id);
+                                  FocusManager.instance.primaryFocus?.unfocus();
+                                  Navigator.pop(context);
+                                },
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: isSelected
+                                        ? Theme.of(context).colorScheme.primary
+                                              .withValues(alpha: 0.1)
+                                        : Colors.transparent,
+                                  ),
+                                  alignment: Alignment.centerLeft,
+                                  child: Transform.translate(
+                                    offset: const Offset(10, 0),
+                                    child: Text(
+                                      formatNodeTitle(
+                                        typedNode.data?.title ??
+                                            typedNode.content?['0'],
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                        color:
+                                            typedNode.typeData?["dismiss"] ==
+                                                true
+                                            ? Colors.grey.withValues(alpha: 0.5)
+                                            : Theme.of(
+                                                context,
+                                              ).textTheme.bodyMedium?.color,
                                       ),
                                     ),
                                   ),
                                 ),
                               ),
-                            ],
+                            ),
                           ),
-                        );
-                      },
-                    ),
-                  ],
+                        ),
+                      ),
+                    ],
+                  ),
                 );
-              }
-            }
+              },
+        ),
+      ],
+    );
+  }
+}
 
 bool isSubtreeDismissed(TreeSliverNode node, bool Function(Node)? isSpore) {
   final typedNode = node.content as Node;

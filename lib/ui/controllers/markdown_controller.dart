@@ -16,7 +16,7 @@ class MarkdownController extends TextEditingController {
 
     final (markdown, ast) = markdownToFormattedMarkdown(
       text,
-            blockSyntaxes: [
+      blockSyntaxes: [
         // No EmptyBlockSyntax() to convert it as paragraph and make it editable
         HeaderSyntax(),
         const BlockquoteSyntax(),
@@ -35,7 +35,7 @@ class MarkdownController extends TextEditingController {
     );
 
     printAst(ast);
-    
+
     return TextSpan(children: markdown, style: baseStyle);
   }
 }

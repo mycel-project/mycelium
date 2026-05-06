@@ -19,8 +19,8 @@ class _ApiStatusDotWidgetState extends State<ApiStatusDotWidget> {
   Future<void> _onPressed() async {
     setState(() => _isChecking = true);
     await Future.wait([
-        sl<CheckApiUseCase>().execute(),
-        Future.delayed(const Duration(milliseconds: 500)),
+      sl<CheckApiUseCase>().execute(),
+      Future.delayed(const Duration(milliseconds: 500)),
     ]);
     if (mounted) setState(() => _isChecking = false);
   }
@@ -46,27 +46,27 @@ class _ApiStatusDotWidgetState extends State<ApiStatusDotWidget> {
       },
       splashRadius: 20,
       icon: _isChecking
-      ? const SizedBox(
-        width: 16,
-        height: 16,
-        child: CircularProgressIndicator(
-          strokeWidth: 2,
-          valueColor: AlwaysStoppedAnimation<Color>(Colors.lightBlue),
-        ),
-      )
-      : Icon(
-        size: 16,
-        switch (apiStore.apiStatus) {
-          ApiStatus.unknown || ApiStatus.emptyUrl => Icons.circle,
-          ApiStatus.reachable => Icons.circle,
-          ApiStatus.unreachable => Icons.error,
-        },
-        color: switch (apiStore.apiStatus) {
-          ApiStatus.unknown || ApiStatus.emptyUrl => Colors.grey,
-          ApiStatus.reachable => Colors.green,
-          ApiStatus.unreachable => Colors.red,
-        },
-      ),
+          ? const SizedBox(
+              width: 16,
+              height: 16,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                valueColor: AlwaysStoppedAnimation<Color>(Colors.lightBlue),
+              ),
+            )
+          : Icon(
+              size: 16,
+              switch (apiStore.apiStatus) {
+                ApiStatus.unknown || ApiStatus.emptyUrl => Icons.circle,
+                ApiStatus.reachable => Icons.circle,
+                ApiStatus.unreachable => Icons.error,
+              },
+              color: switch (apiStore.apiStatus) {
+                ApiStatus.unknown || ApiStatus.emptyUrl => Colors.grey,
+                ApiStatus.reachable => Colors.green,
+                ApiStatus.unreachable => Colors.red,
+              },
+            ),
     );
   }
 }

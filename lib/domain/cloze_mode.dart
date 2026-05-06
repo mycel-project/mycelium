@@ -1,4 +1,1 @@
-enum ClozeMode {
-  hide,
-  show,
-}
+enum ClozeMode { hide, show }

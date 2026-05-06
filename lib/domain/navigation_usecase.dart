@@ -29,8 +29,8 @@ class NavigationUseCase extends ChangeNotifier {
   );
 
   bool _isValidDestination(int id) =>
-  _nodeRepository.nodeCache.containsKey(id) &&
-  id != _navigationStore.current;
+      _nodeRepository.nodeCache.containsKey(id) &&
+      id != _navigationStore.current;
 
   void _updateCanNavigate() {
     _canGoBack = false;

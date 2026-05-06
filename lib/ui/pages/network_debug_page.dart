@@ -10,32 +10,32 @@ class NetworkDebugPage extends StatelessWidget {
     final logs = context.watch<NetworkLogger>().logs;
     return Scaffold(
       appBar: MyAppBar(
-        titleText:"Network Debug",
-        actions: [
-          ApiStatusDotWidget()
-        ],
+        titleText: "Network Debug",
+        actions: [ApiStatusDotWidget()],
       ),
       body: SafeArea(
         child: ListView.builder(
           itemCount: logs.length,
           itemBuilder: (context, index) {
             String formatTime(DateTime t) =>
-            "${t.hour.toString().padLeft(2, '0')}:"
-            "${t.minute.toString().padLeft(2, '0')}:"
-            "${t.second.toString().padLeft(2, '0')}";
+                "${t.hour.toString().padLeft(2, '0')}:"
+                "${t.minute.toString().padLeft(2, '0')}:"
+                "${t.second.toString().padLeft(2, '0')}";
             final log = logs[index];
             return ListTile(
-              visualDensity: VisualDensity(vertical: -2), 
+              visualDensity: VisualDensity(vertical: -2),
               leading: Icon(
                 log.isError ? Icons.error : Icons.check_circle,
                 color: log.isError ? Colors.red : Colors.green,
               ),
               title: Text("${log.method} ${log.url}"),
-              subtitle: Text([
+              subtitle: Text(
+                [
                   log.statusCode?.toString(),
                   log.errorMessage,
                   formatTime(log.timestamp),
-                ].whereType<String>().where((s) => s.isNotEmpty).join(" | ")),
+                ].whereType<String>().where((s) => s.isNotEmpty).join(" | "),
+              ),
               dense: true,
             );
           },

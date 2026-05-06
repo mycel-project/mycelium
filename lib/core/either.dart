@@ -11,10 +11,7 @@ class Right<L, R> extends Either<L, R> {
 }
 
 extension EitherX<L, R> on Either<L, R> {
-  T fold<T>(
-    T Function(L l) onLeft,
-    T Function(R r) onRight,
-  ) {
+  T fold<T>(T Function(L l) onLeft, T Function(R r) onRight) {
     final self = this;
 
     if (self is Left<L, R>) {

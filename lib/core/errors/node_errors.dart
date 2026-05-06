@@ -7,4 +7,3 @@ class NodeNotFoundError extends NodeError {
 }
 
 class UnknownNodeError extends NodeError {}
-

@@ -24,11 +24,11 @@ class NetworkLog {
   final String? errorMessage;
 
   NetworkLog({
-      required this.method,
-      required this.url,
-      this.statusCode,
-      this.isError = false,
-      this.errorMessage,
-      DateTime? timestamp,
+    required this.method,
+    required this.url,
+    this.statusCode,
+    this.isError = false,
+    this.errorMessage,
+    DateTime? timestamp,
   }) : timestamp = timestamp ?? DateTime.now();
 }

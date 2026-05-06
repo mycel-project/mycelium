@@ -14,9 +14,9 @@ class NoNodeWidget extends StatelessWidget {
               child: Text(
                 "No node selected.\nBrowse nodes using the left panel or launch review.",
                 textAlign: TextAlign.center,
-              )
+              ),
             ),
-            LaunchReviewButton()
+            LaunchReviewButton(),
           ],
         ),
       ),

@@ -16,15 +16,17 @@ class ApiNotReachableWidget extends StatelessWidget {
                   style: const TextStyle(),
                   children: [
                     const TextSpan(
-                      text: "Mycel API is not reachable.\n\n"
-                      "You can retry by tapping the ",
+                      text:
+                          "Mycel API is not reachable.\n\n"
+                          "You can retry by tapping the ",
                     ),
                     WidgetSpan(
                       alignment: PlaceholderAlignment.middle,
                       child: Icon(Icons.error, size: 18, color: Colors.red),
                     ),
                     const TextSpan(
-                      text: " icon in the app bar, or view more information in the API configuration screen.",
+                      text:
+                          " icon in the app bar, or view more information in the API configuration screen.",
                     ),
                   ],
                 ),

@@ -8,9 +8,6 @@ class LaunchReviewButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final vm = sl<LaunchReviewButtonViewmodel>();
-    return ElevatedButton(
-      onPressed: vm.launch,
-      child: Text("Review"),
-    );
+    return ElevatedButton(onPressed: vm.launch, child: Text("Review"));
   }
 }

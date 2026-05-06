@@ -13,7 +13,8 @@ class CollectionRepository {
 
   CollectionRepository(this.collectionService);
 
-  Map<int, Collection> get collectionCache => Map.unmodifiable(_collectionCache);
+  Map<int, Collection> get collectionCache =>
+      Map.unmodifiable(_collectionCache);
 
   void clearCache() {
     _collectionCache.clear();
@@ -54,9 +55,7 @@ class CollectionRepository {
     return Right(updated);
   }
 
-  Future<Either<CollectionError, int>> deleteCollection(
-    int id,
-  ) async {
+  Future<Either<CollectionError, int>> deleteCollection(int id) async {
     final result = await collectionService.deleteCollection(id);
 
     if (result is ApiError) {

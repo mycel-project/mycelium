@@ -29,7 +29,7 @@ class ApiViewModel extends ChangeNotifier {
       initDataUseCase.execute();
     }
   }
-  
+
   Future<ApiStatus> checkReachability() async {
     isChecking = true;
     notifyListeners();

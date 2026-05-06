@@ -11,22 +11,38 @@ class NotificationBus extends ChangeNotifier {
   }
 
   void showError(String message, ApiError error) {
-    current = MyceliumNotification("$message: ${error.code}", NotificationType.error, details: error.message);
+    current = MyceliumNotification(
+      "$message: ${error.code}",
+      NotificationType.error,
+      details: error.message,
+    );
     notifyListeners();
   }
 
   void showWarning(String message, ApiError error) {
-    current = MyceliumNotification("$message: ${error.code}", NotificationType.warning, details: error.message);
+    current = MyceliumNotification(
+      "$message: ${error.code}",
+      NotificationType.warning,
+      details: error.message,
+    );
     notifyListeners();
   }
 
   void showInfo(String message, ApiError error) {
-    current = MyceliumNotification("$message: ${error.code}", NotificationType.info, details: error.message);
+    current = MyceliumNotification(
+      "$message: ${error.code}",
+      NotificationType.info,
+      details: error.message,
+    );
     notifyListeners();
   }
 
   void showSuccess(String message, ApiError error) {
-    current = MyceliumNotification("$message: ${error.code}", NotificationType.success, details: error.message);
+    current = MyceliumNotification(
+      "$message: ${error.code}",
+      NotificationType.success,
+      details: error.message,
+    );
     notifyListeners();
   }
 

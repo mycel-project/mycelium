@@ -19,7 +19,7 @@ class InitApiUseCase {
     }
 
     apiStore.setBaseUrl(url);
-    
+
     await checkApiUseCase.execute();
     return apiStore.apiStatus;
   }

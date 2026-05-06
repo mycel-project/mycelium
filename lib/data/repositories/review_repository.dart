@@ -11,12 +11,12 @@ class ReviewRepository {
 
   String? _clozeRegex;
 
-  Future<ApiResult<void>> reviewFragment(int colId, int nodeId, int duration) async {
-    return await reviewService.completeFragmentReview(
-      colId,
-      nodeId,
-      duration,
-    );
+  Future<ApiResult<void>> reviewFragment(
+    int colId,
+    int nodeId,
+    int duration,
+  ) async {
+    return await reviewService.completeFragmentReview(colId, nodeId, duration);
   }
 
   Future<ApiResult<void>> reviewSpore(
@@ -36,13 +36,12 @@ class ReviewRepository {
   Future<ApiResult<Node?>> getNextReview(int colId) async {
     final result = await reviewService.getNextReview(colId);
     if (result is ApiError) return result;
-    
+
     final json = jsonDecode((result as ApiSuccess<String>).data);
     final nodeJson = json["node_review"];
     if (nodeJson == null) return ApiSuccess(null);
     return ApiSuccess(Node.fromJson(nodeJson));
   }
-
 
   Future<String?> getClozeRegex() async {
     if (_clozeRegex != null) return _clozeRegex!;

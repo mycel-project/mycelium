@@ -101,18 +101,20 @@ class HomePage extends StatelessWidget {
           : context.watch<CollectionStore>().currentCollection == null
           ? NoCollectionWidget()
           : Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                if (vm.currentCollectionName() != null)
-                Text(
-                  vm.currentCollectionName()!,
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
-                ),
-                NoNodeWidget(),
-              ],
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  if (vm.currentCollectionName() != null)
+                    Text(
+                      vm.currentCollectionName()!,
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  NoNodeWidget(),
+                ],
+              ),
             ),
-          ),
       drawer: Drawer(
         child: SafeArea(
           child: Column(

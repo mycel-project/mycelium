@@ -3,10 +3,7 @@ import 'package:flutter/material.dart';
 class NextReviewButton extends StatelessWidget {
   final VoidCallback onPressed;
 
-  const NextReviewButton({
-    super.key,
-    required this.onPressed,
-  });
+  const NextReviewButton({super.key, required this.onPressed});
 
   @override
   Widget build(BuildContext context) {
@@ -23,14 +20,12 @@ class NextReviewButton extends StatelessWidget {
             elevation: 0,
             padding: EdgeInsets.zero,
             shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.zero, 
+              borderRadius: BorderRadius.zero,
             ),
           ),
           child: const Text(
             "Next review",
-            style: TextStyle(
-              fontWeight: FontWeight.w600,
-            ),
+            style: TextStyle(fontWeight: FontWeight.w600),
           ),
         ),
       ),

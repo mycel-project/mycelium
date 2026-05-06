@@ -81,10 +81,10 @@ class NodeUseCase {
   Future<void> deleteNode(int colId, int nodeId) async {
     final result = await nodeRepository.deleteNode(colId, nodeId);
     result.fold((err) {}, (deletedIds) {
-        if (deletedIds.contains(nodeStore.currentNode?.id)) {
-          nodeStore.selectNode(null);
-        }
-        navigationUseCase.onNodesDeleted(deletedIds);
+      if (deletedIds.contains(nodeStore.currentNode?.id)) {
+        nodeStore.selectNode(null);
+      }
+      navigationUseCase.onNodesDeleted(deletedIds);
     });
   }
 
@@ -96,10 +96,10 @@ class NodeUseCase {
 
     switch (result) {
       case ApiSuccess(:final data):
-      return data;
+        return data;
       case ApiError error:
-      notificationBus.showError("Can't update node title", error);
-      return null;
+        notificationBus.showError("Can't update node title", error);
+        return null;
     }
   }
 }

@@ -3,10 +3,7 @@ import "package:flutter/material.dart";
 class NoMoreReviewsWidget extends StatelessWidget {
   final VoidCallback onDismiss;
 
-  const NoMoreReviewsWidget({
-    super.key,
-    required this.onDismiss,
-  });
+  const NoMoreReviewsWidget({super.key, required this.onDismiss});
 
   @override
   Widget build(BuildContext context) {

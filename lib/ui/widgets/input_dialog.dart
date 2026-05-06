@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-
 Future<String?> showInputDialog({
   required BuildContext context,
   required String title,
@@ -12,7 +11,7 @@ Future<String?> showInputDialog({
 
   return showDialog<String>(
     context: context,
-    barrierDismissible: true, 
+    barrierDismissible: true,
     builder: (context) {
       return AlertDialog(
         title: Text(title),
@@ -20,9 +19,7 @@ Future<String?> showInputDialog({
           controller: controller,
           keyboardType: keyboardType,
           autofocus: true,
-          decoration: InputDecoration(
-            hintText: placeholder,
-          ),
+          decoration: InputDecoration(hintText: placeholder),
           onSubmitted: (value) => Navigator.pop(context, value),
         ),
         actions: [

@@ -21,5 +21,3 @@ class InitDataUseCase {
     await reviewRepository.getClozeRegex();
   }
 }
-
-

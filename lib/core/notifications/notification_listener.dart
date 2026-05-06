@@ -24,7 +24,9 @@ class MyceliumNotificationListener extends StatelessWidget {
             NotificationType.warning => ToastificationType.warning,
           },
           title: Text(notification.title),
-          description: notification.details != null ? Text(notification.details!) : null,
+          description: notification.details != null
+              ? Text(notification.details!)
+              : null,
           autoCloseDuration: const Duration(seconds: 4),
         );
         bus.clear();
