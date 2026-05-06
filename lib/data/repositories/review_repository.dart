@@ -29,7 +29,7 @@ class ReviewRepository {
     final result = await reviewService.getNextReview(colId);
 
     if (result is ApiError) {
-      throw Exception(result.message ?? "Failed to fetch next review");
+      throw Exception(result.message ?? "Failed to fetch next review ${result.code}");
     }
 
     final json = jsonDecode((result as ApiSuccess<String>).data);

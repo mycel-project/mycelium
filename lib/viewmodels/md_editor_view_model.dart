@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:mycelium/core/either.dart';
 import 'package:mycelium/core/errors/node_update_errors.dart';
+import 'package:mycelium/core/stores/api_store.dart';
 import 'package:mycelium/core/stores/collection_store.dart';
 import 'package:mycelium/core/stores/node_store.dart';
 import 'package:mycelium/core/stores/review_store.dart';
@@ -10,6 +11,7 @@ import 'package:mycelium/data/models/node.dart';
 import 'package:mycelium/data/repositories/node_repository.dart';
 import 'package:mycelium/data/repositories/review_repository.dart';
 import 'package:mycelium/data/services/node_service.dart';
+import 'package:mycelium/domain/api_status.dart';
 import 'package:mycelium/domain/cloze_mode.dart';
 import 'package:mycelium/domain/node_usecase.dart';
 import 'package:mycelium/domain/review_usecase.dart';
@@ -31,6 +33,8 @@ class MdEditorViewModel extends ChangeNotifier {
   final NodeUseCase nodeUseCase;
   TextSelection? selection;
 
+  ApiStore apiStore;
+
   String? uiMessage;
 
   int? cursorPosition;
@@ -46,8 +50,10 @@ class MdEditorViewModel extends ChangeNotifier {
     this.reviewRepository,
     this.nodeUseCase,
     this.collectionStore,
+    this.apiStore,
   ) {
     nodeStore.addListener(_onNodeStoreChanged);
+    apiStore.addListener(_onApiStoreChanged);
     _onNodeStoreChanged();
   }
 
@@ -60,10 +66,28 @@ class MdEditorViewModel extends ChangeNotifier {
 
   Timer? _debounceTimer;
 
+  /// User preference for autosave (hardcoded for now, should come from config/store).
+  static bool autosaveFromParam = true;
+
+  /// Reference value to restore autosave to when connection comes back.
+  bool defaultAutoSave = autosaveFromParam;
+
+  /// Current autosave state — disabled when offline, restored to [defaultAutoSave] on reconnect.
+  bool _autosave = autosaveFromParam;
+
   @override
   void dispose() {
     nodeStore.removeListener(_onNodeStoreChanged);
     super.dispose();
+  }
+
+  void _onApiStoreChanged() {
+    if (apiStore.status == ApiStatus.reachable) {
+      _autosave = defaultAutoSave;
+      tryAutoSave();
+    } else {
+      _autosave = false;
+    }
   }
 
   String content = "";
@@ -265,11 +289,17 @@ class MdEditorViewModel extends ChangeNotifier {
   void updateContent(String value) {
     content = value;
     isDirty = true;
-    _debounceTimer?.cancel();
-    _debounceTimer = Timer(const Duration(milliseconds: 1000), () {
-      saveContent();
-    });
+    tryAutoSave();
     notifyListeners();
+  }
+
+  void tryAutoSave() {
+    if (_autosave) {
+      _debounceTimer?.cancel();
+      _debounceTimer = Timer(const Duration(milliseconds: 1000), () {
+        saveContent();
+      });
+    }
   }
 
   bool hasChildren() {
