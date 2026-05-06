@@ -40,4 +40,11 @@ class NavigationStore extends ChangeNotifier {
     _cursor = -1;
     notifyListeners();
   }
+  
+  void truncateFrom(int index) {
+    if (index < 0 || index > _history.length) return;
+    _history.removeRange(index, _history.length);
+    _cursor = _history.length - 1;
+    notifyListeners();
+  }
 }
