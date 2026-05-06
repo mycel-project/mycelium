@@ -61,7 +61,6 @@ class MyApp extends StatelessWidget {
     return ToastificationWrapper(
       config: ToastificationConfig(
         alignment: Alignment.bottomLeft,
-        itemWidth: 300,
         animationDuration: Duration(milliseconds: 300),
       ),
       child: MaterialApp(

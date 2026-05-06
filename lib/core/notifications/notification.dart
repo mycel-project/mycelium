@@ -1,8 +1,9 @@
 enum NotificationType { error, info, success, warning }
 
 class MyceliumNotification {
-  final String message;
+  final String title;
+  final String? details;
   final NotificationType type;
   
-  MyceliumNotification(this.message, this.type);
+  MyceliumNotification(this.title, this.type, {this.details});
 }

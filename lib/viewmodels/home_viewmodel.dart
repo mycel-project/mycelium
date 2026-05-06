@@ -177,7 +177,6 @@ class HomeViewModel extends ChangeNotifier {
   }
 
   void handleNextReview() {
-    notificationBus.show("Salut", NotificationType.error);
     reviewUseCase.handleNextReview();
   }
 
