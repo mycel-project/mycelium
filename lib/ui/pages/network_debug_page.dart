@@ -31,7 +31,11 @@ class NetworkDebugPage extends StatelessWidget {
                 color: log.isError ? Colors.red : Colors.green,
               ),
               title: Text("${log.method} ${log.url}"),
-              subtitle: Text("${log.statusCode ?? log.errorMessage} | ${formatTime(log.timestamp)}"),
+              subtitle: Text([
+                  log.statusCode?.toString(),
+                  log.errorMessage,
+                  formatTime(log.timestamp),
+                ].whereType<String>().where((s) => s.isNotEmpty).join(" | ")),
               dense: true,
             );
           },
