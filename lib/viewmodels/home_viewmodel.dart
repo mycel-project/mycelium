@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:mycelium/core/either.dart';
+import 'package:mycelium/core/stores/api_store.dart';
 import 'package:mycelium/core/stores/collection_store.dart';
 import 'package:mycelium/core/stores/navigation_store.dart';
 import 'package:mycelium/core/stores/node_store.dart';
@@ -9,6 +12,8 @@ import 'package:mycelium/data/models/node.dart';
 import 'package:mycelium/data/models/node_type.dart';
 import 'package:mycelium/data/repositories/node_repository.dart';
 import 'package:mycelium/data/services/api_service.dart';
+import 'package:mycelium/domain/api_status.dart';
+import 'package:mycelium/domain/check_api_usecase.dart';
 import 'package:mycelium/domain/navigation_usecase.dart';
 import 'package:mycelium/domain/node_usecase.dart';
 import 'package:mycelium/domain/review_usecase.dart';
@@ -23,6 +28,8 @@ class HomeViewModel extends ChangeNotifier {
   final NavigationUseCase navigationUseCase;
   final NavigationStore navigationStore;
   final ReviewUseCase reviewUseCase;
+  final ApiStore apiStore;
+  final CheckApiUseCase checkApiUseCase;
 
   bool noMoreReviewsFlag = false;
 
@@ -36,9 +43,39 @@ class HomeViewModel extends ChangeNotifier {
     this.navigationStore,
     this.navigationUseCase,
     this.reviewUseCase,
+    this.apiStore,
+    this.checkApiUseCase,
   ) {
     reviewStore.addListener(_onReviewChanged);
     nodeStore.addListener(_checkHasParent);
+    apiStore.addListener(handleRetry);
+  }
+
+  @override
+  void dispose() {
+    _retryTimer?.cancel();
+    super.dispose();
+  }
+
+  Timer? _retryTimer;
+
+  void handleRetry() {
+    if (apiStore.status == ApiStatus.unreachable) {
+      _startRetrying();
+    } else {
+      _stopRetrying();
+    }
+  }
+
+  void _startRetrying() {
+    _retryTimer = Timer.periodic(const Duration(seconds: 3), (_) {
+      checkApiUseCase.execute();
+    });
+  }
+
+  void _stopRetrying() {
+    _retryTimer?.cancel();
+    _retryTimer = null;
   }
 
   void refreshNodes() {
@@ -126,7 +163,7 @@ class HomeViewModel extends ChangeNotifier {
     await nodeUseCase.deleteNode(colId, nodeId);
     notifyListeners();
   }
-  
+
   void upPress() {
     nodeUseCase.selectParentNode();
   }
