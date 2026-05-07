@@ -83,6 +83,7 @@ class CollectionRepository {
     final collections = (json["collections"] as List)
         .map((e) => Collection.fromJson(e))
         .toList();
+    _collectionCache.clear();
     for (final collection in collections) {
       _collectionCache[collection.id] = collection;
     }
