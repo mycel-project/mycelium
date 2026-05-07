@@ -64,7 +64,6 @@ class MdEditorViewModel extends ChangeNotifier {
     apiStore.addListener(_onApiStoreChanged);
     _onNodeStoreChanged();
     undoController.addListener(_onUndoStateChanged);
-
   }
 
   bool? get dismissState => node?.typeData?['dismiss'] as bool?;
@@ -256,6 +255,8 @@ class MdEditorViewModel extends ChangeNotifier {
     final node = this.node;
     if (node == null) return;
 
+    await saveContent();
+
     final nodeType = nodeRepository.getNodeTypeByLabelSync(extractType);
     if (nodeType == null) {
       notificationBus.show(
@@ -349,7 +350,7 @@ class MdEditorViewModel extends ChangeNotifier {
     if (node != null) {
       this.node = node;
       isDirty = false;
-      undoController.value = UndoHistoryValue.empty; 
+      undoController.value = UndoHistoryValue.empty;
       isEditing = false;
       if (isCurrentNodeSpore()) {
         if (reviewStore.currentNodeId == node.id) {
