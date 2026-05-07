@@ -200,41 +200,41 @@ class _MdEditorState extends State<MdEditor> {
                               child: const Icon(Icons.save),
                             ),
                           ),
-                          GestureDetector(
-                            onLongPress: vm.toggleHistoryMode,
-                            child: Stack(
-                              clipBehavior: Clip.none,
-                              children: [
-                                FloatingActionButton(
-                                  onPressed: vm.canPerformHistoryAction ? vm.performHistoryAction : null,
-                                  child: Opacity(
-                                    opacity: vm.canPerformHistoryAction ? 1.0 : 0.4,
-                                    child: Icon(
-                                      vm.historyButtonMode == ActionMode.undo ? Icons.undo : Icons.redo,
-                                    ),
-                                  ),
-                                ),
-                                Positioned(
-                                  top: 3,
-                                  right: 3,
-                                  child: Container(
-                                    width: 18,
-                                    height: 18,
-                                    decoration: BoxDecoration(
-                                      color: Theme.of(context).colorScheme.primary,
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: Icon(
-                                      vm.historyButtonMode == ActionMode.undo ? Icons.redo : Icons.undo,
-                                      size: 11,
-                                      color: Theme.of(context).colorScheme.onPrimary,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
                           if (!vm.isCurrentNodeSpore()) ...[
+                            GestureDetector(
+                              onLongPress: vm.toggleHistoryMode,
+                              child: Stack(
+                                clipBehavior: Clip.none,
+                                children: [
+                                  FloatingActionButton(
+                                    onPressed: vm.canPerformHistoryAction ? vm.performHistoryAction : null,
+                                    child: Opacity(
+                                      opacity: vm.canPerformHistoryAction ? 1.0 : 0.4,
+                                      child: Icon(
+                                        vm.historyButtonMode == ActionMode.undo ? Icons.undo : Icons.redo,
+                                      ),
+                                    ),
+                                  ),
+                                  Positioned(
+                                    top: 3,
+                                    right: 3,
+                                    child: Container(
+                                      width: 18,
+                                      height: 18,
+                                      decoration: BoxDecoration(
+                                        color: Theme.of(context).colorScheme.primary,
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: Icon(
+                                        vm.historyButtonMode == ActionMode.undo ? Icons.redo : Icons.undo,
+                                        size: 11,
+                                        color: Theme.of(context).colorScheme.onPrimary,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
                             FloatingActionButton(
                               onPressed: vm.dismissState == true
                                   ? () async => await vm.toggleDismiss()
