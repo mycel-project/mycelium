@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mycelium/core/stores/collection_store.dart';
+import 'package:mycelium/ui/widgets/api_status_dot_widget.dart';
 import 'package:mycelium/ui/widgets/app_bar.dart';
 import 'package:mycelium/ui/widgets/confirmation_dialog.dart';
 import 'package:mycelium/ui/widgets/input_dialog.dart';
@@ -13,8 +14,9 @@ class CollectionsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: MyAppBar(
-        titleText: "Collections manager",
+        titleText: "Manage collections",
         actions: [
+          ApiStatusDotWidget(),
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: () =>

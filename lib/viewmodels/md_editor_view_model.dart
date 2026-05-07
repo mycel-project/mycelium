@@ -428,7 +428,7 @@ class MdEditorViewModel extends ChangeNotifier {
       content,
     );
     switch (result) {
-      case ApiSuccess():
+          case ApiSuccess():
         node = result.data;
         isDirty = false;
         notifyListeners();
