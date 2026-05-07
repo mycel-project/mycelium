@@ -19,7 +19,7 @@ class ReviewService {
   }
 
   Future<ApiResult<String>> getNextReview(int colId) async {
-    return await api.get("/collections/$colId/next-review");
+    return await api.get("/collections/$colId/reviews/next");
   }
 
   Future<ApiResult<String>> completeFragmentReview(
