@@ -26,6 +26,7 @@ class CollectionsPage extends StatelessWidget {
         padding: const EdgeInsets.all(64),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Text(
               "Collections",
@@ -34,7 +35,11 @@ class CollectionsPage extends StatelessWidget {
               ).textTheme.headlineLarge?.copyWith(fontWeight: FontWeight.bold),
             ),
             Padding(padding: EdgeInsetsGeometry.all(16)),
-            Expanded(child: CollectionsList()),
+            Expanded(  child: Center(
+                child: context.watch<CollectionsViewModel>().collections.isNotEmpty
+                ? const CollectionsList()
+                : const Text("No collection"),
+            ),),
             ElevatedButton(
               onPressed: () async {
                 final name = await showInputDialog(

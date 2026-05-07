@@ -59,7 +59,7 @@ Future<void> setup() async {
   sl.registerSingleton(CheckApiUseCase(sl(), sl()));
   sl.registerSingleton(UpdateApiUrlUseCase(sl(), sl(), sl()));
   sl.registerSingleton(InitApiUseCase(sl(), sl(), sl()));
-  sl.registerSingleton(InitCollectionsUseCase(sl(), sl(), sl()));
+  sl.registerSingleton(InitCollectionsUseCase(sl(), sl(), sl(), sl()));
   sl.registerSingleton(SelectCollectionUseCase(sl(), sl()));
   sl.registerSingleton(NavigationUseCase(sl(), sl(), sl(), sl()));
   sl.registerSingleton(ReviewUseCase(sl(), sl(), sl(), sl()));
@@ -68,7 +68,7 @@ Future<void> setup() async {
   sl.registerSingleton(AppCoordinator(sl(), sl(), sl(), sl(), sl(), sl()));
 
   // ViewModels
-  sl.registerFactory(() => CollectionsViewModel(sl(), sl(), sl()));
+  sl.registerFactory(() => CollectionsViewModel(sl(), sl(), sl(), sl()));
   //// should reduce dependencies ?
   sl.registerFactory(
     () => HomeViewModel(

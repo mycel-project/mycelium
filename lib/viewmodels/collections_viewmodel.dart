@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:mycelium/core/either.dart';
+import 'package:mycelium/core/notifications/notification_bus.dart';
 import 'package:mycelium/core/stores/collection_store.dart';
+import 'package:mycelium/data/api_result.dart';
 import 'package:mycelium/data/models/collection.dart';
 import 'package:mycelium/data/repositories/collection_repository.dart';
 import 'package:mycelium/domain/select_collection_usecase.dart';
@@ -9,6 +11,7 @@ class CollectionsViewModel extends ChangeNotifier {
   final CollectionStore collectionStore;
   final CollectionRepository collectionRepository;
   final SelectCollectionUseCase selectCollectionUseCase;
+  final NotificationBus notificationBus;
 
   List<Collection> collections = [];
 
@@ -16,6 +19,7 @@ class CollectionsViewModel extends ChangeNotifier {
     this.collectionStore,
     this.collectionRepository,
     this.selectCollectionUseCase,
+    this.notificationBus,
   ) {
     collections = collectionRepository.collectionCache.values.toList();
   }
@@ -29,15 +33,15 @@ class CollectionsViewModel extends ChangeNotifier {
   }
 
   Future<void> loadCollections() async {
-    collections = [];
-    notifyListeners();
     final result = await collectionRepository.loadCollections();
-    result.fold((error) => print("Can't load collections: ${error.message}"), (
-      data,
-    ) {
-      collections = data;
-      notifyListeners();
-    });
+
+    switch (result) {
+      case ApiSuccess(:final data):
+        collections = data;
+        notifyListeners();
+      case ApiError error:
+        notificationBus.showError("Cannot load collections", error);
+    }
   }
 
   Future<void> createCollection(String name) async {

@@ -71,12 +71,10 @@ class CollectionRepository {
     return Right(id);
   }
 
-  Future<Either<CollectionError, List<Collection>>> loadCollections() async {
+  Future<ApiResult<List<Collection>>> loadCollections() async {
     final result = await collectionService.getCollections();
 
-    if (result is ApiError) {
-      return Left(UnknownCollectionError(result.message));
-    }
+    if (result is ApiError) return result;
 
     final success = result as ApiSuccess<String>;
     final json = jsonDecode(success.data);
@@ -87,6 +85,6 @@ class CollectionRepository {
     for (final collection in collections) {
       _collectionCache[collection.id] = collection;
     }
-    return Right(collections);
+    return ApiSuccess(collections);
   }
 }
