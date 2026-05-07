@@ -415,13 +415,10 @@ class MdEditorViewModel extends ChangeNotifier {
     return nodeUseCase.hasChildren(currentNode.id);
   }
 
-  Future<void> undoReview() async {
+  Future<void> undoReview() async { 
     final collectionId = node?.collectionId;
     if (collectionId == null) return;
-    final result = await reviewUseCase.undo(collectionId);
-    if (result) {
-      nextReview(); // May differ from last undo review if backend send another one
-    }
+    await reviewUseCase.undo(collectionId);
   }
 
   Future<bool> saveContent() async {
