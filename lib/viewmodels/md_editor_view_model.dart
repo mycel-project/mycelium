@@ -14,6 +14,7 @@ import 'package:mycelium/data/models/node.dart';
 import 'package:mycelium/data/repositories/node_repository.dart';
 import 'package:mycelium/data/repositories/review_repository.dart';
 import 'package:mycelium/data/services/node_service.dart';
+import 'package:mycelium/data/services/review_service.dart';
 import 'package:mycelium/domain/api_status.dart';
 import 'package:mycelium/domain/cloze_mode.dart';
 import 'package:mycelium/domain/navigation_usecase.dart';
@@ -32,12 +33,12 @@ class MdEditorViewModel extends ChangeNotifier {
   NodeRepository nodeRepository;
   NotificationBus notificationBus;
   NavigationUseCase navigationUseCase;
+  ReviewUseCase reviewUseCase;
 
   bool isAnswerVisible = false;
   bool isEditing = false;
   bool hasSelection = false;
 
-  final ReviewUseCase reviewUseCase;
   final NodeUseCase nodeUseCase;
   TextSelection? selection;
 
@@ -414,6 +415,15 @@ class MdEditorViewModel extends ChangeNotifier {
     return nodeUseCase.hasChildren(currentNode.id);
   }
 
+  Future<void> undoReview() async {
+    final collectionId = node?.collectionId;
+    if (collectionId == null) return;
+    final result = await reviewUseCase.undo(collectionId);
+    if (result) {
+      nextReview(); // May differ from last undo review if backend send another one
+    }
+  }
+
   Future<bool> saveContent() async {
     /// Returns true if the save completed or was not required, false if it failed.
     _debounceTimer?.cancel();
@@ -428,7 +438,7 @@ class MdEditorViewModel extends ChangeNotifier {
       content,
     );
     switch (result) {
-          case ApiSuccess():
+      case ApiSuccess():
         node = result.data;
         isDirty = false;
         notifyListeners();

@@ -3,7 +3,7 @@ import "package:mycelium/core/stores/review_store.dart";
 import "package:mycelium/ui/controllers/markdown_controller.dart";
 import "package:mycelium/ui/widgets/confirmation_dialog.dart";
 import "package:mycelium/ui/widgets/input_dialog.dart";
-import "package:mycelium/ui/widgets/next_review_button.dart";
+import "package:mycelium/ui/widgets/review_bottom_button.dart";
 import "package:mycelium/ui/widgets/show_answer_button.dart";
 import "package:mycelium/ui/widgets/validation_bar.dart";
 import "package:mycelium/viewmodels/md_editor_view_model.dart";
@@ -391,13 +391,21 @@ class _MdEditorState extends State<MdEditor> {
                                 focusNode.unfocus();
                               },
                             )
-                          : ShowAnswerButton(
+                          : ReviewBottomButton(
+                            text:"Show Answer",
+                            onUndoTap: () async {
+                              await vm.undoReview();
+                            },
                               onPressed: () {
                                 vm.showAnswer();
                                 focusNode.unfocus();
                               },
                             )
-                    : NextReviewButton(
+                    : ReviewBottomButton(
+                      text:"Next Review",
+                      onUndoTap: () async {
+                        await vm.undoReview();
+                      },
                         onPressed: () {
                           vm.handleFragmentReview();
                           focusNode.unfocus();

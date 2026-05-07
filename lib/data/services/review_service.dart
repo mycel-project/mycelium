@@ -22,6 +22,16 @@ class ReviewService {
     return await api.get("/collections/$colId/reviews/next");
   }
 
+  Future<ApiResult<String>> undoReview(int colId, {int? maxAge}) async {
+    final query = <String, dynamic>{};
+
+    if (maxAge != null) {
+      query['max_age'] = maxAge;
+    }
+
+    return await api.post("/collections/$colId/reviews/undo", query);
+  }
+
   Future<ApiResult<String>> completeFragmentReview(
     int colId,
     int nodeId,
@@ -29,7 +39,7 @@ class ReviewService {
   ) async {
     final result = await api.post(
       "/collections/$colId/nodes/$nodeId/fragment-review",
-      {"duration": duration},
+      {"duration": duration, "type_review_data": {}},
     );
 
     if (result is ApiError) return result;
@@ -47,7 +57,7 @@ class ReviewService {
   ) async {
     final result = await api.post(
       "/collections/$colId/nodes/$nodeId/spore-review",
-      {"rating": rating, "duration": duration},
+      {"duration": duration, "type_review_data": {"rating": rating}},
     );
 
     if (result is ApiError) return result;
