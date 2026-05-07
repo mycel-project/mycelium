@@ -158,6 +158,7 @@ class _MdEditorState extends State<MdEditor> {
                         child: Padding(
                           padding: const EdgeInsets.only(top: 8, bottom: 8),
                           child: TextField(
+                            key: ValueKey(vm.node?.id),
                             focusNode: focusNode,
                             readOnly: vm.isLocked() == true
                                 ? true
@@ -168,6 +169,7 @@ class _MdEditorState extends State<MdEditor> {
                             maxLines: null,
                             expands: false,
                             keyboardType: TextInputType.multiline,
+                            undoController: vm.undoController,
                             controller: markdownController,
                             onChanged: (value) {
                               vm.updateContent(value);
@@ -191,11 +193,45 @@ class _MdEditorState extends State<MdEditor> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          FloatingActionButton(
+                          FloatingActionButton( // temp will be autosave only
                             onPressed: vm.isDirty ? vm.saveContent : null,
                             child: Opacity(
                               opacity: vm.isDirty ? 1.0 : 0.4,
                               child: const Icon(Icons.save),
+                            ),
+                          ),
+                          GestureDetector(
+                            onLongPress: vm.toggleHistoryMode,
+                            child: Stack(
+                              clipBehavior: Clip.none,
+                              children: [
+                                FloatingActionButton(
+                                  onPressed: vm.canPerformHistoryAction ? vm.performHistoryAction : null,
+                                  child: Opacity(
+                                    opacity: vm.canPerformHistoryAction ? 1.0 : 0.4,
+                                    child: Icon(
+                                      vm.historyButtonMode == ActionMode.undo ? Icons.undo : Icons.redo,
+                                    ),
+                                  ),
+                                ),
+                                Positioned(
+                                  top: 3,
+                                  right: 3,
+                                  child: Container(
+                                    width: 18,
+                                    height: 18,
+                                    decoration: BoxDecoration(
+                                      color: Theme.of(context).colorScheme.primary,
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: Icon(
+                                      vm.historyButtonMode == ActionMode.undo ? Icons.redo : Icons.undo,
+                                      size: 11,
+                                      color: Theme.of(context).colorScheme.onPrimary,
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                           if (!vm.isCurrentNodeSpore()) ...[

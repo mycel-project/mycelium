@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:mycelium/core/either.dart';
 import 'package:mycelium/core/notifications/notification.dart';
 import 'package:mycelium/core/notifications/notification_bus.dart';
@@ -18,6 +19,8 @@ import 'package:mycelium/domain/cloze_mode.dart';
 import 'package:mycelium/domain/navigation_usecase.dart';
 import 'package:mycelium/domain/node_usecase.dart';
 import 'package:mycelium/domain/review_usecase.dart';
+
+enum ActionMode { undo, redo }
 
 class MdEditorViewModel extends ChangeNotifier {
   Node? node;
@@ -60,6 +63,8 @@ class MdEditorViewModel extends ChangeNotifier {
     nodeStore.addListener(_onNodeStoreChanged);
     apiStore.addListener(_onApiStoreChanged);
     _onNodeStoreChanged();
+    undoController.addListener(_onUndoStateChanged);
+
   }
 
   bool? get dismissState => node?.typeData?['dismiss'] as bool?;
@@ -111,6 +116,8 @@ class MdEditorViewModel extends ChangeNotifier {
   @override
   void dispose() {
     nodeStore.removeListener(_onNodeStoreChanged);
+    undoController.removeListener(_onUndoStateChanged);
+    undoController.dispose();
     super.dispose();
   }
 
@@ -176,6 +183,28 @@ class MdEditorViewModel extends ChangeNotifier {
     }
     return true;
   }
+
+  // Undo
+  final undoController = UndoHistoryController();
+  ActionMode historyButtonMode = ActionMode.undo;
+
+  bool get canPerformHistoryAction => historyButtonMode == ActionMode.undo
+      ? undoController.value.canUndo
+      : undoController.value.canRedo;
+
+  void performHistoryAction() => historyButtonMode == ActionMode.undo
+      ? undoController.undo()
+      : undoController.redo();
+
+  void toggleHistoryMode() {
+    historyButtonMode = historyButtonMode == ActionMode.undo
+        ? ActionMode.redo
+        : ActionMode.undo;
+    HapticFeedback.mediumImpact();
+    notifyListeners();
+  }
+
+  void _onUndoStateChanged() => notifyListeners();
 
   bool isLocked() {
     return reviewStore.currentNodeId == node?.id &&
@@ -320,6 +349,7 @@ class MdEditorViewModel extends ChangeNotifier {
     if (node != null) {
       this.node = node;
       isDirty = false;
+      undoController.value = UndoHistoryValue.empty; 
       isEditing = false;
       if (isCurrentNodeSpore()) {
         if (reviewStore.currentNodeId == node.id) {
