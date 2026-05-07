@@ -57,7 +57,10 @@ class ReviewService {
   ) async {
     final result = await api.post(
       "/collections/$colId/nodes/$nodeId/spore-review",
-      {"duration": duration, "type_review_data": {"rating": rating}},
+      {
+        "duration": duration,
+        "type_review_data": {"rating": rating},
+      },
     );
 
     if (result is ApiError) return result;

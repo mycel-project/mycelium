@@ -48,16 +48,19 @@ class ReviewUseCase {
     final result = await reviewRepository.undoReview(collectionId);
     switch (result) {
       case ApiSuccess(:final data):
-        final node = data;
-        setReview(node);
-        return true;
+      final node = data;
+      setReview(node);
+      return true;
       case ApiError error:
-        if (error.code == "NO_REVIEW_TO_UNDO") {
-          notificationBus.showInfo("No review to undo");
-        } else {
-          notificationBus.showError("Cannot undo review", error);
-        }
-        return false;
+      switch(error.code) {
+        case "NO_REVIEW_TO_UNDO":
+        notificationBus.showInfo("No review to undo");
+        case "UNDO_REVIEW_NOT_ALLOWED":
+        notificationBus.showInfo("This review is too old to undo");
+        default:
+        notificationBus.showError("Cannot undo review", error);
+      }
+      return false;
     }
   }
 
