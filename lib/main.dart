@@ -14,6 +14,7 @@ import 'package:mycelium/domain/init_data_usecase.dart';
 import 'package:mycelium/ui/pages/api_config_page.dart';
 import 'package:mycelium/viewmodels/api_viewmodel.dart';
 import 'package:mycelium/viewmodels/collections_viewmodel.dart';
+import 'package:mycelium/viewmodels/deleted_nodes_viewmodel.dart';
 import 'package:mycelium/viewmodels/home_viewmodel.dart';
 import 'package:mycelium/viewmodels/md_editor_view_model.dart';
 import 'package:mycelium/viewmodels/settings_view_model.dart';
@@ -50,6 +51,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => sl<NotificationBus>()),
         ChangeNotifierProvider(create: (_) => sl<UserStore>()),
         ChangeNotifierProvider(create: (_) => sl<SettingViewModel>()),
+        ChangeNotifierProvider(create: (_) => sl<DeletedNodesViewmodel>()),
 
       ],
       child: MyApp(apiStatus: apiStatus),

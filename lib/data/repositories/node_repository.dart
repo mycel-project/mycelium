@@ -88,22 +88,28 @@ class NodeRepository {
     return ApiSuccess(deletedIds);
   }
 
-  Future<Either<NodeError, List<Node>>> loadNodes(int colId) async {
-    final result = await nodeService.getNodes(colId);
-    if (result is ApiError) {
-      if (result.code == "NODE_NOT_FOUND") {
-        return Left(NodeNotFoundError(result.message));
-      } else {
-        return Left(UnknownNodeError());
-      }
-    }
-    final success = result as ApiSuccess<String>;
+
+  List<Node> _parseNodes(ApiSuccess<String> success) {
     final json = jsonDecode(success.data);
-    final nodes = (json["nodes"] as List).map((e) => Node.fromJson(e)).toList();
+    return (json["nodes"] as List).map((e) => Node.fromJson(e)).toList();
+  }
+
+  Future<ApiResult<List<Node>>> loadNodes(int colId) async {
+    final result = await nodeService.getNodes(colId);
+    if (result is ApiError) return result;
+    final nodes = _parseNodes(result as ApiSuccess<String>);
     for (final node in nodes) {
       _nodeCache[node.id] = node;
     }
-    return Right(nodes);
+    return ApiSuccess(nodes);
+  }
+
+  Future<ApiResult<List<Node>>> loadDeletedNodes(int colId) async {
+    // No caching for deletedNodes at the moment
+    final result = await nodeService.getDeletedNodes(colId);
+    if (result is ApiError) return result;
+    final nodes = _parseNodes(result as ApiSuccess<String>);
+    return ApiSuccess(nodes);
   }
 
   Future<Either<NodeError, Node>> _fetchNode(

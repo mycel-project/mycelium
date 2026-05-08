@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'package:mycelium/data/api_result.dart';
-import 'package:mycelium/data/models/node.dart';
 import 'package:mycelium/data/models/node_type.dart';
 import 'package:mycelium/data/services/api_service.dart';
 
@@ -10,6 +9,10 @@ class NodeService {
 
   Future<ApiResult<String>> getNodes(int collectionId) async {
     return await api.get("/collections/$collectionId/nodes");
+  }
+
+  Future<ApiResult<String>> getDeletedNodes(int collectionId) async {
+    return await api.get("/collections/$collectionId/nodes/deleted");
   }
 
   Future<ApiResult<String>> getNode(int collectionId, int nodeId) async {

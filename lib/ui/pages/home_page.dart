@@ -6,6 +6,7 @@ import 'package:mycelium/data/models/node_type.dart';
 import 'package:mycelium/domain/api_status.dart';
 import 'package:mycelium/ui/pages/api_config_page.dart';
 import 'package:mycelium/ui/pages/collections_page.dart';
+import 'package:mycelium/ui/pages/deleted_nodes_page.dart';
 import 'package:mycelium/ui/pages/settings_page.dart';
 import 'package:mycelium/ui/widgets/api_not_reachable_widget.dart';
 import 'package:mycelium/ui/widgets/api_status_dot_widget.dart';
@@ -89,12 +90,18 @@ class HomePage extends StatelessWidget {
                   context,
                   MaterialPageRoute(builder: (_) => SettingsPage()),
                 );
+              } else if (value == 4) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => DeletedNodesPage()),
+                );
               }
             },
             itemBuilder: (BuildContext context) => [
               PopupMenuItem(value: 1, child: Text("Manage collections")),
               PopupMenuItem(value: 2, child: Text("API configuration")),
               PopupMenuItem(value: 3, child: Text("Settings")),
+              PopupMenuItem(value: 4, child: Text("Deleted nodes")),
             ],
           ),
         ],
