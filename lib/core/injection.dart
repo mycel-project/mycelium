@@ -77,7 +77,7 @@ Future<void> setup() async {
   sl.registerSingleton(NavigationUseCase(sl(), sl(), sl(), sl()));
   sl.registerSingleton(ReviewUseCase(sl(), sl(), sl(), sl(), sl()));
   sl.registerSingleton(NodeUseCase(sl(), sl(), sl(), sl(), sl()));
-  sl.registerSingleton(InitDataUseCase(sl(), sl(), sl(), sl()));
+  sl.registerSingleton(InitDataUseCase(sl(), sl(), sl(), sl(), sl()));
   sl.registerSingleton(AppCoordinator(sl(), sl(), sl(), sl(), sl(), sl()));
 
   // ViewModels

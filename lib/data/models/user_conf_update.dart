@@ -1,11 +1,11 @@
 class UserConfUpdate {
-  final int? undoReviewMaxAge;
-  final int? pingFrequency;
+  final Map<String, dynamic> data;
 
-  const UserConfUpdate({this.undoReviewMaxAge, this.pingFrequency});
+  const UserConfUpdate(this.data);
 
-  Map<String, dynamic> toJson() => {
-    if (undoReviewMaxAge != null) 'undo_review_max_age': undoReviewMaxAge,
-    if (pingFrequency != null) 'ping_frequency': pingFrequency,
-  };
+  Map<String, dynamic> toJson() => data;
+
+  factory UserConfUpdate.single(String key, dynamic value) {
+    return UserConfUpdate({key: value});
+  }
 }

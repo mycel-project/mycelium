@@ -15,4 +15,8 @@ class UserService {
   ) async {
     return await api.patch("/users/me/settings", data.toJson());
   }
+
+  Future<ApiResult<String>> getUserConfigSchema() async {
+    return await api.get("/users/settings/schema");
+  }
 }

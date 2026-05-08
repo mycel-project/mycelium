@@ -1,16 +1,13 @@
 class UserConf {
-  const UserConf({
-    required this.undoReviewMaxAge,
-    required this.pingFrequency,
-  });
+  final Map<String, dynamic> data;
 
-  final int undoReviewMaxAge;
-  final int pingFrequency;
+  const UserConf(this.data);
 
   factory UserConf.fromJson(Map<String, dynamic> json) {
-    return UserConf(
-      undoReviewMaxAge: json['undo_review_max_age'],
-      pingFrequency: json['ping_frequency'],
-    );
+    return UserConf(json);
   }
+
+  Map<String, dynamic> toJson() => data;
+
+  dynamic get(String key) => data[key];
 }

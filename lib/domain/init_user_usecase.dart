@@ -6,7 +6,7 @@ import 'package:mycelium/data/local/user_preferences.dart';
 import 'package:mycelium/data/repositories/user_repository.dart';
 import 'package:mycelium/data/models/user.dart';
 
-class InitUserUseCase {
+class InitUserUseCase { 
   final UserStore userStore;
   final UserRepository userRepository;
   final UserPreferences userPreferences;
