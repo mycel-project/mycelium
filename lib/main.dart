@@ -7,6 +7,7 @@ import 'package:mycelium/core/stores/api_store.dart';
 import 'package:mycelium/core/stores/collection_store.dart';
 import 'package:mycelium/core/stores/node_store.dart';
 import 'package:mycelium/core/stores/review_store.dart';
+import 'package:mycelium/core/stores/user_store.dart';
 import 'package:mycelium/domain/api_status.dart';
 import 'package:mycelium/domain/init_api_usecase.dart';
 import 'package:mycelium/domain/init_data_usecase.dart';
@@ -15,6 +16,7 @@ import 'package:mycelium/viewmodels/api_viewmodel.dart';
 import 'package:mycelium/viewmodels/collections_viewmodel.dart';
 import 'package:mycelium/viewmodels/home_viewmodel.dart';
 import 'package:mycelium/viewmodels/md_editor_view_model.dart';
+import 'package:mycelium/viewmodels/settings_view_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toastification/toastification.dart';
 import 'ui/pages/home_page.dart';
@@ -46,6 +48,9 @@ void main() async {
         ChangeNotifierProvider(create: (_) => sl<ReviewStore>()),
         ChangeNotifierProvider(create: (_) => sl<NetworkLogger>()),
         ChangeNotifierProvider(create: (_) => sl<NotificationBus>()),
+        ChangeNotifierProvider(create: (_) => sl<UserStore>()),
+        ChangeNotifierProvider(create: (_) => sl<SettingViewModel>()),
+
       ],
       child: MyApp(apiStatus: apiStatus),
     ),
