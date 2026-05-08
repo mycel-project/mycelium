@@ -56,18 +56,19 @@ class _MdEditorState extends State<MdEditor> {
 
   bool _isShowingDialog = false;
   Future<void> _syncFromVm() async {
-  if (vm.showUnsavedChangesDialog) {
-    if (_isShowingDialog) return; 
-    _isShowingDialog = true;
-    final response = await ConfirmationDialog.show(
-      context,
-      title: "Discard Changes?",
-      text: "Your changes couldn't be saved. Switching to another node will discard them.\n\nTo keep your changes, try restoring the API connection before switching nodes.\n\nDiscard?",
-      destructive: true,
-    );
-    _isShowingDialog = false;
-    response ? vm.confirmDiscardChanges() : vm.cancelNodeChange();
-  }
+    if (vm.showUnsavedChangesDialog) {
+      if (_isShowingDialog) return;
+      _isShowingDialog = true;
+      final response = await ConfirmationDialog.show(
+        context,
+        title: "Discard Changes?",
+        text:
+            "Your changes couldn't be saved. Switching to another node will discard them.\n\nTo keep your changes, try restoring the API connection before switching nodes.\n\nDiscard?",
+        destructive: true,
+      );
+      _isShowingDialog = false;
+      response ? vm.confirmDiscardChanges() : vm.cancelNodeChange();
+    }
     final currentId = vm.node?.id;
 
     if (_lastNodeId != currentId) {
@@ -92,15 +93,17 @@ class _MdEditorState extends State<MdEditor> {
       );
       if (target != null) {
         vm.targetCursorPosition = null;
-        final cursorOffset =
-            target *
-            scrollController.position.maxScrollExtent /
-            vm.content.length;
-        scrollController.animateTo(
-          cursorOffset,
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeOut,
-        );
+        if (vm.content.isNotEmpty) {
+          final cursorOffset =
+              target *
+              scrollController.position.maxScrollExtent /
+              vm.content.length;
+          scrollController.animateTo(
+            cursorOffset,
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeOut,
+          );
+        }
       }
     }
   }
@@ -191,7 +194,8 @@ class _MdEditorState extends State<MdEditor> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          FloatingActionButton( // temp will be autosave only
+                          FloatingActionButton(
+                            // temp will be autosave only
                             onPressed: vm.isDirty ? vm.saveContent : null,
                             child: Opacity(
                               opacity: vm.isDirty ? 1.0 : 0.4,
@@ -205,11 +209,17 @@ class _MdEditorState extends State<MdEditor> {
                                 clipBehavior: Clip.none,
                                 children: [
                                   FloatingActionButton(
-                                    onPressed: vm.canPerformHistoryAction ? vm.performHistoryAction : null,
+                                    onPressed: vm.canPerformHistoryAction
+                                        ? vm.performHistoryAction
+                                        : null,
                                     child: Opacity(
-                                      opacity: vm.canPerformHistoryAction ? 1.0 : 0.4,
+                                      opacity: vm.canPerformHistoryAction
+                                          ? 1.0
+                                          : 0.4,
                                       child: Icon(
-                                        vm.historyButtonMode == ActionMode.undo ? Icons.undo : Icons.redo,
+                                        vm.historyButtonMode == ActionMode.undo
+                                            ? Icons.undo
+                                            : Icons.redo,
                                       ),
                                     ),
                                   ),
@@ -220,13 +230,19 @@ class _MdEditorState extends State<MdEditor> {
                                       width: 18,
                                       height: 18,
                                       decoration: BoxDecoration(
-                                        color: Theme.of(context).colorScheme.primary,
+                                        color: Theme.of(
+                                          context,
+                                        ).colorScheme.primary,
                                         shape: BoxShape.circle,
                                       ),
                                       child: Icon(
-                                        vm.historyButtonMode == ActionMode.undo ? Icons.redo : Icons.undo,
+                                        vm.historyButtonMode == ActionMode.undo
+                                            ? Icons.redo
+                                            : Icons.undo,
                                         size: 11,
-                                        color: Theme.of(context).colorScheme.onPrimary,
+                                        color: Theme.of(
+                                          context,
+                                        ).colorScheme.onPrimary,
                                       ),
                                     ),
                                   ),
@@ -390,20 +406,20 @@ class _MdEditorState extends State<MdEditor> {
                               },
                             )
                           : ReviewBottomButton(
-                            text:"Show Answer",
-                            onUndoTap: () async {
-                              await vm.undoReview();
-                            },
+                              text: "Show Answer",
+                              onUndoTap: () async {
+                                await vm.undoReview();
+                              },
                               onPressed: () {
                                 vm.showAnswer();
                                 focusNode.unfocus();
                               },
                             )
                     : ReviewBottomButton(
-                      text:"Next Review",
-                      onUndoTap: () async {
-                        await vm.undoReview();
-                      },
+                        text: "Next Review",
+                        onUndoTap: () async {
+                          await vm.undoReview();
+                        },
                         onPressed: () async {
                           await vm.handleFragmentReview();
                           focusNode.unfocus();
