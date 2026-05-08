@@ -78,14 +78,22 @@ class NodeUseCase {
     );
   }
 
-  Future<void> deleteNode(int colId, int nodeId) async {
+  Future<bool> deleteNode(int colId, int nodeId) async {
+    /// return false if error during delete
     final result = await nodeRepository.deleteNode(colId, nodeId);
-    result.fold((err) {}, (deletedIds) {
-      if (deletedIds.contains(nodeStore.currentNode?.id)) {
-        nodeStore.selectNode(null);
-      }
-      navigationUseCase.onNodesDeleted(deletedIds);
-    });
+
+    switch (result) {
+      case ApiSuccess(:final data):
+        final deletedIds = data;
+        if (deletedIds.contains(nodeStore.currentNode?.id)) {
+          nodeStore.selectNode(null);
+        }
+        navigationUseCase.onNodesDeleted(deletedIds);
+        return true;
+      case ApiError error:
+        notificationBus.showError("Can't delete node", error);
+        return false;
+    }
   }
 
   Future<Node?> updateNodeTitle(int colId, int nodeId, String title) async {

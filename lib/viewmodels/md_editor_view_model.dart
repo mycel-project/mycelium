@@ -248,8 +248,7 @@ class MdEditorViewModel extends ChangeNotifier {
     final colId = collectionStore.currentCollection?.id;
     final node = this.node;
     if (colId == null || node == null) return;
-    await nodeUseCase.deleteNode(colId, node.id);
-    notifyListeners();
+    if (await nodeUseCase.deleteNode(colId, node.id)) notifyListeners();
   }
 
   Future<void> createExtract(String extractType) async {

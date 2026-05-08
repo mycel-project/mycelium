@@ -77,23 +77,17 @@ class NodeRepository {
     return ApiSuccess([extractNode, sourceNode]);
   }
 
-  Future<Either<NodeError, List<int>>> deleteNode(int colId, int nodeId) async {
+  Future<ApiResult<List<int>>> deleteNode(int colId, int nodeId) async {
     final result = await nodeService.deleteNode(colId, nodeId);
 
-    if (result is ApiError) {
-      if (result.code == "NODE_NOT_FOUND") {
-        return Left(NodeNotFoundError(result.message));
-      } else {
-        return Left(UnknownNodeError());
-      }
-    }
+    if (result is ApiError) return result;
     final success = result as ApiSuccess<String>;
     final json = jsonDecode(success.data);
     final deletedIds = (json["deleted_ids"] as List).cast<int>();
     for (final id in deletedIds) {
       _nodeCache.remove(id);
     }
-    return Right(deletedIds);
+    return ApiSuccess(deletedIds);
   }
 
   Future<Either<NodeError, List<Node>>> loadNodes(int colId) async {
