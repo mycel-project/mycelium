@@ -276,17 +276,18 @@ class MdEditorViewModel extends ChangeNotifier {
       selection!.end,
       nodeType.key,
     );
-    result.fold(
-      (error) => notificationBus.show(error.toString(), NotificationType.error),
-      (nodes) {
-        for (final node in nodes) {
-          if (node.id == this.node?.id) {
-            nodeStore.selectNode(node);
-          }
+    switch (result) {
+      case ApiSuccess(:final data):
+      final nodes = data;
+      for (final node in nodes) {
+        if (node.id == this.node?.id) {
+          nodeStore.selectNode(node);
         }
-        notifyListeners();
-      },
-    );
+      }
+      notifyListeners();
+      case ApiError error:
+      notificationBus.showError("Can't create extract", error);
+    }
   }
 
   Future<void> createFragment() async {
@@ -310,13 +311,10 @@ class MdEditorViewModel extends ChangeNotifier {
     );
     switch (result) {
       case ApiSuccess(:final data):
-        node = data;
-        notifyListeners();
-      case ApiError(:final code):
-        notificationBus.show(
-          "Can't toggle dismiss : $code",
-          NotificationType.error,
-        );
+      node = data;
+      notifyListeners();
+      case ApiError error:
+      notificationBus.showError("Can't toggle dismiss", error);
     }
   }
 

@@ -49,7 +49,7 @@ class NodeRepository {
     return Right(node);
   }
 
-  Future<Either<ExtractError, List<Node>>> createExtract(
+  Future<ApiResult<List<Node>>> createExtract(
     int colId,
     int nodeId,
     String text,
@@ -67,20 +67,14 @@ class NodeRepository {
       endIndex,
       extractType,
     );
-    if (result is ApiError) {
-      if (result.code == "EXTRACT_MISMATCH") {
-        return Left(ExtractMismatchError(result.message));
-      } else {
-        return Left(UnknownExtractError(result.message));
-      }
-    }
+    if (result is ApiError) return result;
     final success = result as ApiSuccess<String>;
     final json = jsonDecode(success.data);
     final extractNode = Node.fromJson(json["extract_node"]);
     final sourceNode = Node.fromJson(json["source_node"]);
     _nodeCache[extractNode.id] = extractNode;
     _nodeCache[sourceNode.id] = sourceNode;
-    return Right([extractNode, sourceNode]);
+    return ApiSuccess([extractNode, sourceNode]);
   }
 
   Future<Either<NodeError, List<int>>> deleteNode(int colId, int nodeId) async {
