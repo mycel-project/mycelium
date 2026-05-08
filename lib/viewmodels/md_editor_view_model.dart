@@ -132,30 +132,26 @@ class MdEditorViewModel extends ChangeNotifier {
   String content = "";
   bool isDirty = false;
 
-  Future<bool> reviewSpore(int rating) async {
-    final result = await reviewRepository.reviewSpore(
-      node!.collectionId,
-      node!.id,
-      10,
-      rating,
-    );
-    if (result case ApiError error) {
-      notificationBus.showError("Cannot complete Spore review", error);
+  bool _handleReviewError(ApiError error, String context) {
+    switch (error.code) { 
+      case "NO_PENDING_NODE":
+      notificationBus.showWarning("Review not taken into account, Mycel probably restarted, please retry.");
+      return true; 
+      default:
+      notificationBus.showError("Cannot complete $context review", error);
       return false;
     }
+  }
+
+  Future<bool> reviewSpore(int rating) async {
+    final result = await reviewRepository.reviewSpore(node!.collectionId, node!.id, 10, rating);
+    if (result case ApiError error) return _handleReviewError(error, "Spore");
     return true;
   }
 
   Future<bool> reviewFragment() async {
-    final result = await reviewRepository.reviewFragment(
-      node!.collectionId,
-      node!.id,
-      10,
-    );
-    if (result case ApiError error) {
-      notificationBus.showError("Cannot complete Fragment review", error);
-      return false;
-    }
+    final result = await reviewRepository.reviewFragment(node!.collectionId, node!.id, 10);
+    if (result case ApiError error) return _handleReviewError(error, "Fragment");
     return true;
   }
 
@@ -277,15 +273,15 @@ class MdEditorViewModel extends ChangeNotifier {
     );
     switch (result) {
       case ApiSuccess(:final data):
-      final nodes = data;
-      for (final node in nodes) {
-        if (node.id == this.node?.id) {
-          nodeStore.selectNode(node);
+        final nodes = data;
+        for (final node in nodes) {
+          if (node.id == this.node?.id) {
+            nodeStore.selectNode(node);
+          }
         }
-      }
-      notifyListeners();
+        notifyListeners();
       case ApiError error:
-      notificationBus.showError("Can't create extract", error);
+        notificationBus.showError("Can't create extract", error);
     }
   }
 
@@ -310,10 +306,10 @@ class MdEditorViewModel extends ChangeNotifier {
     );
     switch (result) {
       case ApiSuccess(:final data):
-      node = data;
-      notifyListeners();
+        node = data;
+        notifyListeners();
       case ApiError error:
-      notificationBus.showError("Can't toggle dismiss", error);
+        notificationBus.showError("Can't toggle dismiss", error);
     }
   }
 

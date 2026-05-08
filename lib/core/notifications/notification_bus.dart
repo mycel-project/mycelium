@@ -19,11 +19,10 @@ class NotificationBus extends ChangeNotifier {
     notifyListeners();
   }
 
-  void showWarning(String message, ApiError error) {
+  void showWarning(String message) {
     current = MyceliumNotification(
-      "$message: ${error.code}",
+      message,
       NotificationType.warning,
-      details: error.message,
     );
     notifyListeners();
   }
