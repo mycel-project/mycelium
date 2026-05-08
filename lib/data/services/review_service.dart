@@ -37,16 +37,10 @@ class ReviewService {
     int nodeId,
     int duration,
   ) async {
-    final result = await api.post(
+    return await api.post(
       "/collections/$colId/nodes/$nodeId/fragment-review",
       {"duration": duration, "type_review_data": {}},
     );
-
-    if (result is ApiError) return result;
-
-    final success = result as ApiSuccess<String>;
-
-    return ApiSuccess<String>(success.data);
   }
 
   Future<ApiResult<String>> completeSporeReview(
@@ -55,18 +49,12 @@ class ReviewService {
     int duration,
     int rating,
   ) async {
-    final result = await api.post(
+    return await api.post(
       "/collections/$colId/nodes/$nodeId/spore-review",
       {
         "duration": duration,
         "type_review_data": {"rating": rating},
       },
     );
-
-    if (result is ApiError) return result;
-
-    final success = result as ApiSuccess<String>;
-
-    return ApiSuccess<String>(success.data);
   }
 }

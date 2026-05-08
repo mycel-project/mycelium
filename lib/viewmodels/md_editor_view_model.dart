@@ -14,7 +14,6 @@ import 'package:mycelium/data/models/node.dart';
 import 'package:mycelium/data/repositories/node_repository.dart';
 import 'package:mycelium/data/repositories/review_repository.dart';
 import 'package:mycelium/data/services/node_service.dart';
-import 'package:mycelium/data/services/review_service.dart';
 import 'package:mycelium/domain/api_status.dart';
 import 'package:mycelium/domain/cloze_mode.dart';
 import 'package:mycelium/domain/navigation_usecase.dart';
@@ -134,7 +133,7 @@ class MdEditorViewModel extends ChangeNotifier {
   bool isDirty = false;
 
   Future<bool> reviewSpore(int rating) async {
-    final result = reviewRepository.reviewSpore(
+    final result = await reviewRepository.reviewSpore(
       node!.collectionId,
       node!.id,
       10,
@@ -148,7 +147,7 @@ class MdEditorViewModel extends ChangeNotifier {
   }
 
   Future<bool> reviewFragment() async {
-    final result = reviewRepository.reviewFragment(
+    final result = await reviewRepository.reviewFragment(
       node!.collectionId,
       node!.id,
       10,
@@ -168,9 +167,10 @@ class MdEditorViewModel extends ChangeNotifier {
     }
   }
 
-  Future<void> handleSporeReview(int rating) =>
-      _handleReview(() => reviewSpore(rating));
-  Future<void> handleFragmentReview() => _handleReview(reviewFragment);
+  Future<void> handleSporeReview(int rating) async =>
+      await _handleReview(() => reviewSpore(rating));
+  Future<void> handleFragmentReview() async =>
+      await _handleReview(reviewFragment);
 
   Future<bool> nextReview() async {
     final result = await reviewUseCase.handleNextReview();
@@ -415,7 +415,7 @@ class MdEditorViewModel extends ChangeNotifier {
     return nodeUseCase.hasChildren(currentNode.id);
   }
 
-  Future<void> undoReview() async { 
+  Future<void> undoReview() async {
     final collectionId = node?.collectionId;
     if (collectionId == null) return;
     await reviewUseCase.undo(collectionId);
