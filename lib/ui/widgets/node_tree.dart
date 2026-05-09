@@ -59,17 +59,18 @@ class _NodeTreeState extends State<NodeTree> {
     }
   }
 
-  int _getDepth(TreeSliverNode node) {
-    int depth = 0;
-    final typedNode = node.content as Node;
-    int? parentId = typedNode.parentId;
-    while (parentId != null) {
-      depth++;
-      final parent = widget.nodes.firstWhereOrNull((n) => n.id == parentId);
-      parentId = parent?.parentId;
-    }
-    return depth;
+int _getDepth(TreeSliverNode node) {
+  int depth = 0;
+  final typedNode = node.content as Node;
+  int? parentId = typedNode.parentId;
+  while (parentId != null) {
+    final parent = widget.nodes.firstWhereOrNull((n) => n.id == parentId);
+    if (parent == null) break; // To display nodes whose parent is absent from the list at the tree root
+    depth++;
+    parentId = parent.parentId;
   }
+  return depth;
+}
 
   @override
   Widget build(BuildContext context) {
@@ -262,7 +263,6 @@ List<TreeSliverNode<Node>> buildTree(
   for (final node in nodes) {
     grouped.putIfAbsent(node.parentId, () => []).add(node);
   }
-
   if (isSpore != null) {
     for (final key in grouped.keys) {
       grouped[key]!.sort((a, b) {
@@ -272,7 +272,6 @@ List<TreeSliverNode<Node>> buildTree(
       });
     }
   }
-
   final Set<int> ancestorIds = {};
   if (selectedNode != null) {
     Node? current = nodes.firstWhereOrNull((n) => n.id == selectedNode.id);
@@ -281,7 +280,6 @@ List<TreeSliverNode<Node>> buildTree(
       current = nodes.firstWhereOrNull((n) => n.id == current!.parentId);
     }
   }
-
   TreeSliverNode<Node> build(Node node) {
     final children = grouped[node.id] ?? [];
     final shouldExpand =
@@ -292,9 +290,12 @@ List<TreeSliverNode<Node>> buildTree(
       children: children.map(build).toList(),
     );
   }
-
+  final allIds = nodes.map((n) => n.id).toSet();
   final roots = grouped[null] ?? [];
-  return roots.map(build).toList();
+  final orphans = nodes.where((n) =>
+    n.parentId != null && !allIds.contains(n.parentId)
+  );
+  return [...roots, ...orphans].map(build).toList();
 }
 
 class _ShakeIcon extends StatefulWidget {
