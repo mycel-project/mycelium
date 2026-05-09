@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mycelium/core/notifications/notification_bus.dart';
 import 'package:mycelium/core/stores/collection_store.dart';
+import 'package:mycelium/core/stores/user_store.dart';
 import 'package:mycelium/data/api_result.dart';
 import 'package:mycelium/data/models/node.dart';
 import 'package:mycelium/data/repositories/node_repository.dart';
@@ -9,6 +10,7 @@ class DeletedNodesViewmodel extends ChangeNotifier {
   final NodeRepository nodeRepository;
   final CollectionStore collectionStore;
   final NotificationBus notificationBus;
+  final UserStore userStore;
 
   List<Node> deletedNodes = [];
 
@@ -16,6 +18,7 @@ class DeletedNodesViewmodel extends ChangeNotifier {
     this.nodeRepository,
     this.collectionStore,
     this.notificationBus,
+    this.userStore,
   );
 
   String getNodeTypeName(int typeKey) {
@@ -41,10 +44,21 @@ class DeletedNodesViewmodel extends ChangeNotifier {
     final result = await nodeRepository.restoreNode(collectionId, nodeId);
     switch (result) {
       case ApiSuccess():
-      deletedNodes.removeWhere((n) => n.id == nodeId);
-      notifyListeners();
+        deletedNodes.removeWhere((n) => n.id == nodeId);
+        notifyListeners();
       case ApiError error:
-      notificationBus.showError("Cannot restore nodes", error);
+        notificationBus.showError("Cannot restore nodes", error);
     }
+  }
+
+  String? formatDeletedAt(Node node) {
+    if (node.deletedAt == null) return null;
+    final maxAgeDays = userStore.conf?.get("delete_max_age") as int? ?? 30;
+    final dt = DateTime.fromMillisecondsSinceEpoch(node.deletedAt!);
+    final expiresAt = dt.add(Duration(days: maxAgeDays));
+    final daysLeft = expiresAt.difference(DateTime.now()).inDays;
+    final dateStr = "${dt.year}-${dt.month.toString().padLeft(2, '0')}-${dt.day.toString().padLeft(2, '0')} "
+    "${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}";
+    return "$daysLeft days left | $dateStr";
   }
 }
