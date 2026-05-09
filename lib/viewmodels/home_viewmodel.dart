@@ -62,6 +62,7 @@ class HomeViewModel extends ChangeNotifier {
 
     super.dispose();
   }
+
   void _onNodeStoreChange() {
     dismissNoMoreReviews();
     _checkHasParent();
@@ -150,7 +151,6 @@ class HomeViewModel extends ChangeNotifier {
     result.fold((err) => null, (node) => nodeStore.selectNode(node));
   }
 
-
   void dismissNoMoreReviews() {
     if (!noMoreReviewsFlag) return;
 
@@ -187,14 +187,23 @@ class HomeViewModel extends ChangeNotifier {
     return collectionStore.currentCollection?.name;
   }
 
-  Future<void> fetchRessourceFromUrl(String? url) async {
-    if (url == null) return;
+  Future<bool> fetchRessourceFromUrl(String? url) async {
+    if (url == null || url.isEmpty) {
+      notificationBus.showWarning("Empty URL");
+      return true;
+    }
     final colId = collectionStore.currentCollection?.id;
-    if (colId == null) return;
+    if (colId == null) return false;
     final result = await nodeRepository.fetchRessourceFromUrl(colId, url);
-    result.fold((error) {}, (node) async {
+    switch (result) {
+      case ApiSuccess(:final data):
+      final node = data;
       await navigationUseCase.navigateTo(node.id);
       notifyListeners();
-    });
+      return true;
+      case ApiError error:
+      notificationBus.showError("Cannot import ressource", error);
+      return false;
+    }
   }
 }

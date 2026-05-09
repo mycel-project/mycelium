@@ -245,12 +245,12 @@ class _DrawerHeader extends StatelessWidget {
                 onSelected: (value) async {
                   if (value == "url") {
                     if (!context.mounted) return;
-                    final request = await showInputDialog(
+                    await showInputDialogWithRetry(
                       context: context,
                       title: "Enter ressource URL",
                       placeholder: "https://example.com/page",
+                      onSubmit: (url) => vm.fetchRessourceFromUrl(url),
                     );
-                    await vm.fetchRessourceFromUrl(request);
                     if (!context.mounted) return;
                     Navigator.pop(context);
                   }

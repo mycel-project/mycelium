@@ -28,23 +28,15 @@ class NodeRepository {
     _typesCache = null;
   }
 
-  Future<Either<RessourceError, Node>> fetchRessourceFromUrl(
-    int colId,
-    String url,
-  ) async {
+  Future<ApiResult<Node>> fetchRessourceFromUrl(int colId, String url) async {
     final result = await nodeService.fetchRessourceFromUrl(colId, url);
 
-    if (result is ApiError) {
-      if (["UNKNOWN_RESSOURCE_TYPE", "INVALID_URL"].contains(result.code)) {
-        return Left(UnprocessableResourceError(result.message));
-      }
-      return Left(UnknownRessourceError());
-    }
+    if (result is ApiError) return result;
+
     final success = result as ApiSuccess<String>;
-    final json = jsonDecode(success.data);
-    final node = Node.fromJson(json["node"]);
+    final node = _parseNode(success);
     _nodeCache[node.id] = node;
-    return Right(node);
+    return ApiSuccess(node);
   }
 
   Future<ApiResult<List<Node>>> createExtract(
@@ -96,6 +88,11 @@ class NodeRepository {
     final node = Node.fromJson(json["node"]);
     _nodeCache[node.id] = node;
     return ApiSuccess(node);
+  }
+
+  Node _parseNode(ApiSuccess<String> success) {
+    final json = jsonDecode(success.data);
+    return Node.fromJson(json["node"]);
   }
 
   List<Node> _parseNodes(ApiSuccess<String> success) {
