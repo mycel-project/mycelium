@@ -47,13 +47,13 @@ class _DeletedNodesPageState extends State<DeletedNodesPage> {
                   return vm.formatDeletedAt(node);
                 },
                 clickCallback: (id) async {
-                  final confirm = await ConfirmationDialog.show(
+                  final result = await ConfirmationDialog.show(
                     context,
                     title: "Restore node",
                     text: "Do you want to restore this node?",
                   );
                   if (!context.mounted) return;
-                  if (confirm) await vm.restoreNode(id);
+                  if (result.confirmed) await vm.restoreNode(id);
                 },
               ),
       ),

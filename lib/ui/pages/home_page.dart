@@ -179,14 +179,14 @@ class HomePage extends StatelessWidget {
                     );
                     if (selected == 'delete') {
                       if (!context.mounted) return;
-                      final confirm = await ConfirmationDialog.show(
+                      final result = await ConfirmationDialog.show(
                         context,
                         title: "Delete confirmation",
                         text: "Delete this node and all its children?",
                         destructive: true,
                       );
                       if (!context.mounted) return;
-                      if (confirm == true) {
+                      if (result.confirmed == true) {
                         await vm.deleteNode(nodeId);
                       }
                     } else if (selected == "rename") {

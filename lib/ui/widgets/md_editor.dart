@@ -59,7 +59,7 @@ class _MdEditorState extends State<MdEditor> {
     if (vm.showUnsavedChangesDialog) {
       if (_isShowingDialog) return;
       _isShowingDialog = true;
-      final response = await ConfirmationDialog.show(
+      final result = await ConfirmationDialog.show(
         context,
         title: "Discard Changes?",
         text:
@@ -67,7 +67,7 @@ class _MdEditorState extends State<MdEditor> {
         destructive: true,
       );
       _isShowingDialog = false;
-      response ? vm.confirmDiscardChanges() : vm.cancelNodeChange();
+      result.confirmed ? vm.confirmDiscardChanges() : vm.cancelNodeChange();
     }
     final currentId = vm.node?.id;
 
@@ -254,23 +254,23 @@ class _MdEditorState extends State<MdEditor> {
                                   ? () async => await vm.toggleDismiss()
                                   : () async {
                                       focusNode.unfocus();
-                                      final confirmed =
+                                      final result =
                                           await ConfirmationDialog.show(
                                             context,
                                             title: "Confirmation",
                                             text:
                                                 "Have you extracted all the relevant information from this fragment?\n\nIt won’t be shown again in future reviews.",
                                           );
-                                      if (confirmed == true) {
+                                      if (result.confirmed == true) {
                                         if (!vm.hasChildren()) {
-                                          final confirmed =
+                                          final result =
                                               await ConfirmationDialog.show(
                                                 context,
                                                 title: "No children",
                                                 text:
                                                     "This fragment has no children.\n\nOnly confirm if it is not valuable to you, as it will not be shown again in reviews.",
                                               );
-                                          if (!confirmed) return;
+                                          if (!result.confirmed) return;
                                         }
                                         await vm.toggleDismiss();
                                       }
@@ -364,7 +364,7 @@ class _MdEditorState extends State<MdEditor> {
                                             leading: Icon(Icons.delete),
                                             title: Text('Delete this fragment'),
                                             onTap: () async {
-                                              final confirm =
+                                              final result =
                                                   await ConfirmationDialog.show(
                                                     context,
                                                     title:
@@ -374,7 +374,7 @@ class _MdEditorState extends State<MdEditor> {
                                                     destructive: true,
                                                   );
                                               if (!context.mounted) return;
-                                              if (confirm == true) {
+                                              if (result.confirmed == true) {
                                                 await vm.deleteNode();
                                               }
                                               Navigator.pop(context);

@@ -121,7 +121,7 @@ class _CollectionsListState extends State<CollectionsList> {
                               style: TextStyle(color: Colors.red),
                             ),
                             onTap: () async {
-                              final confirm = await ConfirmationDialog.show(
+                              final result = await ConfirmationDialog.show(
                                 context,
                                 title: "Delete confirmation",
                                 text:
@@ -130,7 +130,7 @@ class _CollectionsListState extends State<CollectionsList> {
                               );
                               if (!context.mounted) return;
                               Navigator.pop(context);
-                              if (confirm == true) {
+                              if (result.confirmed == true) {
                                 vm.deleteCollection(collection.id);
                               }
                             },
