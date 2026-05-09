@@ -18,7 +18,7 @@ class _DeletedNodesPageState extends State<DeletedNodesPage> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<DeletedNodesViewmodel>().getDeletedNodes();
+        context.read<DeletedNodesViewmodel>().getDeletedNodes();
     });
   }
 
@@ -33,29 +33,49 @@ class _DeletedNodesPageState extends State<DeletedNodesPage> {
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: () =>
-                context.read<DeletedNodesViewmodel>().getDeletedNodes(),
+            context.read<DeletedNodesViewmodel>().getDeletedNodes(),
           ),
         ],
       ),
       body: SafeArea(
         child: vm.deletedNodes.isEmpty
-            ? const Center(child: Text("No deleted nodes"))
-            : NodeTree(
-                nodes: vm.deletedNodes,
-                popOnClick: false,
-                subtitleBuilder: (node) {
-                  return vm.formatDeletedAt(node);
-                },
-                clickCallback: (id) async {
-                  final result = await ConfirmationDialog.show(
-                    context,
-                    title: "Restore node",
-                    text: "Do you want to restore this node?",
-                  );
-                  if (!context.mounted) return;
-                  if (result.confirmed) await vm.restoreNode(id);
-                },
-              ),
+        ? const Center(child: Text("No deleted nodes"))
+        : NodeTree(
+          nodes: vm.deletedNodes,
+          popOnClick: false,
+          subtitleBuilder: (node) {
+            return vm.formatDeletedAt(node);
+          },
+          clickCallback: (id) async {
+            final result = await ConfirmationDialog.show(
+              context,
+              title: "Restore node",
+              text: "Do you want to restore this node?",
+              options: [
+                ConfirmationOption(
+                  key: "restore_ancestors",
+                  label: "Also restore parents",
+                  defaultValue: false,
+                ),
+                ConfirmationOption(
+                  key: "restore_descendants",
+                  label: "Also restore children",
+                  defaultValue: true,
+                ),
+              ],
+            );
+            if (!context.mounted) return;
+            if (result.confirmed) {
+              await vm.restoreNode(
+                id,
+                restoreAncestors:
+                result.options["restore_ancestors"] ?? false,
+                restoreDescendants:
+                result.options["restore_descendants"] ?? true,
+              );
+            }
+          },
+        ),
       ),
     );
   }

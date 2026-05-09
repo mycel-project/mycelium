@@ -27,10 +27,13 @@ class NodeService {
     return await api.delete("/collections/$collectionId/nodes/$nodeId");
   }
 
-  Future<ApiResult<String>> restoreNode(int collectionId, int nodeId) async {
+  Future<ApiResult<String>> restoreNode(int collectionId, int nodeId, bool restoreAncestors, bool restoreDescendants) async {
     return await api.post(
       "/collections/$collectionId/nodes/$nodeId/restore",
-      {},
+      {
+        "restore_ancestors":restoreAncestors,
+        "restore_descendants":restoreDescendants,
+      },
     );
   }
 

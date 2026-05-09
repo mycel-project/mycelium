@@ -38,13 +38,22 @@ class DeletedNodesViewmodel extends ChangeNotifier {
     }
   }
 
-  Future<void> restoreNode(int nodeId) async {
+  Future<void> restoreNode(
+    int nodeId, {
+    bool restoreAncestors = false,
+    bool restoreDescendants = false,
+  }) async {
     final collectionId = collectionStore.currentCollection?.id;
     if (collectionId == null) return;
-    final result = await nodeRepository.restoreNode(collectionId, nodeId);
+    final result = await nodeRepository.restoreNode(
+      collectionId,
+      nodeId,
+      restoreAncestors,
+      restoreDescendants,
+    );
     switch (result) {
       case ApiSuccess():
-        deletedNodes.removeWhere((n) => n.id == nodeId);
+        await getDeletedNodes();
         notifyListeners();
       case ApiError error:
         notificationBus.showError("Cannot restore nodes", error);
@@ -57,8 +66,9 @@ class DeletedNodesViewmodel extends ChangeNotifier {
     final dt = DateTime.fromMillisecondsSinceEpoch(node.deletedAt!);
     final expiresAt = dt.add(Duration(days: maxAgeDays));
     final daysLeft = expiresAt.difference(DateTime.now()).inDays;
-    final dateStr = "${dt.year}-${dt.month.toString().padLeft(2, '0')}-${dt.day.toString().padLeft(2, '0')} "
-    "${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}";
+    final dateStr =
+        "${dt.year}-${dt.month.toString().padLeft(2, '0')}-${dt.day.toString().padLeft(2, '0')} "
+        "${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}";
     return "$daysLeft days left | $dateStr";
   }
 }
