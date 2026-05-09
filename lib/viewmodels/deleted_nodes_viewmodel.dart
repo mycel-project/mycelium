@@ -66,9 +66,10 @@ class DeletedNodesViewmodel extends ChangeNotifier {
     final dt = DateTime.fromMillisecondsSinceEpoch(node.deletedAt!);
     final expiresAt = dt.add(Duration(days: maxAgeDays));
     final daysLeft = expiresAt.difference(DateTime.now()).inDays;
+    final daysLeftStr = daysLeft < 0 ? "Expired" : "$daysLeft days left";
     final dateStr =
-        "${dt.year}-${dt.month.toString().padLeft(2, '0')}-${dt.day.toString().padLeft(2, '0')} "
-        "${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}";
-    return "$daysLeft days left | $dateStr";
+    "${dt.year}-${dt.month.toString().padLeft(2, '0')}-${dt.day.toString().padLeft(2, '0')} "
+    "${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}";
+    return "$daysLeftStr | $dateStr";
   }
 }
