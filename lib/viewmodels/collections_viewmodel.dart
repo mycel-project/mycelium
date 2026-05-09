@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:mycelium/core/either.dart';
 import 'package:mycelium/core/notifications/notification_bus.dart';
 import 'package:mycelium/core/stores/collection_store.dart';
 import 'package:mycelium/data/api_result.dart';
@@ -13,16 +12,12 @@ class CollectionsViewModel extends ChangeNotifier {
   final SelectCollectionUseCase selectCollectionUseCase;
   final NotificationBus notificationBus;
 
-  List<Collection> collections = [];
-
   CollectionsViewModel(
     this.collectionStore,
     this.collectionRepository,
     this.selectCollectionUseCase,
     this.notificationBus,
-  ) {
-    collections = collectionRepository.collectionCache.values.toList();
-  }
+  );
 
   Collection? get currentCollection => collectionStore.currentCollection;
 
@@ -32,45 +27,60 @@ class CollectionsViewModel extends ChangeNotifier {
     }
   }
 
+  List<Collection> get collections =>
+      collectionRepository.collectionCache.values.toList();
+
   Future<void> loadCollections() async {
     final result = await collectionRepository.loadCollections();
 
     switch (result) {
-      case ApiSuccess(:final data):
-        collections = data;
+      case ApiSuccess():
         notifyListeners();
       case ApiError error:
         notificationBus.showError("Cannot load collections", error);
     }
   }
 
-  Future<void> createCollection(String name) async {
+  Future<bool> createCollection(String? name) async {
+    if (name == null || name.isEmpty) {
+      notificationBus.showWarning("Empty name");
+      return true;
+    }
     final result = await collectionRepository.createCollection(name);
 
-    result.fold((error) => print("Can't create collection: ${error.message}"), (
-      data,
-    ) {
-      collections.add(data);
-      notifyListeners();
-    });
+    switch (result) {
+      case ApiSuccess():
+        notifyListeners();
+        return true;
+      case ApiError error:
+        notificationBus.showError("Cannot create collection", error);
+        return false;
+    }
   }
 
   Future<void> deleteCollection(int id) async {
     await collectionRepository.deleteCollection(id);
-    collections.removeWhere((c) => c.id == id);
     if (collectionStore.currentCollection?.id == id) {
       collectionStore.clearCollection();
     }
     notifyListeners();
   }
 
-  Future<void> renameCollection(int id, String newName) async {
-    await collectionRepository.renameCollection(id, newName);
-    final index = collections.indexWhere((c) => c.id == id);
-    if (index != -1) {
-      collections[index] = Collection(id: collections[index].id, name: newName);
+  Future<bool> renameCollection(int id, String? newName) async {
+    if (newName == null || newName.isEmpty) {
+      notificationBus.showWarning("Empty name");
+      return true;
     }
-    notifyListeners();
+    final result = await collectionRepository.renameCollection(id, newName);
+
+    switch (result) {
+      case ApiSuccess():
+        notifyListeners();
+        return true;
+      case ApiError error:
+        notificationBus.showError("Cannot rename collection", error);
+        return false;
+    }
   }
 
   Future<void> setCollection(int id) async {

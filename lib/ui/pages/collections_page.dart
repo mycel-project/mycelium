@@ -44,14 +44,10 @@ class CollectionsPage extends StatelessWidget {
             ),),
             ElevatedButton(
               onPressed: () async {
-                final name = await showInputDialog(
+                await showInputDialogWithRetry(
                   context: context,
                   title: "Collection name",
-                );
-                if (name == null) return;
-                if (!context.mounted) return;
-                await context.read<CollectionsViewModel>().createCollection(
-                  name,
+                  onSubmit: (name) => context.read<CollectionsViewModel>().createCollection(name),
                 );
               },
               child: Text("Create collection"),
@@ -108,15 +104,14 @@ class _CollectionsListState extends State<CollectionsList> {
                             leading: Icon(Icons.edit),
                             title: Text("Rename"),
                             onTap: () async {
-                              final name = await showInputDialog(
+                              await showInputDialogWithRetry(
                                 context: context,
                                 title: "New name",
                                 initialValue: collection.name,
+                                onSubmit: (name) => vm.renameCollection(collection.id, name),
                               );
                               if (!context.mounted) return;
                               Navigator.pop(context);
-                              if (name == null) return;
-                              await vm.renameCollection(collection.id, name);
                             },
                           ),
                           ListTile(

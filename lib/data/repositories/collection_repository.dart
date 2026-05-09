@@ -20,39 +20,28 @@ class CollectionRepository {
     _collectionCache.clear();
   }
 
-  Future<Either<CollectionError, Collection>> createCollection(
-    String name,
-  ) async {
+  Future<ApiResult<Collection>> createCollection(String name) async {
     final result = await collectionService.createCollection(name);
 
-    if (result is ApiError) {
-      return Left(UnknownCollectionError(result.message));
-    }
+    if (result is ApiError) return result;
 
     final success = result as ApiSuccess<String>;
     final json = jsonDecode(success.data);
     final collection = Collection.fromJson(json["collection"]);
     _collectionCache[collection.id] = collection;
-    return Right(collection);
+    return ApiSuccess(collection);
   }
 
-  Future<Either<CollectionError, Collection>> renameCollection(
-    int id,
-    String newName,
-  ) async {
+  Future<ApiResult<Collection>> renameCollection(int id, String newName) async {
     final result = await collectionService.renameCollection(id, newName);
-    if (result is ApiError) {
-      return Left(UnknownCollectionError(result.message));
-    }
-
+    if (result is ApiError) return result;
     final cached = _collectionCache[id];
     if (cached == null) {
-      return Left(NotFoundCollectionError(id.toString()));
+      return ApiError("NOT_FOUND", message: "Collection $id not found");
     }
-
     final updated = cached.copyWith(name: newName);
     _collectionCache[id] = updated;
-    return Right(updated);
+    return ApiSuccess(updated);
   }
 
   Future<Either<CollectionError, int>> deleteCollection(int id) async {
