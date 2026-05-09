@@ -18,6 +18,7 @@ import 'package:mycelium/ui/widgets/no_collection_widget.dart';
 import 'package:mycelium/ui/widgets/no_more_reviews_widget.dart';
 import 'package:mycelium/ui/widgets/no_node_widget.dart';
 import 'package:mycelium/ui/widgets/node_tree.dart';
+import 'package:mycelium/ui/widgets/right_drawer.dart';
 import 'package:provider/provider.dart';
 import 'package:mycelium/viewmodels/home_viewmodel.dart';
 
@@ -207,6 +208,7 @@ class HomePage extends StatelessWidget {
           ),
         ),
       ),
+      endDrawer: RightDrawer(),
       onDrawerChanged: (isOpened) {
         if (isOpened) vm.refreshNodes();
         FocusManager.instance.primaryFocus?.unfocus();

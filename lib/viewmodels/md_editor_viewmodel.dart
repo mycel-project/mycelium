@@ -306,6 +306,7 @@ class MdEditorViewModel extends ChangeNotifier {
     );
     switch (result) {
       case ApiSuccess(:final data):
+      // need to change in node store ? 
         node = data;
         notifyListeners();
       case ApiError error:
@@ -430,6 +431,7 @@ class MdEditorViewModel extends ChangeNotifier {
     switch (result) {
       case ApiSuccess():
         node = result.data;
+        // Need to reput node in node store ? to update content...
         isDirty = false;
         notifyListeners();
         return true;

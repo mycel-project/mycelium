@@ -26,6 +26,17 @@ class NodeService {
   Future<ApiResult<String>> deleteNode(int collectionId, int nodeId) async {
     return await api.delete("/collections/$collectionId/nodes/$nodeId");
   }
+  
+  Future<ApiResult<String>> reprioritiseNode(
+    int collectionId,
+    int nodeId,
+    int priority,
+  ) async {
+    return await api.post(
+      "/collections/$collectionId/nodes/$nodeId/reprioritise",
+      {"priority": priority},
+    );
+  }
 
   Future<ApiResult<String>> restoreNode(int collectionId, int nodeId, bool restoreAncestors, bool restoreDescendants) async {
     return await api.post(

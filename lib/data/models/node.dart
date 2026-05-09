@@ -5,6 +5,7 @@ class Node {
     required this.id,
     required this.type,
     required this.collectionId,
+    required this.priority,
     this.parentId,
     this.content,
     this.typeData,
@@ -14,12 +15,13 @@ class Node {
   final int id;
   final int type;
   final int collectionId;
+  final int priority;
   final int? parentId;
   final Map? content;
   final Map? typeData;
   final NodeData? data;
   final int? deletedAt;
-
+  
   factory Node.fromJson(Map<String, dynamic> json) {
     final rawContent = json['content'];
     return Node(
@@ -33,6 +35,7 @@ class Node {
       typeData: json['type_data'],
       data: json['data'] != null ? NodeData.fromJson(json['data']) : null,
       deletedAt: json['deleted_at'],
+      priority: json['priority'],
     );
   }
 }

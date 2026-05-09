@@ -114,6 +114,7 @@ class HomeViewModel extends ChangeNotifier {
     if (colId == null) return false;
     final result = await nodeUseCase.updateNodeTitle(colId, nodeId, title);
     if (result is Node) {
+      nodeStore.selectNode(result);
       notifyListeners();
       return true;
     }
@@ -187,6 +188,26 @@ class HomeViewModel extends ChangeNotifier {
     return collectionStore.currentCollection?.name;
   }
 
+  Future<bool> updatePriority(int nodeId, int priority) async {
+    final colId = collectionStore.currentCollection?.id;
+    if (colId == null) return false;
+    final result = await nodeRepository.reprioritiseNode(
+      colId,
+      nodeId,
+      priority,
+    );
+    switch (result) {
+      case ApiSuccess(:final data):
+        final node = data;
+        nodeStore.selectNode(node);
+        notifyListeners();
+        return true;
+      case ApiError error:
+        notificationBus.showError("Cannot update priority", error);
+        return false;
+    }
+  }
+
   Future<bool> fetchRessourceFromUrl(String? url) async {
     if (url == null || url.isEmpty) {
       notificationBus.showWarning("Empty URL");
@@ -197,13 +218,13 @@ class HomeViewModel extends ChangeNotifier {
     final result = await nodeRepository.fetchRessourceFromUrl(colId, url);
     switch (result) {
       case ApiSuccess(:final data):
-      final node = data;
-      await navigationUseCase.navigateTo(node.id);
-      notifyListeners();
-      return true;
+        final node = data;
+        await navigationUseCase.navigateTo(node.id);
+        notifyListeners();
+        return true;
       case ApiError error:
-      notificationBus.showError("Cannot import ressource", error);
-      return false;
+        notificationBus.showError("Cannot import ressource", error);
+        return false;
     }
   }
 }

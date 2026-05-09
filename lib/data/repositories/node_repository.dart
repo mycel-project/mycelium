@@ -80,6 +80,14 @@ class NodeRepository {
     return ApiSuccess(deletedIds);
   }
 
+  Future<ApiResult<Node>> reprioritiseNode(int colId, int nodeId, int priority) async {
+    final result = await nodeService.reprioritiseNode(colId, nodeId, priority);
+    if (result is ApiError) return result;
+    final node = _parseNode(result as ApiSuccess<String>);
+    _nodeCache[node.id] = node;
+    return ApiSuccess(node);
+  }
+
   Future<ApiResult<List<Node>>> restoreNode(int colId, int nodeId, bool restoreAncestors, bool restoreDescendants) async {
     final result = await nodeService.restoreNode(colId, nodeId, restoreAncestors, restoreDescendants);
     if (result is ApiError) return result;
