@@ -88,6 +88,15 @@ class NodeRepository {
     return ApiSuccess(deletedIds);
   }
 
+  Future<ApiResult<Node>> restoreNode(int colId, int nodeId) async {
+    final result = await nodeService.restoreNode(colId, nodeId);
+    if (result is ApiError) return result;
+    final success = result as ApiSuccess<String>;
+    final json = jsonDecode(success.data);
+    final node = Node.fromJson(json["node"]);
+    _nodeCache[node.id] = node;
+    return ApiSuccess(node);
+  }
 
   List<Node> _parseNodes(ApiSuccess<String> success) {
     final json = jsonDecode(success.data);

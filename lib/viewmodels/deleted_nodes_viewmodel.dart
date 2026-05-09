@@ -18,6 +18,10 @@ class DeletedNodesViewmodel extends ChangeNotifier {
     this.notificationBus,
   );
 
+  String getNodeTypeName(int typeKey) {
+    return nodeRepository.nodeTypesCache[typeKey]?.label ?? "Type $typeKey";
+  }
+
   Future<void> getDeletedNodes() async {
     final collectionId = collectionStore.currentCollection?.id;
     if (collectionId == null) return;
@@ -28,6 +32,19 @@ class DeletedNodesViewmodel extends ChangeNotifier {
         notifyListeners();
       case ApiError error:
         notificationBus.showError("Cannot get deleted nodes", error);
+    }
+  }
+
+  Future<void> restoreNode(int nodeId) async {
+    final collectionId = collectionStore.currentCollection?.id;
+    if (collectionId == null) return;
+    final result = await nodeRepository.restoreNode(collectionId, nodeId);
+    switch (result) {
+      case ApiSuccess():
+      deletedNodes.removeWhere((n) => n.id == nodeId);
+      notifyListeners();
+      case ApiError error:
+      notificationBus.showError("Cannot restore nodes", error);
     }
   }
 }

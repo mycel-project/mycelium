@@ -9,6 +9,7 @@ class Node {
     this.content,
     this.typeData,
     this.data,
+    this.deletedAt,
   });
   final int id;
   final int type;
@@ -17,10 +18,10 @@ class Node {
   final Map? content;
   final Map? typeData;
   final NodeData? data;
+  final int? deletedAt;
 
   factory Node.fromJson(Map<String, dynamic> json) {
     final rawContent = json['content'];
-
     return Node(
       id: json['id'],
       type: json['type'],
@@ -31,6 +32,7 @@ class Node {
           : null,
       typeData: json['type_data'],
       data: json['data'] != null ? NodeData.fromJson(json['data']) : null,
+      deletedAt: json['deleted_at'],
     );
   }
 }
