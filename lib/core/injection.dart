@@ -20,6 +20,7 @@ import 'package:mycelium/data/services/collection_service.dart';
 import 'package:mycelium/data/services/node_service.dart';
 import 'package:mycelium/data/services/review_service.dart';
 import 'package:mycelium/data/services/user_service.dart';
+import 'package:mycelium/domain/api_health_monitor.dart';
 import 'package:mycelium/domain/app_coordinator.dart';
 import 'package:mycelium/domain/init_api_usecase.dart';
 import 'package:mycelium/domain/init_collections_usecase.dart';
@@ -80,6 +81,10 @@ Future<void> setup() async {
   sl.registerSingleton(NodeUseCase(sl(), sl(), sl(), sl(), sl()));
   sl.registerSingleton(InitDataUseCase(sl(), sl(), sl(), sl(), sl()));
   sl.registerSingleton(AppCoordinator(sl(), sl(), sl(), sl(), sl(), sl()));
+
+  // Misc
+  sl.registerSingleton(ApiHealthMonitor(sl(), sl()));
+
 
   // ViewModels
   sl.registerFactory(() => CollectionsViewModel(sl(), sl(), sl(), sl()));

@@ -8,6 +8,7 @@ import 'package:mycelium/core/stores/collection_store.dart';
 import 'package:mycelium/core/stores/node_store.dart';
 import 'package:mycelium/core/stores/review_store.dart';
 import 'package:mycelium/core/stores/user_store.dart';
+import 'package:mycelium/domain/api_health_monitor.dart';
 import 'package:mycelium/domain/api_status.dart';
 import 'package:mycelium/domain/init_api_usecase.dart';
 import 'package:mycelium/domain/init_data_usecase.dart';
@@ -30,6 +31,7 @@ void main() async {
   // await preferences.clear();
 
   await setup();
+  sl<ApiHealthMonitor>(); 
 
   final apiStatus = await sl<InitApiUseCase>().execute();
   if (apiStatus == ApiStatus.reachable) {

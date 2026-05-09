@@ -14,7 +14,6 @@ import 'package:mycelium/data/models/node.dart';
 import 'package:mycelium/data/models/node_type.dart';
 import 'package:mycelium/data/repositories/node_repository.dart';
 import 'package:mycelium/data/services/api_service.dart';
-import 'package:mycelium/domain/api_status.dart';
 import 'package:mycelium/domain/check_api_usecase.dart';
 import 'package:mycelium/domain/navigation_usecase.dart';
 import 'package:mycelium/domain/node_usecase.dart';
@@ -52,7 +51,6 @@ class HomeViewModel extends ChangeNotifier {
   ) {
     reviewStore.addListener(_onReviewChanged);
     nodeStore.addListener(_onNodeStoreChange);
-    apiStore.addListener(handleRetry);
     reviewStore.addListener(_onReviewChange);
   }
 
@@ -60,10 +58,7 @@ class HomeViewModel extends ChangeNotifier {
   void dispose() {
     reviewStore.removeListener(_onReviewChanged);
     nodeStore.removeListener(_onNodeStoreChange);
-    apiStore.removeListener(handleRetry);
     reviewStore.removeListener(_onReviewChange);
-
-    _retryTimer?.cancel();
 
     super.dispose();
   }
@@ -74,27 +69,6 @@ class HomeViewModel extends ChangeNotifier {
 
   void _onReviewChange() {
     notifyListeners();
-  }
-
-  Timer? _retryTimer;
-
-  void handleRetry() {
-    if (apiStore.status == ApiStatus.unreachable) {
-      _startRetrying();
-    } else {
-      _stopRetrying();
-    }
-  }
-
-  void _startRetrying() {
-    _retryTimer = Timer.periodic(const Duration(seconds: 3), (_) {
-      checkApiUseCase.execute();
-    });
-  }
-
-  void _stopRetrying() {
-    _retryTimer?.cancel();
-    _retryTimer = null;
   }
 
   void refreshNodes() {
