@@ -7,6 +7,8 @@ import 'package:mycelium/ui/widgets/api_status_dot_widget.dart';
 import 'package:mycelium/ui/widgets/app_bar.dart';
 import 'package:mycelium/viewmodels/settings_viewmodel.dart';
 import 'package:provider/provider.dart';
+import "package:mycelium/ui/widgets/confirmation_dialog.dart";
+
 
 // AI used to quiclky build UI
 class SettingsPage extends StatefulWidget {
@@ -78,7 +80,7 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 }
 
-class _SettingField extends StatelessWidget {
+class _SettingField extends StatefulWidget {
   final ConfigField field;
   final dynamic value;
   final Function(dynamic) onChanged;
@@ -86,45 +88,66 @@ class _SettingField extends StatelessWidget {
   const _SettingField({required this.field, required this.value, required this.onChanged});
 
   @override
+  State<_SettingField> createState() => _SettingFieldState();
+}
+
+class _SettingFieldState extends State<_SettingField> {
+  bool _warningConfirmed = false;
+
+  Future<void> _handleChange(dynamic newValue) async {
+    if (widget.field.warning != null && !_warningConfirmed) {
+      final result = await ConfirmationDialog.show(
+        context,
+        title: "Warning",
+        text: widget.field.warning!,
+        destructive: true,
+      );
+      if (!result.confirmed) return;
+      setState(() => _warningConfirmed = true);
+    }
+    widget.onChanged(newValue);
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          field.title, 
-          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)
+          widget.field.title,
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
         ),
-        if (field.description != null)
+        if (widget.field.description != null)
           Padding(
             padding: const EdgeInsets.only(top: 4, bottom: 8),
             child: Text(
-              field.description!,
+              widget.field.description!,
               style: TextStyle(color: Colors.grey[600], fontSize: 13),
             ),
           ),
         const SizedBox(height: 8),
-        if (field is IntConfigField)
+        if (widget.field is IntConfigField)
           _IntField(
-            field: field as IntConfigField,
-            value: (value as num).toInt(),
-            onChanged: onChanged,
+            field: widget.field as IntConfigField,
+            value: (widget.value as num).toInt(),
+            onChanged: _handleChange,
           )
-          else if (field is StringConfigField)
+        else if (widget.field is StringConfigField)
           _StringField(
-            field: field as StringConfigField,
-            value: value.toString(),
-            onChanged: onChanged
+            field: widget.field as StringConfigField,
+            value: widget.value.toString(),
+            onChanged: _handleChange,
           )
-          else if (field is BoolConfigField)
+        else if (widget.field is BoolConfigField)
           _BoolField(
-            field: field as BoolConfigField,
-            value: value as bool,
-            onChanged: (v) => onChanged(v),
+            field: widget.field as BoolConfigField,
+            value: widget.value as bool,
+            onChanged: _handleChange,
           ),
-        ],
-      );
-    }
+      ],
+    );
   }
+}
 
 class _IntField extends StatefulWidget {
   final IntConfigField field;

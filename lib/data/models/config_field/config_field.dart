@@ -7,14 +7,16 @@ abstract class ConfigField {
   final String title;
   final String category;
   final String type;
-  final String? description; 
+  final String? description;
+  final String? warning;
 
   const ConfigField({
-      required this.key,
-      required this.title,
-      required this.category,
-      required this.type,
-      this.description,
+    required this.key,
+    required this.title,
+    required this.category,
+    required this.type,
+    this.description,
+    this.warning,
   });
 
   dynamic get defaultValue;
@@ -40,6 +42,7 @@ abstract class ConfigField {
         min: json["minimum"] ?? 0,
         max: json["maximum"] ?? 100,
         step: json["step"] ?? 1,
+        warning: json["warning"] ?? null,
       );
       case "string":
       return StringConfigField(
@@ -48,6 +51,7 @@ abstract class ConfigField {
         category: common['category'] as String,
         description: common['description'] as String?,
         defaultValue: json["default"] ?? "",
+        warning: json["warning"] ?? null,
       );
       case "boolean":
       return BoolConfigField(
@@ -56,6 +60,7 @@ abstract class ConfigField {
         category: common['category'] as String,
         description: common['description'] as String?,
         defaultValue: json["default"] ?? false,
+        warning: json["warning"] ?? null,
       );
       default:
       throw Exception("Unsupported type: $type");

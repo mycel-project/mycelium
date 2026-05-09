@@ -17,6 +17,7 @@ class IntConfigField extends ConfigField {
     required this.min,
     required this.max,
     required this.step,
+    super.warning,
     this.unit,
   }) : super(type: "integer");
 }

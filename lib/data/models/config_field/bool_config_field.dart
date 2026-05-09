@@ -9,6 +9,7 @@ class BoolConfigField extends ConfigField {
     required super.title,
     required super.category,
     super.description,
+    super.warning,
     required this.defaultValue,
   }) : super(type: "boolean");
 }
