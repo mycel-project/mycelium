@@ -12,7 +12,7 @@ class ReviewRepository {
   String? _clozeRegex;
 
   Future<ApiResult<Node?>> undoReview(int colId) async {
-    final result = await reviewService.undoReview(colId, maxAge: 300);
+    final result = await reviewService.undoReview(colId);
     return parsedReviewData(result);
   }
 

@@ -22,14 +22,8 @@ class ReviewService {
     return await api.get("/collections/$colId/reviews/next");
   }
 
-  Future<ApiResult<String>> undoReview(int colId, {int? maxAge}) async {
-    final query = <String, dynamic>{};
-
-    if (maxAge != null) {
-      query['max_age'] = maxAge;
-    }
-
-    return await api.post("/collections/$colId/reviews/undo", query);
+  Future<ApiResult<String>> undoReview(int colId) async {
+    return await api.post("/collections/$colId/reviews/undo", {});
   }
 
   Future<ApiResult<String>> completeFragmentReview(
@@ -37,10 +31,10 @@ class ReviewService {
     int nodeId,
     int duration,
   ) async {
-    return await api.post(
-      "/collections/$colId/nodes/$nodeId/fragment-review",
-      {"duration": duration, "type_review_data": {}},
-    );
+    return await api.post("/collections/$colId/nodes/$nodeId/fragment-review", {
+      "duration": duration,
+      "type_review_data": {},
+    });
   }
 
   Future<ApiResult<String>> completeSporeReview(
@@ -49,12 +43,9 @@ class ReviewService {
     int duration,
     int rating,
   ) async {
-    return await api.post(
-      "/collections/$colId/nodes/$nodeId/spore-review",
-      {
-        "duration": duration,
-        "type_review_data": {"rating": rating},
-      },
-    );
+    return await api.post("/collections/$colId/nodes/$nodeId/spore-review", {
+      "duration": duration,
+      "type_review_data": {"rating": rating},
+    });
   }
 }
