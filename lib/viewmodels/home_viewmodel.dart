@@ -108,11 +108,15 @@ class HomeViewModel extends ChangeNotifier {
     return await nodeUseCase.getNodeTitle(colId, nodeId);
   }
 
-  Future<void> updateNodeTitle(int nodeId, String title) async {
+  Future<bool> updateNodeTitle(int nodeId, String title) async {
     final colId = collectionStore.currentCollection?.id;
-    if (colId == null) return;
-    await nodeUseCase.updateNodeTitle(colId, nodeId, title);
-    notifyListeners();
+    if (colId == null) return false;
+    final result = await nodeUseCase.updateNodeTitle(colId, nodeId, title);
+    if (result is Node) {
+      notifyListeners();
+      return true;
+    }
+    return false;
   }
 
   void nextNode() async {

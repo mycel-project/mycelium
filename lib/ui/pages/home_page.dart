@@ -22,6 +22,7 @@ import 'package:provider/provider.dart';
 import 'package:mycelium/viewmodels/home_viewmodel.dart';
 
 class HomePage extends StatelessWidget {
+  const HomePage({super.key});
   @override
   Widget build(BuildContext context) {
     final vm = context.watch<HomeViewModel>();
@@ -33,10 +34,10 @@ class HomePage extends StatelessWidget {
         actions: [
           IconButton(
             onPressed: vm.hasPreviousNodes()
-                ? () {
-                    vm.previousNode();
-                  }
-                : null,
+            ? () {
+              vm.previousNode();
+            }
+            : null,
             onLongPress: () {
               vm.openHistory();
             },
@@ -44,10 +45,10 @@ class HomePage extends StatelessWidget {
           ),
           IconButton(
             onPressed: vm.hasNextNodes()
-                ? () {
-                    vm.nextNode();
-                  }
-                : null,
+            ? () {
+              vm.nextNode();
+            }
+            : null,
             onLongPress: () {
               vm.openHistory();
             },
@@ -55,10 +56,10 @@ class HomePage extends StatelessWidget {
           ),
           IconButton(
             onPressed: vm.hasParent
-                ? () {
-                    vm.upPress();
-                  }
-                : null,
+            ? () {
+              vm.upPress();
+            }
+            : null,
             onLongPress: () {
               vm.longUpPress();
             },
@@ -66,10 +67,10 @@ class HomePage extends StatelessWidget {
           ),
           IconButton(
             onPressed: !vm.isCurrentNodeUnderReview()
-                ? () {
-                    vm.handleNextReview();
-                  }
-                : null,
+            ? () {
+              vm.handleNextReview();
+            }
+            : null,
             icon: const Icon(Icons.school),
           ),
           ApiStatusDotWidget(),
@@ -107,28 +108,28 @@ class HomePage extends StatelessWidget {
         ],
       ),
       body: vm.noMoreReviewsFlag
-          ? NoMoreReviewsWidget(onDismiss: vm.dismissNoMoreReviews)
-          : context.watch<NodeStore>().currentNode != null
-          ? MdEditor()
-          : apiStore.apiStatus != ApiStatus.reachable
-          ? ApiNotReachableWidget()
-          : context.watch<CollectionStore>().currentCollection == null
-          ? NoCollectionWidget()
-          : Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  if (vm.currentCollectionName() != null)
-                    Text(
-                      vm.currentCollectionName()!,
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  NoNodeWidget(),
-                ],
+      ? NoMoreReviewsWidget(onDismiss: vm.dismissNoMoreReviews)
+      : context.watch<NodeStore>().currentNode != null
+      ? MdEditor()
+      : apiStore.apiStatus != ApiStatus.reachable
+      ? ApiNotReachableWidget()
+      : context.watch<CollectionStore>().currentCollection == null
+      ? NoCollectionWidget()
+      : Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            if (vm.currentCollectionName() != null)
+            Text(
+              vm.currentCollectionName()!,
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.bold,
               ),
             ),
+            NoNodeWidget(),
+          ],
+        ),
+      ),
       drawer: Drawer(
         child: SafeArea(
           child: Column(
@@ -149,55 +150,57 @@ class HomePage extends StatelessWidget {
                     vm.navigateTo(value);
                   },
                   longPressCallback:
-                      (int nodeId, LongPressStartDetails details) async {
-                        final screenWidth = MediaQuery.of(context).size.width;
-                        final position = details.globalPosition;
+                  (int nodeId, LongPressStartDetails details) async {
+                    final screenWidth = MediaQuery.of(context).size.width;
+                    final position = details.globalPosition;
 
-                        double dx = position.dx - 75;
+                    double dx = position.dx - 75;
 
-                        if (dx < 8) dx = 8;
+                    if (dx < 8) dx = 8;
 
-                        final selected = await showMenu(
-                          context: context,
-                          position: RelativeRect.fromLTRB(
-                            dx,
-                            position.dy,
-                            screenWidth - dx,
-                            position.dy,
-                          ),
-                          items: [
-                            PopupMenuItem(
-                              value: 'delete',
-                              child: Text("Delete"),
-                            ),
-                            PopupMenuItem(
-                              value: 'rename',
-                              child: Text("Rename"),
-                            ),
-                          ],
-                        );
-                        if (selected == 'delete') {
-                          final confirm = await ConfirmationDialog.show(
-                            context,
-                            title: "Delete confirmation",
-                            text: "Delete this node and all its children?",
-                            destructive: true,
-                          );
-                          if (!context.mounted) return;
-                          if (confirm == true) {
-                            await vm.deleteNode(nodeId);
-                          }
-                        } else if (selected == "rename") {
-                          final name = await vm.getNodeTitle(nodeId) ?? "";
-                          final newName = await showInputDialog(
-                            context: context,
-                            title: "Enter new title",
-                            placeholder: "Node title",
-                            initialValue: name,
-                          );
-                          vm.updateNodeTitle(nodeId, newName ?? "");
-                        }
-                      },
+                    final selected = await showMenu(
+                      context: context,
+                      position: RelativeRect.fromLTRB(
+                        dx,
+                        position.dy,
+                        screenWidth - dx,
+                        position.dy,
+                      ),
+                      items: [
+                        PopupMenuItem(
+                          value: 'delete',
+                          child: Text("Delete"),
+                        ),
+                        PopupMenuItem(
+                          value: 'rename',
+                          child: Text("Rename"),
+                        ),
+                      ],
+                    );
+                    if (selected == 'delete') {
+                      if (!context.mounted) return;
+                      final confirm = await ConfirmationDialog.show(
+                        context,
+                        title: "Delete confirmation",
+                        text: "Delete this node and all its children?",
+                        destructive: true,
+                      );
+                      if (!context.mounted) return;
+                      if (confirm == true) {
+                        await vm.deleteNode(nodeId);
+                      }
+                    } else if (selected == "rename") {
+                      final name = await vm.getNodeTitle(nodeId) ?? "";
+                      if (!context.mounted) return;
+                      await showInputDialogWithRetry(
+                        context: context,
+                        title: "Enter new title",
+                        placeholder: "Node title",
+                        initialValue: name,
+                        onSubmit: (newName) async => await vm.updateNodeTitle(nodeId, newName),
+                      );
+                    }
+                  },
                 ),
               ),
             ],
@@ -235,19 +238,20 @@ class _DrawerHeader extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               _iconButton(context, Icons.search, () {
-                print("salut");
                 Navigator.pop(context);
               }),
               const SizedBox(width: 8),
               PopupMenuButton<String>(
                 onSelected: (value) async {
                   if (value == "url") {
+                    if (!context.mounted) return;
                     final request = await showInputDialog(
                       context: context,
                       title: "Enter ressource URL",
                       placeholder: "https://example.com/page",
                     );
                     await vm.fetchRessourceFromUrl(request);
+                    if (!context.mounted) return;
                     Navigator.pop(context);
                   }
                 },
