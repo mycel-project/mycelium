@@ -83,7 +83,7 @@ Future<void> setup() async {
   sl.registerSingleton(AppCoordinator(sl(), sl(), sl(), sl(), sl(), sl()));
 
   // Misc
-  sl.registerSingleton(ApiHealthMonitor(sl(), sl()));
+  sl.registerSingleton(ApiHealthMonitor(sl(), sl(), sl()));
 
 
   // ViewModels
