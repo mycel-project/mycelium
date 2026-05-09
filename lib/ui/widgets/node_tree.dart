@@ -14,6 +14,8 @@ class NodeTree extends StatefulWidget {
   final Future<void> Function(int id, LongPressStartDetails details)?
   longPressCallback;
   final bool Function(Node node)? isSpore;
+  final bool popOnClick;
+  final String? Function(Node node)? subtitleBuilder;
 
   const NodeTree({
     super.key,
@@ -21,6 +23,8 @@ class NodeTree extends StatefulWidget {
     this.isSpore,
     this.clickCallback,
     this.longPressCallback,
+    this.subtitleBuilder,
+    this.popOnClick = true,
   });
 
   @override
@@ -188,34 +192,44 @@ int _getDepth(TreeSliverNode node) {
                                 onTap: () {
                                   widget.clickCallback?.call(typedNode.id);
                                   FocusManager.instance.primaryFocus?.unfocus();
-                                  Navigator.pop(context);
+                                  if (widget.popOnClick) Navigator.pop(context);
                                 },
                                 child: Container(
                                   decoration: BoxDecoration(
                                     color: isSelected
-                                        ? Theme.of(context).colorScheme.primary
-                                              .withValues(alpha: 0.1)
-                                        : Colors.transparent,
+                                    ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.1)
+                                    : Colors.transparent,
                                   ),
                                   alignment: Alignment.centerLeft,
                                   child: Transform.translate(
                                     offset: const Offset(10, 0),
-                                    child: Text(
-                                      formatNodeTitle(
-                                        typedNode.data?.title ??
-                                            typedNode.content?['0'],
-                                      ),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: TextStyle(
-                                        color:
-                                            typedNode.typeData?["dismiss"] ==
-                                                true
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          formatNodeTitle(
+                                            typedNode.data?.title ?? typedNode.content?['0'],
+                                          ),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: TextStyle(
+                                            color: typedNode.typeData?["dismiss"] == true
                                             ? Colors.grey.withValues(alpha: 0.5)
-                                            : Theme.of(
-                                                context,
-                                              ).textTheme.bodyMedium?.color,
-                                      ),
+                                            : Theme.of(context).textTheme.bodyMedium?.color,
+                                          ),
+                                        ),
+                                        if (widget.subtitleBuilder?.call(typedNode) != null)
+                                        Text(
+                                          widget.subtitleBuilder!.call(typedNode)!,
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: TextStyle(
+                                            fontSize: 11,
+                                            color: Theme.of(context).textTheme.bodySmall?.color?.withValues(alpha: 0.6),
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ),
                                 ),
