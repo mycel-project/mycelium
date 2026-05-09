@@ -38,8 +38,8 @@ import 'package:mycelium/viewmodels/collections_viewmodel.dart';
 import 'package:mycelium/viewmodels/deleted_nodes_viewmodel.dart';
 import 'package:mycelium/viewmodels/home_viewmodel.dart';
 import 'package:mycelium/viewmodels/launch_review_button_viewmodel.dart';
-import 'package:mycelium/viewmodels/md_editor_view_model.dart';
-import 'package:mycelium/viewmodels/settings_view_model.dart';
+import 'package:mycelium/viewmodels/md_editor_viewmodel.dart';
+import 'package:mycelium/viewmodels/settings_viewmodel.dart';
 
 final sl = GetIt.instance;
 

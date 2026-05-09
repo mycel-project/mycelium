@@ -4,7 +4,7 @@ import "package:mycelium/ui/controllers/markdown_controller.dart";
 import "package:mycelium/ui/widgets/confirmation_dialog.dart";
 import "package:mycelium/ui/widgets/review_bottom_button.dart";
 import "package:mycelium/ui/widgets/validation_bar.dart";
-import "package:mycelium/viewmodels/md_editor_view_model.dart";
+import "package:mycelium/viewmodels/md_editor_viewmodel.dart";
 import 'package:provider/provider.dart';
 
 /// Widget that handles the current node editing and review process.

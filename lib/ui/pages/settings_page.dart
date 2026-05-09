@@ -5,7 +5,7 @@ import 'package:mycelium/data/models/config_field/int_config_field.dart';
 import 'package:mycelium/data/models/config_field/string_config_field.dart';
 import 'package:mycelium/ui/widgets/api_status_dot_widget.dart';
 import 'package:mycelium/ui/widgets/app_bar.dart';
-import 'package:mycelium/viewmodels/settings_view_model.dart';
+import 'package:mycelium/viewmodels/settings_viewmodel.dart';
 import 'package:provider/provider.dart';
 
 // AI used to quiclky build UI
