@@ -124,7 +124,7 @@ Future<void> setup() async {
   );
   sl.registerFactory(() => LaunchReviewButtonViewmodel(sl()));
   sl.registerFactory(() => SettingViewModel(sl(), sl(), sl()));
-  sl.registerFactory(() => DeletedNodesViewmodel(sl(), sl(), sl()));
+  sl.registerFactory(() => DeletedNodesViewmodel(sl(), sl(), sl(), sl()));
   
   
 }
