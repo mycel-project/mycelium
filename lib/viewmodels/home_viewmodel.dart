@@ -190,7 +190,7 @@ class HomeViewModel extends ChangeNotifier {
   Future<bool> fetchRessourceFromUrl(String? url) async {
     if (url == null || url.isEmpty) {
       notificationBus.showWarning("Empty URL");
-      return true;
+      return false;
     }
     final colId = collectionStore.currentCollection?.id;
     if (colId == null) return false;

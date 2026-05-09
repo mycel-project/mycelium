@@ -44,7 +44,7 @@ class CollectionsViewModel extends ChangeNotifier {
   Future<bool> createCollection(String? name) async {
     if (name == null || name.isEmpty) {
       notificationBus.showWarning("Empty name");
-      return true;
+      return false;
     }
     final result = await collectionRepository.createCollection(name);
 
@@ -69,7 +69,7 @@ class CollectionsViewModel extends ChangeNotifier {
   Future<bool> renameCollection(int id, String? newName) async {
     if (newName == null || newName.isEmpty) {
       notificationBus.showWarning("Empty name");
-      return true;
+      return false;
     }
     final result = await collectionRepository.renameCollection(id, newName);
 
