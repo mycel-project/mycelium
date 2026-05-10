@@ -19,6 +19,10 @@ class NodeService {
     return await api.get("/collections/$collectionId/nodes/$nodeId");
   }
 
+  Future<ApiResult<String>> getPriorities(int collectionId) async {
+    return await api.get("/collections/$collectionId/nodes/priorities");
+  }
+
   Future<ApiResult<String>> getRootNode(int collectionId, int nodeId) async {
     return await api.get("/collections/$collectionId/nodes/$nodeId/root");
   }

@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:collection/collection.dart';
 import 'package:mycelium/core/either.dart';
 import 'package:mycelium/core/errors/node_errors.dart';
-import 'package:mycelium/core/errors/ressource_error.dart';
 import 'package:mycelium/data/api_result.dart';
 import 'package:mycelium/data/models/node.dart';
 import 'package:mycelium/data/models/node_type.dart';
@@ -80,7 +79,11 @@ class NodeRepository {
     return ApiSuccess(deletedIds);
   }
 
-  Future<ApiResult<Node>> reprioritiseNode(int colId, int nodeId, int priority) async {
+  Future<ApiResult<Node>> reprioritiseNode(
+    int colId,
+    int nodeId,
+    int priority,
+  ) async {
     final result = await nodeService.reprioritiseNode(colId, nodeId, priority);
     if (result is ApiError) return result;
     final node = _parseNode(result as ApiSuccess<String>);
@@ -88,8 +91,34 @@ class NodeRepository {
     return ApiSuccess(node);
   }
 
-  Future<ApiResult<List<Node>>> restoreNode(int colId, int nodeId, bool restoreAncestors, bool restoreDescendants) async {
-    final result = await nodeService.restoreNode(colId, nodeId, restoreAncestors, restoreDescendants);
+  Future<ApiResult<void>> getPriorities(int colId) async {
+    final result = await nodeService.getPriorities(colId);
+    if (result is ApiError) return result;
+    final json = jsonDecode((result as ApiSuccess<String>).data);
+    final priorities = json["priorities"] as Map<String, dynamic>;
+    for (final entry in priorities.entries) {
+      final id = int.parse(entry.key);
+      final node = _nodeCache[id];
+      print(entry.value);
+      if (node != null) {
+        _nodeCache[id] = node.copyWith(priority: entry.value as int);
+      }
+    }
+    return ApiSuccess(null);
+  }
+
+  Future<ApiResult<List<Node>>> restoreNode(
+    int colId,
+    int nodeId,
+    bool restoreAncestors,
+    bool restoreDescendants,
+  ) async {
+    final result = await nodeService.restoreNode(
+      colId,
+      nodeId,
+      restoreAncestors,
+      restoreDescendants,
+    );
     if (result is ApiError) return result;
     final nodes = _parseNodes(result as ApiSuccess<String>);
     for (final node in nodes) {

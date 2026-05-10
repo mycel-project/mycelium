@@ -59,7 +59,9 @@ class _PriorityTile extends StatelessWidget {
     );
   }
 
-  void _showPriorityPicker(BuildContext context) {
+  void _showPriorityPicker(BuildContext context) async {
+    if (vm.nodeCount < 500) await vm.refreshPriorities(); // Above this limit, priorities are diluted enough that a full refresh is unnecessary I guess.
+    if (!context.mounted) return;
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -72,7 +74,7 @@ class _PriorityTile extends StatelessWidget {
             nodes: vm.getNodes(),
             currentNodeId: node.id,
             onConfirm: (value) {
-              print(value);
+              vm.updatePriority(node.id, value);
               Navigator.pop(context);
             },
           ),

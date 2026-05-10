@@ -38,4 +38,28 @@ class Node {
       priority: json['priority'],
     );
   }
+
+  Node copyWith({
+      int? id,
+      int? type,
+      int? collectionId,
+      int? priority,
+      int? parentId,
+      Map? content,
+      Map? typeData,
+      NodeData? data,
+      int? deletedAt,
+  }) {
+    return Node(
+      id: id ?? this.id,
+      type: type ?? this.type,
+      collectionId: collectionId ?? this.collectionId,
+      priority: priority ?? this.priority,
+      parentId: parentId ?? this.parentId,
+      content: content ?? this.content,
+      typeData: typeData ?? this.typeData,
+      data: data ?? this.data,
+      deletedAt: deletedAt ?? this.deletedAt,
+    );
+  }
 }

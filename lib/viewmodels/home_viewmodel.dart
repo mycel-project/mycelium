@@ -132,7 +132,8 @@ class HomeViewModel extends ChangeNotifier {
 
   void _checkHasParent() {
     final parentId = nodeStore.currentNode?.parentId;
-    final exists = parentId != null && nodeRepository.nodeCache.containsKey(parentId);
+    final exists =
+        parentId != null && nodeRepository.nodeCache.containsKey(parentId);
 
     if (hasParent == exists) return;
 
@@ -142,6 +143,22 @@ class HomeViewModel extends ChangeNotifier {
 
   // Not reloading the cache on each open — could this be a problem?
   List<Node> getNodes() => nodeRepository.nodeCache.values.toList();
+  int get nodeCount => nodeRepository.nodeCache.length;
+  
+  Future<bool> refreshPriorities() async {
+    final colId = collectionStore.currentCollection?.id;
+    if (colId == null) return false;
+    final result = await nodeRepository.getPriorities(colId);
+    switch (result) {
+      case ApiSuccess():
+      notifyListeners();
+      return true;
+      case ApiError error:
+      notificationBus.showError("Cannot refresh priorities", error);
+      return false;
+    }
+  }
+
   List<NodeType> getNodeTypes() =>
       nodeRepository.nodeTypesCache.values.toList();
 
