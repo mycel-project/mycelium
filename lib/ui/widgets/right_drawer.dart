@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mycelium/core/stores/node_store.dart';
 import 'package:mycelium/data/models/node.dart';
+import 'package:mycelium/ui/widgets/priority_selector.dart';
 import 'package:mycelium/viewmodels/home_viewmodel.dart';
 import 'package:provider/provider.dart';
 
@@ -53,33 +54,28 @@ class _PriorityTile extends StatelessWidget {
     return ListTile(
       leading: const Icon(Icons.star_outline),
       title: const Text("Priority"),
-      trailing: GestureDetector(
-        onTap: () => _showPriorityPicker(context),
-        child: Chip(
-          label: Text("${node.priority}"),
-        ),
-      ),
+      trailing: Chip(label: Text("${node.priority}")),
+      onTap: () => _showPriorityPicker(context),
     );
   }
 
   void _showPriorityPicker(BuildContext context) {
-    showDialog(
+    showModalBottomSheet(
       context: context,
-      builder: (_) => AlertDialog(
-        title: const Text("Set priority"),
-        content: TextField(
-          autofocus: true,
-          keyboardType: TextInputType.number,
-          decoration: const InputDecoration(
-            hintText: "0 - 100",
+      isScrollControlled: true,
+      builder: (_) => SafeArea(
+        child: Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
           ),
-          onSubmitted: (value) {
-            final parsed = int.tryParse(value);
-            if (parsed != null && parsed >= 0 && parsed <= 100) {
-              vm.updatePriority(node.id, parsed);
+          child: PrioritySelector(
+            nodes: vm.getNodes(),
+            currentNodeId: node.id,
+            onConfirm: (value) {
+              print(value);
               Navigator.pop(context);
-            }
-          },
+            },
+          ),
         ),
       ),
     );
