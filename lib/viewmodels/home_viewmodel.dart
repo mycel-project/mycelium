@@ -131,11 +131,12 @@ class HomeViewModel extends ChangeNotifier {
   }
 
   void _checkHasParent() {
-    final newValue = nodeStore.currentNode?.parentId != null;
+    final parentId = nodeStore.currentNode?.parentId;
+    final exists = parentId != null && nodeRepository.nodeCache.containsKey(parentId);
 
-    if (hasParent == newValue) return;
+    if (hasParent == exists) return;
 
-    hasParent = newValue;
+    hasParent = exists;
     notifyListeners();
   }
 
