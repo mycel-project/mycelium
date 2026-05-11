@@ -194,14 +194,14 @@ class _MdEditorState extends State<MdEditor> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          FloatingActionButton(
-                            // temp will be autosave only
-                            onPressed: vm.isDirty ? vm.saveContent : null,
-                            child: Opacity(
-                              opacity: vm.isDirty ? 1.0 : 0.4,
-                              child: const Icon(Icons.save),
-                            ),
-                          ),
+                          // FloatingActionButton(
+                          //   // temp will be autosave only
+                          //   onPressed: vm.isDirty ? vm.saveContent : null,
+                          //   child: Opacity(
+                          //     opacity: vm.isDirty ? 1.0 : 0.4,
+                          //     child: const Icon(Icons.save),
+                          //   ),
+                          // ),
                           if (!vm.isCurrentNodeSpore()) ...[
                             GestureDetector(
                               onLongPress: vm.toggleHistoryMode,
