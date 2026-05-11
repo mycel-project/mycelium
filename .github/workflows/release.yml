@@ -64,7 +64,7 @@ jobs:
           name: linux-build
           path: mycelium-linux.zip
 
-release:
+  release:
     needs: [build-android, build-linux]
     runs-on: ubuntu-latest
     steps:
