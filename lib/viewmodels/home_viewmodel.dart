@@ -66,6 +66,7 @@ class HomeViewModel extends ChangeNotifier {
   void _onNodeStoreChange() {
     dismissNoMoreReviews();
     _checkHasParent();
+    refreshCurrentNode(); // Mainly used to avoid the priority drift due to other nodes changes, but we refetch the whole node while we're at it.
   }
 
   void _onReviewChange() {
@@ -144,18 +145,34 @@ class HomeViewModel extends ChangeNotifier {
   // Not reloading the cache on each open — could this be a problem?
   List<Node> getNodes() => nodeRepository.nodeCache.values.toList();
   int get nodeCount => nodeRepository.nodeCache.length;
-  
+
+  // Should this method live in a node store monitor/observer?
+  Future<bool> refreshCurrentNode() async {
+    final colId = collectionStore.currentCollection?.id;
+    Node? node = nodeStore.currentNode;
+    if (colId == null || node == null) return false;
+    final result = await nodeRepository.loadNode(colId, node.id);
+    switch (result) {
+      case ApiSuccess():
+        notifyListeners();
+        return true;
+      case ApiError error:
+        notificationBus.showError("Cannot refresh node", error);
+        return false;
+    }
+  }
+
   Future<bool> refreshPriorities() async {
     final colId = collectionStore.currentCollection?.id;
     if (colId == null) return false;
     final result = await nodeRepository.getPriorities(colId);
     switch (result) {
       case ApiSuccess():
-      notifyListeners();
-      return true;
+        notifyListeners();
+        return true;
       case ApiError error:
-      notificationBus.showError("Cannot refresh priorities", error);
-      return false;
+        notificationBus.showError("Cannot refresh priorities", error);
+        return false;
     }
   }
 

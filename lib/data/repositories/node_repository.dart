@@ -9,6 +9,7 @@ import 'package:mycelium/data/models/node_type.dart';
 import 'package:mycelium/data/services/node_service.dart';
 
 class NodeRepository {
+  // diff between load and get is that load always refetch (in theory, not strictly implemented like that yet)
   final NodeService nodeService;
 
   Map<int, NodeType>? _typesCache;
@@ -145,6 +146,14 @@ class NodeRepository {
       _nodeCache[node.id] = node;
     }
     return ApiSuccess(nodes);
+  }
+
+  Future<ApiResult<Node>> loadNode(int colId, int nodeId) async {
+    final result = await nodeService.getNode(colId, nodeId);
+    if (result is ApiError) return result;
+    final node = _parseNode(result as ApiSuccess<String>);
+    _nodeCache[node.id] = node;
+    return ApiSuccess(node);
   }
 
   Future<ApiResult<List<Node>>> loadDeletedNodes(int colId) async {
