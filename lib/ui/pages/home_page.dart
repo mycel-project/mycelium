@@ -4,6 +4,7 @@ import 'package:mycelium/core/stores/collection_store.dart';
 import 'package:mycelium/core/stores/node_store.dart';
 import 'package:mycelium/data/models/node_type.dart';
 import 'package:mycelium/domain/api_status.dart';
+import 'package:mycelium/ui/pages/about_page.dart';
 import 'package:mycelium/ui/pages/api_config_page.dart';
 import 'package:mycelium/ui/pages/collections_page.dart';
 import 'package:mycelium/ui/pages/deleted_nodes_page.dart';
@@ -74,13 +75,13 @@ class HomePage extends StatelessWidget {
             : null,
             icon: const Icon(Icons.school),
           ),
-          ApiStatusDotWidget(),
+          const ApiStatusDotWidget(),
           PopupMenuButton(
             onSelected: (value) {
               if (value == 1) {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (_) => CollectionsPage()),
+                  MaterialPageRoute(builder: (_) => const CollectionsPage()),
                 );
               } else if (value == 2) {
                 Navigator.push(
@@ -90,20 +91,26 @@ class HomePage extends StatelessWidget {
               } else if (value == 3) {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (_) => SettingsPage()),
+                  MaterialPageRoute(builder: (_) => const SettingsPage()),
                 );
               } else if (value == 4) {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (_) => DeletedNodesPage()),
+                  MaterialPageRoute(builder: (_) => const DeletedNodesPage()),
+                );
+              } else if (value == 5) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const AboutPage()),
                 );
               }
             },
-            itemBuilder: (BuildContext context) => [
+            itemBuilder:  (BuildContext context) => const[
               PopupMenuItem(value: 1, child: Text("Manage collections")),
               PopupMenuItem(value: 2, child: Text("API configuration")),
               PopupMenuItem(value: 3, child: Text("Settings")),
               PopupMenuItem(value: 4, child: Text("Deleted nodes")),
+              PopupMenuItem(value: 5, child: Text("About")),
             ],
           ),
         ],
