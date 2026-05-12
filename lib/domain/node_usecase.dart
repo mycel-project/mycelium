@@ -1,4 +1,3 @@
-import 'package:mycelium/core/notifications/notification.dart';
 import 'package:mycelium/core/notifications/notification_bus.dart';
 import 'package:mycelium/core/stores/node_store.dart';
 import 'package:mycelium/data/api_result.dart';
@@ -70,6 +69,7 @@ class NodeUseCase {
     return result.fold(
       (error) {
         print("Can't get node title: $error");
+        return null;
       },
       (node) {
         final title = node.data?.title;
