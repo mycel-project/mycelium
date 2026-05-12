@@ -56,7 +56,9 @@ flutter_launcher_icons:
   ios: true
   image_path: "assets/full.png"
   adaptive_icon_foreground: "assets/full.png"
-  adaptive_icon_background: "#FFFFFF"	
+  adaptive_icon_background: "#FFFFFF"
+flutter_native_splash:
+  color: "#343434ff"
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
