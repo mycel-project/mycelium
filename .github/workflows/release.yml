@@ -27,13 +27,14 @@ jobs:
 
         
       - name: Setup keystore
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
         run: |
-          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > android/upload-keystore.jks
+          echo "$KEYSTORE_BASE64" | base64 -d > android/upload-keystore.jks
           echo "storePassword=${{ secrets.KEYSTORE_PASSWORD }}" > android/key.properties
           echo "keyPassword=${{ secrets.KEY_PASSWORD }}" >> android/key.properties
           echo "keyAlias=${{ secrets.KEY_ALIAS }}" >> android/key.properties
           echo "storeFile=${{ github.workspace }}/android/upload-keystore.jks" >> android/key.properties
-
 
       - name: Validate keystore
         run: |
@@ -63,13 +64,25 @@ jobs:
     needs: [build-android]
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
       - name: Download all artifacts
         uses: actions/download-artifact@v4
+
+      - name: Extract changelog
+        id: changelog
+        run: |
+          VERSION=${{ github.ref_name }}
+          NOTES=$(awk "/## $VERSION/{flag=1; next} /## /{flag=0} flag" CHANGELOG.md)
+          echo "notes<<EOF" >> $GITHUB_OUTPUT
+          echo "$NOTES" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           prerelease: true
-          generate_release_notes: true
+          body: ${{ steps.changelog.outputs.notes }}
           files: |
             android-apk/mycelium-${{ github.ref_name }}.apk
