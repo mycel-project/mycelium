@@ -17,8 +17,8 @@ class CheckAppUpdateUseCase {
       String frontendVersion = appStore.version;
 
       if (frontendVersion == "dev") {
-        //return;
-        frontendVersion = "0.0.0";
+        return;
+        //frontendVersion = "0.0.0";
       }
 
       final response = await appService.getLastAppVersion();
