@@ -54,7 +54,7 @@ class AboutPage extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    "Last available version: ${vm.lastVersion}",
+                    "Last available version: ${vm.lastVersion ?? '-'}",
                     style: TextStyle(
                       fontSize: 14,
                       color: Colors.grey[500],

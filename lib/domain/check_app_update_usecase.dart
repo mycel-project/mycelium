@@ -23,6 +23,13 @@ class CheckAppUpdateUseCase {
 
       final response = await appService.getLastAppVersion();
 
+      if (response.statusCode == 403) {
+        notificationBus.showWarning(
+          "Cannot get new versions infos: GitHub API rate limit exceeded",
+        );
+        throw();
+      }
+
       if (response.statusCode != 200) {
         throw Exception("Cannot get last version number");
       }
