@@ -1,15 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:mycelium/domain/api_compatibility.dart';
 import 'package:mycelium/domain/api_status.dart';
 
 class ApiStore extends ChangeNotifier {
   String _baseUrl = "";
   ApiStatus apiStatus = ApiStatus.unknown;
+  ApiCompatibility apiCompatibility = ApiCompatibility.unchecked;
 
   String get baseUrl => _baseUrl;
   ApiStatus get status => apiStatus;
+  ApiCompatibility get compatibility => apiCompatibility;
 
   void setBaseUrl(String url) {
     _baseUrl = url;
+    resetCompatibility();
     if (url == "") {
       setEmpty();
     } else {
@@ -18,27 +22,26 @@ class ApiStore extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setReachable() {
-    if (apiStatus == ApiStatus.reachable) return;
-    apiStatus = ApiStatus.reachable;
+  void setStatus(ApiStatus status) {
+    if (apiStatus == status) return;
+    apiStatus = status;
     notifyListeners();
   }
 
-  void setUnreachable() {
-    if (apiStatus == ApiStatus.unreachable) return;
-    apiStatus = ApiStatus.unreachable;
-    notifyListeners();
-  }
+  void setReachable() => setStatus(ApiStatus.reachable);
+  void setUnreachable() => setStatus(ApiStatus.unreachable);
+  void setUnknown() => setStatus(ApiStatus.unknown);
+  void setEmpty() => setStatus(ApiStatus.emptyUrl);
+  
 
-  void setUnknown() {
-    if (apiStatus == ApiStatus.unknown) return;
-    apiStatus = ApiStatus.unknown;
+  void setCompatibility(ApiCompatibility compatibility) {
+    if (apiCompatibility == compatibility) return;
+    apiCompatibility = compatibility;
     notifyListeners();
   }
-
-  void setEmpty() {
-    if (apiStatus == ApiStatus.emptyUrl) return;
-    apiStatus = ApiStatus.emptyUrl;
-    notifyListeners();
-  }
+  
+  void setCompatible() => setCompatibility(ApiCompatibility.compatible);
+  void setIncompatible() => setCompatibility(ApiCompatibility.incompatible);
+  void setCompatibilityError() => setCompatibility(ApiCompatibility.error);
+  void resetCompatibility() => setCompatibility(ApiCompatibility.unchecked);
 }

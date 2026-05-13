@@ -138,4 +138,8 @@ class ApiService {
     final result = await get("/health");
     return result is ApiSuccess;
   }
+
+  Future<ApiResult> getVersion() async {
+    return await get("/version");
+  }
 }

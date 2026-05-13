@@ -3,6 +3,7 @@ import 'package:mycelium/core/debug/network_logger.dart';
 import 'package:mycelium/core/notifications/notification_bus.dart';
 
 import 'package:mycelium/core/stores/api_store.dart';
+import 'package:mycelium/core/stores/app_store.dart';
 import 'package:mycelium/core/stores/collection_store.dart';
 import 'package:mycelium/core/stores/navigation_store.dart';
 import 'package:mycelium/core/stores/node_store.dart';
@@ -22,6 +23,7 @@ import 'package:mycelium/data/services/review_service.dart';
 import 'package:mycelium/data/services/user_service.dart';
 import 'package:mycelium/domain/api_health_monitor.dart';
 import 'package:mycelium/domain/app_coordinator.dart';
+import 'package:mycelium/domain/check_api_compatibility_usecase.dart';
 import 'package:mycelium/domain/init_api_usecase.dart';
 import 'package:mycelium/domain/init_collections_usecase.dart';
 import 'package:mycelium/domain/init_data_usecase.dart';
@@ -49,6 +51,7 @@ Future<void> setup() async {
   // Infra
   sl.registerSingleton(ApiPreferences());
   sl.registerSingleton(ApiStore());
+  sl.registerSingleton(AppStore());
   sl.registerSingleton(ApiService(sl(), sl()));
 
   // Data
@@ -73,14 +76,15 @@ Future<void> setup() async {
   sl.registerSingleton(SelectUserUseCase(sl(), sl()));
   sl.registerSingleton(CheckApiUseCase(sl(), sl()));
   sl.registerSingleton(UpdateApiUrlUseCase(sl(), sl(), sl()));
-  sl.registerSingleton(InitApiUseCase(sl(), sl(), sl()));
+  sl.registerSingleton(CheckApiCompatibilityUseCase(sl(), sl(), sl()));
+  sl.registerSingleton(InitApiUseCase(sl(), sl(), sl(), sl()));
   sl.registerSingleton(InitCollectionsUseCase(sl(), sl(), sl(), sl()));
   sl.registerSingleton(SelectCollectionUseCase(sl(), sl()));
   sl.registerSingleton(NavigationUseCase(sl(), sl(), sl(), sl()));
   sl.registerSingleton(ReviewUseCase(sl(), sl(), sl(), sl(), sl()));
   sl.registerSingleton(NodeUseCase(sl(), sl(), sl(), sl(), sl()));
   sl.registerSingleton(InitDataUseCase(sl(), sl(), sl(), sl(), sl()));
-  sl.registerSingleton(AppCoordinator(sl(), sl(), sl(), sl(), sl(), sl()));
+  sl.registerSingleton(AppCoordinator(sl(), sl(), sl(), sl(), sl(), sl(), sl()));
 
   // Misc
   sl.registerSingleton(ApiHealthMonitor(sl(), sl(), sl()));

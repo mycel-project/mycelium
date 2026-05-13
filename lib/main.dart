@@ -4,6 +4,7 @@ import 'package:mycelium/core/injection.dart';
 import 'package:mycelium/core/notifications/notification_bus.dart';
 import 'package:mycelium/core/notifications/notification_listener.dart';
 import 'package:mycelium/core/stores/api_store.dart';
+import 'package:mycelium/core/stores/app_store.dart';
 import 'package:mycelium/core/stores/collection_store.dart';
 import 'package:mycelium/core/stores/node_store.dart';
 import 'package:mycelium/core/stores/review_store.dart';
@@ -31,7 +32,8 @@ void main() async {
   // await preferences.clear();
 
   await setup();
-  sl<ApiHealthMonitor>(); 
+  sl<ApiHealthMonitor>();
+  await sl<AppStore>().init();
 
   final apiStatus = await sl<InitApiUseCase>().execute();
   if (apiStatus == ApiStatus.reachable) {
@@ -54,7 +56,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => sl<UserStore>()),
         ChangeNotifierProvider(create: (_) => sl<SettingViewModel>()),
         ChangeNotifierProvider(create: (_) => sl<DeletedNodesViewmodel>()),
-
+        ChangeNotifierProvider(create: (_) => sl<AppStore>()),
       ],
       child: MyApp(apiStatus: apiStatus),
     ),

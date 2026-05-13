@@ -1,3 +1,4 @@
+import 'package:mycelium/core/notifications/notification_bus.dart';
 import 'package:mycelium/core/stores/api_store.dart';
 import 'package:mycelium/core/stores/collection_store.dart';
 import 'package:mycelium/core/stores/navigation_store.dart';
@@ -5,6 +6,7 @@ import 'package:mycelium/core/stores/node_store.dart';
 import 'package:mycelium/data/repositories/node_repository.dart';
 import 'package:mycelium/domain/api_status.dart';
 import 'package:mycelium/domain/init_data_usecase.dart';
+import 'package:mycelium/domain/api_compatibility.dart';
 
 /// Coordinates cross-cutting reactions to app-level state changes, such as invalidating caches, fetching global data if init in main has failed ... without notifying
 class AppCoordinator {
@@ -15,6 +17,7 @@ class AppCoordinator {
   final ApiStore _apiStore;
   final InitDataUseCase _initDataUseCase;
   bool _isDataInitialized = false;
+  final NotificationBus _notificationBus;
 
   AppCoordinator(
     this._collectionStore,
@@ -23,6 +26,7 @@ class AppCoordinator {
     this._navigationStore,
     this._apiStore,
     this._initDataUseCase,
+    this._notificationBus,
   ) {
     _collectionStore.addListener(_onCollectionChanged);
     _apiStore.addListener(_onApiStatusChanged);
@@ -32,6 +36,15 @@ class AppCoordinator {
     if (_apiStore.status == ApiStatus.reachable && !_isDataInitialized) {
       await _initDataUseCase.execute();
       _isDataInitialized = true;
+    }
+    
+    switch (_apiStore.apiCompatibility) {
+      case ApiCompatibility.incompatible:
+        _notificationBus.showWarning("Mycelium and Mycel versions are not compatible. See the compatibility information in the Mycelium GitHub repository (compatibility.json).");
+      case ApiCompatibility.error:
+        _notificationBus.showWarning("Could not check Mycelium/Mycel compatibility");
+      default:
+        break;
     }
   }
 
