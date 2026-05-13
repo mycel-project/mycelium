@@ -3,7 +3,6 @@ import "package:mycelium/ui/widgets/app_bar.dart";
 import 'package:mycelium/viewmodels/about_viewmodel.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:flutter/gestures.dart';
 
 class AboutPage extends StatelessWidget {
   const AboutPage({super.key});

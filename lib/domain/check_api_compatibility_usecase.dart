@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'package:http/http.dart' as http;
 import 'package:mycelium/core/stores/api_store.dart';
 import 'package:mycelium/core/stores/app_store.dart';
 import 'package:mycelium/data/api_result.dart';

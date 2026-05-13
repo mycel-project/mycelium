@@ -57,7 +57,7 @@ void main() {
     test('exact key: frontend not in matrix', () {
       expect(
         checker.check("9.9.9", "0.0.5", simpleMatrix),
-        ApiCompatibility.incompatible,
+        ApiCompatibility.error,
       );
     });
 
@@ -79,7 +79,7 @@ void main() {
     test('range key: frontend outside range', () {
       expect(
         checker.check("1.0.0", "0.1.0", rangeMatrix),
-        ApiCompatibility.incompatible,
+        ApiCompatibility.error,
       );
     });
 
