@@ -116,7 +116,7 @@ Future<void> setup() async {
       sl(),
     ),
   );
-  sl.registerFactory(() => ApiViewModel(sl(), sl(), sl(), sl()));
+  sl.registerFactory(() => ApiViewModel(sl(), sl(), sl(), sl(), sl()));
   //// should reduce dependencies ?
   sl.registerFactory(
     () => MdEditorViewModel(

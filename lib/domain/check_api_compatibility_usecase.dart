@@ -32,9 +32,10 @@ class CheckApiCompatibilityUseCase {
 
       final backendJson = jsonDecode((backendResult as ApiSuccess).data);
       final backendVersion = backendJson["version"];
+      apiStore.version = backendVersion;
 
       final compatibilityResponse = await appService.getCompatibilityMatrix();
-      
+
       if (compatibilityResponse.statusCode != 200) {
         throw Exception("Cannot get compatibility matrix");
       }

@@ -11,9 +11,19 @@ class ApiStore extends ChangeNotifier {
   ApiStatus get status => apiStatus;
   ApiCompatibility get compatibility => apiCompatibility;
 
+  String? _version;
+
+  String? get version => _version;
+  
+  set version(String? version) {
+    _version = version;
+    notifyListeners();
+  }
+
   void setBaseUrl(String url) {
     _baseUrl = url;
     resetCompatibility();
+    version = null;
     if (url == "") {
       setEmpty();
     } else {
@@ -32,14 +42,13 @@ class ApiStore extends ChangeNotifier {
   void setUnreachable() => setStatus(ApiStatus.unreachable);
   void setUnknown() => setStatus(ApiStatus.unknown);
   void setEmpty() => setStatus(ApiStatus.emptyUrl);
-  
 
   void setCompatibility(ApiCompatibility compatibility) {
     if (apiCompatibility == compatibility) return;
     apiCompatibility = compatibility;
     notifyListeners();
   }
-  
+
   void setCompatible() => setCompatibility(ApiCompatibility.compatible);
   void setIncompatible() => setCompatibility(ApiCompatibility.incompatible);
   void setCompatibilityError() => setCompatibility(ApiCompatibility.error);

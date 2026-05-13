@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mycelium/core/stores/api_store.dart';
+import 'package:mycelium/domain/api_compatibility.dart';
 import 'package:mycelium/domain/api_status.dart';
 import 'package:mycelium/ui/pages/home_page.dart';
 import 'package:mycelium/ui/widgets/app_bar.dart';
@@ -7,6 +8,7 @@ import 'package:mycelium/viewmodels/api_viewmodel.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/gestures.dart';
+
 
 class ApiConfigPage extends StatefulWidget {
   @override
@@ -51,7 +53,7 @@ class _ApiConfigPageState extends State<ApiConfigPage> {
                             TextSpan(text: "Mycelium is powered by "),
                             TextSpan(
                               text: "Mycel",
-                              style: TextStyle(color: Colors.blue),
+                              style: TextStyle(color: Theme.of(context).colorScheme.primary),
                               recognizer: TapGestureRecognizer()
                                 ..onTap = () {
                                   launchUrl(
@@ -109,7 +111,57 @@ class _ApiConfigPageState extends State<ApiConfigPage> {
                             ),
                         ],
                       ),
-                      const SizedBox(height: 48),
+                      if (vm.mycelVersion != null) ...[
+                        const SizedBox(height: 8),
+                        Text(
+                          "Mycel version: ${vm.mycelVersion}",
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.primary
+                          ),
+                        ),
+                        if (vm.mycelCompatibility == ApiCompatibility.error || vm.mycelCompatibility == ApiCompatibility.unchecked) ...[
+                          const SizedBox(height: 8),
+                          const Text(
+                            "Could not check Mycel compatibility. Please retry or report this error.",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(color: Colors.red),
+                          ),
+                        ],
+                        if (vm.mycelCompatibility == ApiCompatibility.incompatible) ...[
+                          const SizedBox(height: 8),
+                          Text.rich(
+                            TextSpan(
+                              children: [
+                                TextSpan(
+                                  text: "This Mycel version is not compatible with your current Mycelium version (${vm.myceliumVersion}). See ",
+                                  style: const TextStyle(color: Colors.red),
+                                ),
+                                TextSpan(
+                                  text: "compatibility.json",
+                                  style: TextStyle(
+                                    color: Theme.of(context).colorScheme.primary,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                  recognizer: TapGestureRecognizer()
+                                  ..onTap = () {
+                                    launchUrl(
+                                      Uri.parse(
+                                        "https://github.com/mycel-project/mycelium/blob/main/compatibility.json",
+                                      ),
+                                    );
+                                  },
+                                ),
+                                const TextSpan(
+                                  text: " on Mycelium's Github for compatibility details.",
+                                  style: TextStyle(color: Colors.red),
+                                ),
+                              ],
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                      ],
+                      const SizedBox(height: 36),
                       if (store.apiStatus == ApiStatus.reachable)
                         ElevatedButton(
                           onPressed: () {
@@ -119,7 +171,7 @@ class _ApiConfigPageState extends State<ApiConfigPage> {
                               (route) => false,
                             );
                           },
-                          child: Text("Go to home page"),
+                          child: const Text("Go to home page"),
                         )
                       else if (store.apiStatus == ApiStatus.unreachable)
                         _buildDebugHelp(context),

@@ -42,7 +42,7 @@ class AppCoordinator {
       switch (_apiStore.apiCompatibility) {
         case ApiCompatibility.incompatible:
         _notificationBus.showWarning(
-          "Mycel version is not compatible. See Mycelium repository (compatibility.json)",
+          "Incompatible Mycel version. Check the API Configuration page.",
         );
         case ApiCompatibility.error:
         _notificationBus.showWarning(
