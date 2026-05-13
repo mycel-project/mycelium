@@ -215,7 +215,7 @@ class HomePage extends StatelessWidget {
           ),
         ),
       ),
-      endDrawer: RightDrawer(),
+      endDrawer: (vm.nodeStore.currentNode != null) ? const RightDrawer() : null,
       onDrawerChanged: (isOpened) {
         if (isOpened) vm.refreshNodes();
         FocusManager.instance.primaryFocus?.unfocus();
