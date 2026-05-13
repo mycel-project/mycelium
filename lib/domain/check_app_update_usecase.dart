@@ -5,20 +5,20 @@ import 'package:mycelium/core/notifications/notification_bus.dart';
 import 'package:mycelium/core/stores/app_store.dart';
 import 'package:mycelium/data/services/app_service.dart';
 
-class CheckAppUpdateUsecase {
+class CheckAppUpdateUseCase {
   final AppStore appStore;
   final NotificationBus notificationBus;
   final AppService appService;
 
-  CheckAppUpdateUsecase(this.appStore, this.notificationBus, this.appService);
+  CheckAppUpdateUseCase(this.appStore, this.notificationBus, this.appService);
 
   Future<void> execute() async {
     try {
       String frontendVersion = appStore.version;
 
       if (frontendVersion == "dev") {
-        return;
-        //frontendVersion = "0.0.0";
+        //return;
+        frontendVersion = "0.0.0";
       }
 
       final response = await appService.getLastAppVersion();
@@ -27,7 +27,11 @@ class CheckAppUpdateUsecase {
         throw Exception("Cannot get last version number");
       }
 
-      final tag = jsonDecode(response.body)["tag_name"] as String;
+      final body = jsonDecode(response.body);
+
+      appStore.lastVersionInfos = body;
+
+      final tag = body["tag_name"] as String;
       final versionString = tag.startsWith('v') ? tag.substring(1) : tag;
 
       final currentVersion = Version.parse(frontendVersion);
@@ -38,9 +42,13 @@ class CheckAppUpdateUsecase {
           "A new major version of Mycelium is available (see ⋮ About)",
         );
       } else if (latestVersion.minor > currentVersion.minor) {
-        notificationBus.showSuccess("A new feature update is available : v$latestVersion (see ⋮ About)");
+        notificationBus.showSuccess(
+          "A new feature update is available : v$latestVersion (see ⋮ About)",
+        );
       } else if (latestVersion.patch > currentVersion.patch) {
-        notificationBus.showSuccess("A new patch update is available : v$latestVersion (see ⋮ About)");
+        notificationBus.showSuccess(
+          "A new patch update is available : v$latestVersion (see ⋮ About)",
+        );
       }
     } catch (e) {
       print("Cannot check last Mycelium update");

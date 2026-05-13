@@ -15,6 +15,7 @@ import 'package:mycelium/domain/check_app_update_usecase.dart';
 import 'package:mycelium/domain/init_api_usecase.dart';
 import 'package:mycelium/domain/init_data_usecase.dart';
 import 'package:mycelium/ui/pages/api_config_page.dart';
+import 'package:mycelium/viewmodels/about_viewmodel.dart';
 import 'package:mycelium/viewmodels/api_viewmodel.dart';
 import 'package:mycelium/viewmodels/collections_viewmodel.dart';
 import 'package:mycelium/viewmodels/deleted_nodes_viewmodel.dart';
@@ -34,7 +35,7 @@ void main() async {
 
   await setup();
   sl<ApiHealthMonitor>();
-  sl<CheckAppUpdateUsecase>().execute();
+  sl<CheckAppUpdateUseCase>().execute();
   await sl<AppStore>().init();
 
   final apiStatus = await sl<InitApiUseCase>().execute();
@@ -58,6 +59,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => sl<UserStore>()),
         ChangeNotifierProvider(create: (_) => sl<SettingViewModel>()),
         ChangeNotifierProvider(create: (_) => sl<DeletedNodesViewModel>()),
+        ChangeNotifierProvider(create: (_) => sl<AboutViewModel>()),
         ChangeNotifierProvider(create: (_) => sl<AppStore>()),
       ],
       child: MyApp(apiStatus: apiStatus),

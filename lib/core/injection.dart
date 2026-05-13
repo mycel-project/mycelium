@@ -37,6 +37,7 @@ import 'package:mycelium/domain/review_usecase.dart';
 import 'package:mycelium/domain/select_collection_usecase.dart';
 import 'package:mycelium/domain/select_user_usecase.dart';
 import 'package:mycelium/domain/update_api_usecase.dart';
+import 'package:mycelium/viewmodels/about_viewmodel.dart';
 import 'package:mycelium/viewmodels/api_viewmodel.dart';
 import 'package:mycelium/viewmodels/collections_viewmodel.dart';
 import 'package:mycelium/viewmodels/deleted_nodes_viewmodel.dart';
@@ -56,7 +57,6 @@ Future<void> setup() async {
   sl.registerSingleton(AppStore());
   sl.registerSingleton(ApiService(sl(), sl()));
   sl.registerSingleton(AppService());
-  
 
   // Data
   sl.registerSingleton(UserPreferences());
@@ -88,15 +88,17 @@ Future<void> setup() async {
   sl.registerSingleton(ReviewUseCase(sl(), sl(), sl(), sl(), sl()));
   sl.registerSingleton(NodeUseCase(sl(), sl(), sl(), sl(), sl()));
   sl.registerSingleton(InitDataUseCase(sl(), sl(), sl(), sl(), sl()));
-  sl.registerSingleton(CheckAppUpdateUsecase(sl(), sl(), sl()));
-  sl.registerSingleton(AppCoordinator(sl(), sl(), sl(), sl(), sl(), sl(), sl()));
+  sl.registerSingleton(CheckAppUpdateUseCase(sl(), sl(), sl()));
+  sl.registerSingleton(
+    AppCoordinator(sl(), sl(), sl(), sl(), sl(), sl(), sl()),
+  );
 
   // Misc
   sl.registerSingleton(ApiHealthMonitor(sl(), sl(), sl()));
 
-
   // ViewModels
   sl.registerFactory(() => CollectionsViewModel(sl(), sl(), sl(), sl()));
+  sl.registerFactory(() => AboutViewModel(sl(), sl()));
   //// should reduce dependencies ?
   sl.registerFactory(
     () => HomeViewModel(
