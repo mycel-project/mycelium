@@ -22,7 +22,7 @@ class AboutPage extends StatelessWidget {
                 style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               ),
               Text(
-                "v$version",
+                "version: $version",
                 style: TextStyle(fontSize: 14, color: Colors.grey[500]),
               ),
             ],

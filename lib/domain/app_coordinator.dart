@@ -37,14 +37,20 @@ class AppCoordinator {
       await _initDataUseCase.execute();
       _isDataInitialized = true;
     }
-    
-    switch (_apiStore.apiCompatibility) {
-      case ApiCompatibility.incompatible:
-        _notificationBus.showWarning("Mycelium and Mycel versions are not compatible. See the compatibility information in the Mycelium GitHub repository (compatibility.json).");
-      case ApiCompatibility.error:
-        _notificationBus.showWarning("Could not check Mycelium/Mycel compatibility");
-      default:
+
+    if (_apiStore.status == ApiStatus.reachable) {
+      switch (_apiStore.apiCompatibility) {
+        case ApiCompatibility.incompatible:
+        _notificationBus.showWarning(
+          "Mycel version is not compatible. See Mycelium repository (compatibility.json)",
+        );
+        case ApiCompatibility.error:
+        _notificationBus.showWarning(
+          "Could not check Mycel compatibility with current Mycelium version.",
+        );
+        default:
         break;
+      }
     }
   }
 

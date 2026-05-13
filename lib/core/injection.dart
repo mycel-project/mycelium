@@ -74,10 +74,10 @@ Future<void> setup() async {
   // Use cases/coords
   sl.registerSingleton(InitUserUseCase(sl(), sl(), sl(), sl()));
   sl.registerSingleton(SelectUserUseCase(sl(), sl()));
-  sl.registerSingleton(CheckApiUseCase(sl(), sl()));
-  sl.registerSingleton(UpdateApiUrlUseCase(sl(), sl(), sl()));
   sl.registerSingleton(CheckApiCompatibilityUseCase(sl(), sl(), sl()));
-  sl.registerSingleton(InitApiUseCase(sl(), sl(), sl(), sl()));
+  sl.registerSingleton(CheckApiUseCase(sl(), sl(), sl()));
+  sl.registerSingleton(UpdateApiUrlUseCase(sl(), sl(), sl()));
+  sl.registerSingleton(InitApiUseCase(sl(), sl(), sl()));
   sl.registerSingleton(InitCollectionsUseCase(sl(), sl(), sl(), sl()));
   sl.registerSingleton(SelectCollectionUseCase(sl(), sl()));
   sl.registerSingleton(NavigationUseCase(sl(), sl(), sl(), sl()));

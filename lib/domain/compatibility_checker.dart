@@ -21,7 +21,7 @@ class CompatibilityChecker {
             ? ApiCompatibility.compatible
             : ApiCompatibility.incompatible;
       }
-      return ApiCompatibility.incompatible;
+      return ApiCompatibility.error;
     } catch (e) {
       return ApiCompatibility.error;
     }
