@@ -11,6 +11,7 @@ import 'package:mycelium/core/stores/review_store.dart';
 import 'package:mycelium/core/stores/user_store.dart';
 import 'package:mycelium/domain/api_health_monitor.dart';
 import 'package:mycelium/domain/api_status.dart';
+import 'package:mycelium/domain/check_app_update_usecase.dart';
 import 'package:mycelium/domain/init_api_usecase.dart';
 import 'package:mycelium/domain/init_data_usecase.dart';
 import 'package:mycelium/ui/pages/api_config_page.dart';
@@ -33,6 +34,7 @@ void main() async {
 
   await setup();
   sl<ApiHealthMonitor>();
+  sl<CheckAppUpdateUsecase>().execute();
   await sl<AppStore>().init();
 
   final apiStatus = await sl<InitApiUseCase>().execute();

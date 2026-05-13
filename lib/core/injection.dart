@@ -17,6 +17,7 @@ import 'package:mycelium/data/repositories/node_repository.dart';
 import 'package:mycelium/data/repositories/review_repository.dart';
 import 'package:mycelium/data/repositories/user_repository.dart';
 import 'package:mycelium/data/services/api_service.dart';
+import 'package:mycelium/data/services/app_service.dart';
 import 'package:mycelium/data/services/collection_service.dart';
 import 'package:mycelium/data/services/node_service.dart';
 import 'package:mycelium/data/services/review_service.dart';
@@ -24,6 +25,7 @@ import 'package:mycelium/data/services/user_service.dart';
 import 'package:mycelium/domain/api_health_monitor.dart';
 import 'package:mycelium/domain/app_coordinator.dart';
 import 'package:mycelium/domain/check_api_compatibility_usecase.dart';
+import 'package:mycelium/domain/check_app_update_usecase.dart';
 import 'package:mycelium/domain/init_api_usecase.dart';
 import 'package:mycelium/domain/init_collections_usecase.dart';
 import 'package:mycelium/domain/init_data_usecase.dart';
@@ -53,6 +55,8 @@ Future<void> setup() async {
   sl.registerSingleton(ApiStore());
   sl.registerSingleton(AppStore());
   sl.registerSingleton(ApiService(sl(), sl()));
+  sl.registerSingleton(AppService());
+  
 
   // Data
   sl.registerSingleton(UserPreferences());
@@ -74,7 +78,7 @@ Future<void> setup() async {
   // Use cases/coords
   sl.registerSingleton(InitUserUseCase(sl(), sl(), sl(), sl()));
   sl.registerSingleton(SelectUserUseCase(sl(), sl()));
-  sl.registerSingleton(CheckApiCompatibilityUseCase(sl(), sl(), sl()));
+  sl.registerSingleton(CheckApiCompatibilityUseCase(sl(), sl(), sl(), sl()));
   sl.registerSingleton(CheckApiUseCase(sl(), sl(), sl()));
   sl.registerSingleton(UpdateApiUrlUseCase(sl(), sl(), sl()));
   sl.registerSingleton(InitApiUseCase(sl(), sl(), sl()));
@@ -84,6 +88,7 @@ Future<void> setup() async {
   sl.registerSingleton(ReviewUseCase(sl(), sl(), sl(), sl(), sl()));
   sl.registerSingleton(NodeUseCase(sl(), sl(), sl(), sl(), sl()));
   sl.registerSingleton(InitDataUseCase(sl(), sl(), sl(), sl(), sl()));
+  sl.registerSingleton(CheckAppUpdateUsecase(sl(), sl(), sl()));
   sl.registerSingleton(AppCoordinator(sl(), sl(), sl(), sl(), sl(), sl(), sl()));
 
   // Misc

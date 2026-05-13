@@ -4,6 +4,7 @@ import 'package:mycelium/core/stores/api_store.dart';
 import 'package:mycelium/core/stores/app_store.dart';
 import 'package:mycelium/data/api_result.dart';
 import 'package:mycelium/data/services/api_service.dart';
+import 'package:mycelium/data/services/app_service.dart';
 import 'package:mycelium/domain/api_compatibility.dart';
 import 'package:mycelium/domain/compatibility_checker.dart';
 
@@ -11,8 +12,14 @@ class CheckApiCompatibilityUseCase {
   final ApiStore apiStore;
   final ApiService apiService;
   final AppStore appStore;
+  final AppService appService;
 
-  CheckApiCompatibilityUseCase(this.apiStore, this.apiService, this.appStore);
+  CheckApiCompatibilityUseCase(
+    this.apiStore,
+    this.apiService,
+    this.appStore,
+    this.appService,
+  );
 
   Future<ApiCompatibility> execute() async {
     apiStore.resetCompatibility();
@@ -27,15 +34,10 @@ class CheckApiCompatibilityUseCase {
       final backendJson = jsonDecode((backendResult as ApiSuccess).data);
       final backendVersion = backendJson["version"];
 
-      final compatibilityResponse = await http.get(
-        // query param to avoid caching
-        Uri.parse(
-          "https://raw.githubusercontent.com/mycel-project/mycelium/main/compatibility.json?ts=${DateTime.now().millisecondsSinceEpoch}",
-        ),
-      );
+      final compatibilityResponse = await appService.getCompatibilityMatrix();
+      
       if (compatibilityResponse.statusCode != 200) {
-        apiStore.setCompatibilityError();
-        return ApiCompatibility.error;
+        throw Exception("Cannot get compatibility matrix");
       }
       final compatibilityMatrix = jsonDecode(compatibilityResponse.body);
 
