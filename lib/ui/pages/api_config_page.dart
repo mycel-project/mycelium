@@ -119,7 +119,7 @@ class _ApiConfigPageState extends State<ApiConfigPage> {
                             color: Theme.of(context).colorScheme.primary
                           ),
                         ),
-                        if (vm.mycelCompatibility == ApiCompatibility.error || vm.mycelCompatibility == ApiCompatibility.unchecked) ...[
+                        if (vm.mycelCompatibility == ApiCompatibility.error) ...[
                           const SizedBox(height: 8),
                           const Text(
                             "Could not check Mycel compatibility. Please retry or report this error.",
