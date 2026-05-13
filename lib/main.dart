@@ -35,8 +35,8 @@ void main() async {
 
   await setup();
   sl<ApiHealthMonitor>();
-  sl<CheckAppUpdateUseCase>().execute();
   await sl<AppStore>().init();
+  sl<CheckAppUpdateUseCase>().execute();
 
   final apiStatus = await sl<InitApiUseCase>().execute();
   if (apiStatus == ApiStatus.reachable) {
