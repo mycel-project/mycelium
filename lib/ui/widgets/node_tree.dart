@@ -145,13 +145,13 @@ int _getDepth(TreeSliverNode node) {
                                           width: 12,
                                           height: 12,
                                           colorFilter: allDismissed
-                                              ? ColorFilter.mode(
-                                                  Colors.grey.withValues(
-                                                    alpha: 0.8,
-                                                  ),
-                                                  BlendMode.srcIn,
-                                                )
-                                              : null,
+                                          ? ColorFilter.mode(
+                                            Colors.grey.withValues(
+                                              alpha: 0.8,
+                                            ),
+                                            BlendMode.srcIn,
+                                          )
+                                          : null,
                                         ),
                                       ),
                                     ),
