@@ -6,7 +6,7 @@ import 'package:mycelium/data/api_result.dart';
 import 'package:mycelium/data/models/node.dart';
 import 'package:mycelium/data/repositories/node_repository.dart';
 
-class DeletedNodesViewmodel extends ChangeNotifier {
+class DeletedNodesViewModel extends ChangeNotifier {
   final NodeRepository nodeRepository;
   final CollectionStore collectionStore;
   final NotificationBus notificationBus;
@@ -14,7 +14,7 @@ class DeletedNodesViewmodel extends ChangeNotifier {
 
   List<Node> deletedNodes = [];
 
-  DeletedNodesViewmodel(
+  DeletedNodesViewModel(
     this.nodeRepository,
     this.collectionStore,
     this.notificationBus,

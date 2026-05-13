@@ -57,7 +57,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => sl<NotificationBus>()),
         ChangeNotifierProvider(create: (_) => sl<UserStore>()),
         ChangeNotifierProvider(create: (_) => sl<SettingViewModel>()),
-        ChangeNotifierProvider(create: (_) => sl<DeletedNodesViewmodel>()),
+        ChangeNotifierProvider(create: (_) => sl<DeletedNodesViewModel>()),
         ChangeNotifierProvider(create: (_) => sl<AppStore>()),
       ],
       child: MyApp(apiStatus: apiStatus),

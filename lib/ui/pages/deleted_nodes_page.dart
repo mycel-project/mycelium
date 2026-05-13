@@ -18,13 +18,13 @@ class _DeletedNodesPageState extends State<DeletedNodesPage> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-        context.read<DeletedNodesViewmodel>().getDeletedNodes();
+        context.read<DeletedNodesViewModel>().getDeletedNodes();
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    final vm = context.watch<DeletedNodesViewmodel>();
+    final vm = context.watch<DeletedNodesViewModel>();
     return Scaffold(
       appBar: MyAppBar(
         titleText: "Deleted nodes",
@@ -33,7 +33,7 @@ class _DeletedNodesPageState extends State<DeletedNodesPage> {
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: () =>
-            context.read<DeletedNodesViewmodel>().getDeletedNodes(),
+            context.read<DeletedNodesViewModel>().getDeletedNodes(),
           ),
         ],
       ),
