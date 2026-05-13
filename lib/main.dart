@@ -75,7 +75,26 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
         title: 'Mycelium',
         theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.purple),
+          colorScheme: const ColorScheme(
+            brightness: Brightness.light,
+            primary: Color(0xFF3D7A6E),
+            onPrimary: Color(0xFFFAF8F4),
+            primaryContainer: Color(0xFFEDF5F3),
+            onPrimaryContainer: Color(0xFF242E28),
+            secondary: Color(0xFFB87A28),
+            onSecondary: Color(0xFFFAF8F4),
+            secondaryContainer: Color(0xFFFAF0E0),
+            onSecondaryContainer: Color(0xFF242E28),
+            error: Color(0xFFB84830),
+            onError: Color(0xFFFAF8F4),
+            errorContainer: Color(0xFFFFEDE8),
+            onErrorContainer: Color(0xFF242E28),
+            surface: Color(0xFFF7FBFA),
+            onSurface: Color(0xFF242E28),
+            onSurfaceVariant: Color(0xFF687068),
+            outline: Color(0x1A232D28),
+            outlineVariant: Color(0x2E232D28),
+          ),
         ),
         home: MyceliumNotificationListener(
           child: apiStatus == ApiStatus.emptyUrl ? ApiConfigPage() : HomePage(),
