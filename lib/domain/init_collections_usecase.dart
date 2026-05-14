@@ -24,17 +24,17 @@ class InitCollectionsUseCase {
 
     switch (result) {
       case ApiSuccess(:final data):
-      final collections = data;
-      if (savedId != null && collections.isNotEmpty) {
-        final match = collections.where((c) => c.id == savedId).firstOrNull;
-        if (match != null) collectionStore.selectCollection(match);
-      } else {
-        print("No collection retrieved");
-      }
-      return collections;
+        final collections = data;
+        if (savedId != null && collections.isNotEmpty) {
+          final match = collections.where((c) => c.id == savedId).firstOrNull;
+          if (match != null) collectionStore.selectCollection(match);
+        } else {
+          print("No collection retrieved");
+        }
+        return collections;
       case ApiError error:
-      notificationBus.showError("Cannot load collections", error);
-      return [];
+        notificationBus.showError("Cannot load collections", error);
+        return [];
     }
   }
 }
