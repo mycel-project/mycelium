@@ -1,5 +1,8 @@
+## Unreleased
+- App now opens instantly even without network connection
+
 ## v0.0.2
-- Dispaly informations on Mycel/Mycelium compatibility
+- Display informations on Mycel/Mycelium compatibility
 
 ## v0.0.1
 - Initial release (only for Android)

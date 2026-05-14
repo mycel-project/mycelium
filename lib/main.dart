@@ -9,11 +9,9 @@ import 'package:mycelium/core/stores/collection_store.dart';
 import 'package:mycelium/core/stores/node_store.dart';
 import 'package:mycelium/core/stores/review_store.dart';
 import 'package:mycelium/core/stores/user_store.dart';
-import 'package:mycelium/domain/api_health_monitor.dart';
 import 'package:mycelium/domain/api_status.dart';
 import 'package:mycelium/domain/check_app_update_usecase.dart';
 import 'package:mycelium/domain/init_api_usecase.dart';
-import 'package:mycelium/domain/init_data_usecase.dart';
 import 'package:mycelium/ui/pages/api_config_page.dart';
 import 'package:mycelium/viewmodels/about_viewmodel.dart';
 import 'package:mycelium/viewmodels/api_viewmodel.dart';
@@ -34,14 +32,14 @@ void main() async {
   // await preferences.clear();
 
   await setup();
-  sl<ApiHealthMonitor>();
   await sl<AppStore>().init();
-  sl<CheckAppUpdateUseCase>().execute();
+  await sl<InitApiUseCase>()
+      .initApiUrl(); // Make sure we retrieve the API URL stored in preferences to display the correct start screen.
 
-  final apiStatus = await sl<InitApiUseCase>().execute();
-  if (apiStatus == ApiStatus.reachable) {
-    await sl<InitDataUseCase>().execute();
-  }
+  sl<CheckAppUpdateUseCase>().execute();
+  sl<InitApiUseCase>().execute();
+
+  final emptyApi = sl<ApiStore>().status;
 
   runApp(
     MultiProvider(
@@ -62,14 +60,14 @@ void main() async {
         ChangeNotifierProvider(create: (_) => sl<AboutViewModel>()),
         ChangeNotifierProvider(create: (_) => sl<AppStore>()),
       ],
-      child: MyApp(apiStatus: apiStatus),
+      child: MyApp(emptyApi: emptyApi),
     ),
   );
 }
 
 class MyApp extends StatelessWidget {
-  final ApiStatus apiStatus;
-  const MyApp({super.key, required this.apiStatus});
+  final ApiStatus emptyApi;
+  const MyApp({super.key, required this.emptyApi});
 
   @override
   Widget build(BuildContext context) {
@@ -103,7 +101,9 @@ class MyApp extends StatelessWidget {
           ),
         ),
         home: MyceliumNotificationListener(
-          child: apiStatus == ApiStatus.emptyUrl ? ApiConfigPage() : HomePage(),
+          child: emptyApi == ApiStatus.emptyUrl
+              ? ApiConfigPage()
+              : const HomePage(),
         ),
       ),
     );
