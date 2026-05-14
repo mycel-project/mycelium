@@ -51,14 +51,12 @@ class HomeViewModel extends ChangeNotifier {
   ) {
     reviewStore.addListener(_onReviewChanged);
     nodeStore.addListener(_onNodeStoreChange);
-    reviewStore.addListener(_onReviewChange);
   }
 
   @override
   void dispose() {
     reviewStore.removeListener(_onReviewChanged);
     nodeStore.removeListener(_onNodeStoreChange);
-    reviewStore.removeListener(_onReviewChange);
 
     super.dispose();
   }
@@ -69,10 +67,6 @@ class HomeViewModel extends ChangeNotifier {
     refreshCurrentNode(); // Mainly used to avoid the priority drift due to other nodes changes, but we refetch the whole node while we're at it.
   }
 
-  void _onReviewChange() {
-    notifyListeners();
-  }
-
   void refreshNodes() {
     notifyListeners();
   }
@@ -80,8 +74,8 @@ class HomeViewModel extends ChangeNotifier {
   void _onReviewChanged() {
     if (reviewStore.state is NoMoreReviews) {
       noMoreReviewsFlag = true;
-      notifyListeners();
     }
+    notifyListeners();
   }
 
   bool isCurrentNodeUnderReview() {

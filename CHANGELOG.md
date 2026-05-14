@@ -1,3 +1,7 @@
+## Unreleased
+### Fixed
+- Delete the previous Mycel instance cache when changing the Mycel instance
+
 ## v0.0.3
 ### Added
 - Better api connection status indicator in AppBar (orange if incompatible, MycelProject icon if reachable and compatible, spin animation)
