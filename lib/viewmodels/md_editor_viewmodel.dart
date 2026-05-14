@@ -15,6 +15,7 @@ import 'package:mycelium/data/repositories/review_repository.dart';
 import 'package:mycelium/data/services/node_service.dart';
 import 'package:mycelium/domain/api_status.dart';
 import 'package:mycelium/domain/cloze_mode.dart';
+import 'package:mycelium/domain/create_extract_usecase.dart';
 import 'package:mycelium/domain/navigation_usecase.dart';
 import 'package:mycelium/domain/node_usecase.dart';
 import 'package:mycelium/domain/review_usecase.dart';
@@ -32,6 +33,7 @@ class MdEditorViewModel extends ChangeNotifier {
   NotificationBus notificationBus;
   NavigationUseCase navigationUseCase;
   ReviewUseCase reviewUseCase;
+  CreateExtractUseCase createExtractUseCase;
 
   bool isAnswerVisible = false;
   bool isEditing = false;
@@ -58,6 +60,7 @@ class MdEditorViewModel extends ChangeNotifier {
     this.apiStore,
     this.notificationBus,
     this.navigationUseCase,
+    this.createExtractUseCase,
   ) {
     nodeStore.addListener(_onNodeStoreChanged);
     apiStore.addListener(_onApiStoreChanged);
@@ -259,40 +262,19 @@ class MdEditorViewModel extends ChangeNotifier {
 
   Future<void> createExtract(String extractType) async {
     final node = this.node;
-    if (node == null) return;
 
+    TextSelection? sel = selection;
+    if (node == null || sel == null) return;
     await saveContent();
 
-    final nodeType = nodeRepository.getNodeTypeByLabelSync(extractType);
-    if (nodeType == null) {
-      notificationBus.show(
-        "Cannot extract: unknown node type: $extractType",
-        NotificationType.error,
-      );
-      return;
-    }
-
-    final result = await nodeRepository.createExtract(
-      node.collectionId,
-      node.id,
-      content.substring(selection!.start, selection!.end),
-      "0",
-      selection!.start,
-      selection!.end,
-      nodeType.key,
+    final result = await createExtractUseCase.execute(
+      node,
+      extractType,
+      content,
+      sel,
     );
-
-    switch (result) {
-      case ApiSuccess(:final data):
-        final nodes = data;
-        for (final node in nodes) {
-          if (node.id == this.node?.id) {
-            nodeStore.selectNode(node);
-          }
-        }
-        notifyListeners();
-      case ApiError error:
-        notificationBus.showError("Can't create extract", error);
+    if (result) {
+      notifyListeners();
     }
   }
 

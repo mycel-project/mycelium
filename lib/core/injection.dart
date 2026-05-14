@@ -26,6 +26,7 @@ import 'package:mycelium/domain/api_health_monitor.dart';
 import 'package:mycelium/domain/app_coordinator.dart';
 import 'package:mycelium/domain/check_api_compatibility_usecase.dart';
 import 'package:mycelium/domain/check_app_update_usecase.dart';
+import 'package:mycelium/domain/create_extract_usecase.dart';
 import 'package:mycelium/domain/init_api_usecase.dart';
 import 'package:mycelium/domain/init_collections_usecase.dart';
 import 'package:mycelium/domain/init_data_usecase.dart';
@@ -89,9 +90,11 @@ Future<void> setup() async {
   sl.registerSingleton(ReviewUseCase(sl(), sl(), sl(), sl(), sl()));
   sl.registerSingleton(NodeUseCase(sl(), sl(), sl(), sl(), sl()));
   sl.registerSingleton(CheckAppUpdateUseCase(sl(), sl(), sl()));
+  sl.registerSingleton(CreateExtractUseCase(sl(), sl(), sl()));
   sl.registerSingleton(
     AppCoordinator(sl(), sl(), sl(), sl(), sl(), sl(), sl()),
   );
+  
 
   // Misc
   sl.registerSingleton(ApiHealthMonitor(sl(), sl(), sl()));
@@ -120,6 +123,7 @@ Future<void> setup() async {
   //// should reduce dependencies ?
   sl.registerFactory(
     () => MdEditorViewModel(
+      sl(),
       sl(),
       sl(),
       sl(),
