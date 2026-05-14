@@ -47,4 +47,17 @@ class NavigationStore extends ChangeNotifier {
     _cursor = _history.length - 1;
     notifyListeners();
   }
+
+  void insertAt(int index, int nodeId) {
+    final clampedIndex = index.clamp(0, _history.length);
+    _history.insert(clampedIndex, nodeId);
+    if (clampedIndex <= _cursor) {
+      _cursor++;
+    }
+    if (_history.length > 20) {
+      _history.removeAt(0);
+      _cursor = (_cursor - 1).clamp(0, _history.length - 1);
+    }
+    notifyListeners();
+  }
 }

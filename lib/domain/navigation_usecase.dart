@@ -61,6 +61,13 @@ class NavigationUseCase extends ChangeNotifier {
     notifyListeners();
   }
 
+  void pushToHistory(int nodeId, {int offset = 0}) {
+    /// To push a node in history without navigating to it, when extracting for instance. Not impacted by undo
+    final insertIndex = _navigationStore.cursorIndex + offset;
+    _navigationStore.insertAt(insertIndex, nodeId);
+    _updateCanNavigate();
+  }
+
   Future<void> navigateTo(int nodeId) async {
     final colId = _collectionStore.currentCollection?.id;
     if (colId == null) return;

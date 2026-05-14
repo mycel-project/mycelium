@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import "package:markdown_mycel_fork/markdown.dart";
-import 'package:mycelium/utils/markdown_debug.dart';
 
 class MarkdownController extends TextEditingController {
   // Never change text or value here, it's just for visual rendering

@@ -71,18 +71,14 @@ jobs:
         uses: actions/download-artifact@v4
 
       - name: Extract changelog
-        id: changelog
         run: |
           VERSION=${{ github.ref_name }}
-          NOTES=$(awk "/## $VERSION/{flag=1; next} /## /{flag=0} flag" CHANGELOG.md)
-          echo "notes<<EOF" >> $GITHUB_OUTPUT
-          echo "$NOTES" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
+          awk "/## $VERSION/{flag=1; next} /^## /{flag=0} flag" CHANGELOG.md | tr -d '\r' > release_notes.md
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          prerelease: true
-          body: ${{ steps.changelog.outputs.notes }}
+          prerelease: false
+          body_path: release_notes.md
           files: |
             android-apk/mycelium-${{ github.ref_name }}.apk
