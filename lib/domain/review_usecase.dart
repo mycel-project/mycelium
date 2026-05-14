@@ -57,6 +57,8 @@ class ReviewUseCase {
         notificationBus.showInfo("No review to undo");
         case "UNDO_REVIEW_NOT_ALLOWED":
         notificationBus.showInfo("This review is too old to undo");
+        case "UNDO_NODE_INACCESSIBLE":
+        notificationBus.showWarning("Undo has been applied but node is deleted.");
         default:
         notificationBus.showError("Cannot undo review", error);
       }
