@@ -1,5 +1,6 @@
 import "package:flutter/material.dart";
 import "package:mycelium/core/stores/api_store.dart";
+import "package:mycelium/domain/api_compatibility.dart";
 import "package:mycelium/domain/api_status.dart";
 import "package:mycelium/domain/check_api_usecase.dart";
 import "package:mycelium/ui/pages/network_debug_page.dart";
@@ -69,7 +70,7 @@ class _ApiStatusDotWidgetState extends State<ApiStatusDotWidget>  with SingleTic
         turns: _rotationController..repeat(),
         child: Image.asset("assets/full.png", height: 32),
       )
-      : apiStore.apiStatus == ApiStatus.reachable
+      : apiStore.apiStatus == ApiStatus.reachable && apiStore.compatibility == ApiCompatibility.compatible
       ? Image.asset("assets/full.png", height: 32)
       : Icon(
         size: 16,
@@ -81,7 +82,7 @@ class _ApiStatusDotWidgetState extends State<ApiStatusDotWidget>  with SingleTic
         color: switch (apiStore.apiStatus) {
           ApiStatus.unknown || ApiStatus.emptyUrl => Colors.grey,
           ApiStatus.unreachable => Colors.red,
-          _ => Colors.grey,
+          ApiStatus.reachable => Colors.orange, // reachable but not compatible
         },
       ),
     );

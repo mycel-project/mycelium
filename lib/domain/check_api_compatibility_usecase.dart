@@ -23,7 +23,10 @@ class CheckApiCompatibilityUseCase {
   Future<ApiCompatibility> execute() async {
     apiStore.resetCompatibility();
     try {
-      final frontendVersion = appStore.version;
+      String frontendVersion = appStore.version;
+      // if (frontendVersion == "dev") {
+      //   frontendVersion = "0.0.1";
+      // }
 
       final backendResult = await apiService.getVersion();
       if (backendResult is ApiError) {
