@@ -76,8 +76,11 @@ class ReviewUseCase {
       return content;
     }
 
-    final regex = RegExp(regexString);
-
+    final regex = RegExp(
+      regexString,
+      dotAll: true,
+    );
+  
     return content.replaceAllMapped(regex, (match) {
       final value = match.group(1) ?? "";
 

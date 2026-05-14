@@ -1,6 +1,7 @@
 ## Unreleased
 ### Fixed
 - Delete the previous Mycel instance cache when changing the Mycel instance
+- Include newlines in cloze regex matching (currently disallowed)
 
 ## v0.0.3
 ### Added
