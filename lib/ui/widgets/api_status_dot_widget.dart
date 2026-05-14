@@ -13,18 +13,38 @@ class ApiStatusDotWidget extends StatefulWidget {
   State<ApiStatusDotWidget> createState() => _ApiStatusDotWidgetState();
 }
 
-class _ApiStatusDotWidgetState extends State<ApiStatusDotWidget> {
+class _ApiStatusDotWidgetState extends State<ApiStatusDotWidget>  with SingleTickerProviderStateMixin {
+  late AnimationController _rotationController;
   bool _isChecking = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _rotationController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 1),
+    );
+  }
+
+  @override
+  void dispose() {
+    _rotationController.dispose();
+    super.dispose();
+  }
 
   Future<void> _onPressed() async {
     setState(() => _isChecking = true);
+    _rotationController.repeat();
     await Future.wait([
-      sl<CheckApiUseCase>().execute(),
-      Future.delayed(const Duration(milliseconds: 500)),
+        sl<CheckApiUseCase>().execute(),
+        Future.delayed(const Duration(milliseconds: 500)),
     ]);
-    if (mounted) setState(() => _isChecking = false);
+    if (mounted) {
+      _rotationController.stop();
+      _rotationController.reset();
+      setState(() => _isChecking = false);
+    }
   }
-
   @override
   Widget build(BuildContext context) {
     final apiStore = context.watch<ApiStore>();
@@ -33,12 +53,11 @@ class _ApiStatusDotWidgetState extends State<ApiStatusDotWidget> {
       onPressed: _onPressed,
       onLongPress: () {
         final currentRoute = ModalRoute.of(context)?.settings.name;
-
         if (currentRoute != 'NetworkDebugPage') {
           Navigator.push(
             context,
             MaterialPageRoute(
-              settings: RouteSettings(name: 'NetworkDebugPage'),
+              settings: const RouteSettings(name: 'NetworkDebugPage'),
               builder: (_) => NetworkDebugPage(),
             ),
           );
@@ -46,27 +65,25 @@ class _ApiStatusDotWidgetState extends State<ApiStatusDotWidget> {
       },
       splashRadius: 20,
       icon: _isChecking
-          ? const SizedBox(
-              width: 16,
-              height: 16,
-              child: CircularProgressIndicator(
-                strokeWidth: 2,
-                valueColor: AlwaysStoppedAnimation<Color>(Colors.lightBlue),
-              ),
-            )
-          : Icon(
-              size: 16,
-              switch (apiStore.apiStatus) {
-                ApiStatus.unknown || ApiStatus.emptyUrl => Icons.circle,
-                ApiStatus.reachable => Icons.circle,
-                ApiStatus.unreachable => Icons.error,
-              },
-              color: switch (apiStore.apiStatus) {
-                ApiStatus.unknown || ApiStatus.emptyUrl => Colors.grey,
-                ApiStatus.reachable => Colors.green,
-                ApiStatus.unreachable => Colors.red,
-              },
-            ),
+      ? RotationTransition(
+        turns: _rotationController..repeat(),
+        child: Image.asset("assets/full.png", height: 32),
+      )
+      : apiStore.apiStatus == ApiStatus.reachable
+      ? Image.asset("assets/full.png", height: 32)
+      : Icon(
+        size: 16,
+        switch (apiStore.apiStatus) {
+          ApiStatus.unknown || ApiStatus.emptyUrl => Icons.circle,
+          ApiStatus.unreachable => Icons.error,
+          _ => Icons.circle,
+        },
+        color: switch (apiStore.apiStatus) {
+          ApiStatus.unknown || ApiStatus.emptyUrl => Colors.grey,
+          ApiStatus.unreachable => Colors.red,
+          _ => Colors.grey,
+        },
+      ),
     );
   }
 }
