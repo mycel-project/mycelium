@@ -34,8 +34,6 @@ class MarkdownController extends TextEditingController {
       withDefaultInlineSyntaxes: false,
     );
 
-    printAst(ast);
-
     return TextSpan(children: markdown, style: baseStyle);
   }
 }

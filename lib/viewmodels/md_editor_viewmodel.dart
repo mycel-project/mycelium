@@ -132,25 +132,37 @@ class MdEditorViewModel extends ChangeNotifier {
   bool isDirty = false;
 
   bool _handleReviewError(ApiError error, String context) {
-    switch (error.code) { 
+    switch (error.code) {
       case "NO_PENDING_NODE":
-      notificationBus.showWarning("Review not taken into account, Mycel probably restarted, please retry.");
-      return true; 
+        notificationBus.showWarning(
+          "Review not taken into account, Mycel probably restarted, please retry.",
+        );
+        return true;
       default:
-      notificationBus.showError("Cannot complete $context review", error);
-      return false;
+        notificationBus.showError("Cannot complete $context review", error);
+        return false;
     }
   }
 
   Future<bool> reviewSpore(int rating) async {
-    final result = await reviewRepository.reviewSpore(node!.collectionId, node!.id, 10, rating);
+    final result = await reviewRepository.reviewSpore(
+      node!.collectionId,
+      node!.id,
+      10,
+      rating,
+    );
     if (result case ApiError error) return _handleReviewError(error, "Spore");
     return true;
   }
 
   Future<bool> reviewFragment() async {
-    final result = await reviewRepository.reviewFragment(node!.collectionId, node!.id, 10);
-    if (result case ApiError error) return _handleReviewError(error, "Fragment");
+    final result = await reviewRepository.reviewFragment(
+      node!.collectionId,
+      node!.id,
+      10,
+    );
+    if (result case ApiError error)
+      return _handleReviewError(error, "Fragment");
     return true;
   }
 
@@ -224,7 +236,6 @@ class MdEditorViewModel extends ChangeNotifier {
   void onCursorChanged(int? position) {
     _isUpdatingCursor = true;
     cursorPosition = (position == null || position < 0) ? null : position;
-    print('onCursorChanged: $position, hasCursor: $hasCursor');
     notifyListeners();
     _isUpdatingCursor = false;
   }
@@ -270,6 +281,7 @@ class MdEditorViewModel extends ChangeNotifier {
       selection!.end,
       nodeType.key,
     );
+
     switch (result) {
       case ApiSuccess(:final data):
         final nodes = data;
@@ -305,7 +317,7 @@ class MdEditorViewModel extends ChangeNotifier {
     );
     switch (result) {
       case ApiSuccess(:final data):
-      // need to change in node store ? 
+        // need to change in node store ?
         node = data;
         notifyListeners();
       case ApiError error:

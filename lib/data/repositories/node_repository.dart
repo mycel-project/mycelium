@@ -100,7 +100,6 @@ class NodeRepository {
     for (final entry in priorities.entries) {
       final id = int.parse(entry.key);
       final node = _nodeCache[id];
-      print(entry.value);
       if (node != null) {
         _nodeCache[id] = node.copyWith(priority: entry.value as int);
       }
