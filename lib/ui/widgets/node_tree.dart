@@ -250,19 +250,27 @@ int _getDepth(TreeSliverNode node) {
   }
 }
 
-bool isSubtreeDismissed(TreeSliverNode node, bool Function(Node)? isSpore) {
+bool hasUndismissedFragment(TreeSliverNode node, bool Function(Node)? isSpore) {
   final typedNode = node.content as Node;
+  
+  if (isSpore?.call(typedNode) == false && typedNode.typeData?["dismiss"] != true) {
+    return true;
+  }
+  
+  return node.children.any((c) => hasUndismissedFragment(c, isSpore));
+}
+
+bool isSubtreeDismissed(TreeSliverNode node, bool Function(Node)? isSpore) {
   final fragmentChildren = node.children
       .where((c) => isSpore?.call(c.content as Node) == false)
       .toList();
 
-  // Que des spores (ou aucun enfant) : grisé si le nœud est dismiss OU s'il n'a que des spores
   if (fragmentChildren.isEmpty) {
     final hasOnlySpores = node.children.isNotEmpty;
-    return hasOnlySpores || typedNode.typeData?["dismiss"] == true;
+    return hasOnlySpores || (node.content as Node).typeData?["dismiss"] == true;
   }
 
-  return fragmentChildren.every((c) => isSubtreeDismissed(c, isSpore));
+  return !fragmentChildren.any((c) => hasUndismissedFragment(c, isSpore));
 }
 
 String formatNodeTitle(String? raw) {
