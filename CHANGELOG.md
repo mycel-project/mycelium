@@ -1,4 +1,6 @@
 ## Unreleased
+
+## v0.0.4
 ### Added
 - Warning message when undoing a review of a deleted node.
 - Spore title/pre-text appears in primary color in the node tree
