@@ -1,19 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:mycelium/data/models/day_review_overview.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 // ClaudeAI
 class RepsCalendar extends StatefulWidget {
-  final Map<DateTime, ({int spores, int fragments})> reps;
+  final Map<DateTime, DayReviewOverview> reps;
 
   const RepsCalendar({super.key, required this.reps});
 
-  
   @override
   State<RepsCalendar> createState() => _RepsCalendarState();
 }
 
 class _RepsCalendarState extends State<RepsCalendar> {
-
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
 
@@ -26,13 +25,13 @@ class _RepsCalendarState extends State<RepsCalendar> {
   int _total(DateTime day) {
     final key = DateTime(day.year, day.month, day.day);
     final data = widget.reps[key];
-    return data != null ? data.spores + data.fragments : 0;
+    return data != null ? data.dueSpores + data.dueFragments : 0;
   }
 
   int get _maxTotal {
     if (widget.reps.isEmpty) return 1;
     return widget.reps.values
-        .map((d) => d.spores + d.fragments)
+        .map((d) => d.dueSpores + d.dueFragments)
         .reduce((a, b) => a > b ? a : b);
   }
 
@@ -66,10 +65,8 @@ class _RepsCalendarState extends State<RepsCalendar> {
             rightChevronPadding: const EdgeInsets.all(16),
             titleTextStyle: theme.textTheme.titleSmall!
                 .copyWith(fontWeight: FontWeight.w500),
-            leftChevronIcon:
-                Icon(Icons.chevron_left, color: cs.onSurface),
-            rightChevronIcon:
-                Icon(Icons.chevron_right, color: cs.onSurface),
+            leftChevronIcon: Icon(Icons.chevron_left, color: cs.onSurface),
+            rightChevronIcon: Icon(Icons.chevron_right, color: cs.onSurface),
           ),
           daysOfWeekStyle: DaysOfWeekStyle(
             weekdayStyle: theme.textTheme.labelSmall!
@@ -79,8 +76,7 @@ class _RepsCalendarState extends State<RepsCalendar> {
           ),
           calendarStyle: CalendarStyle(
             outsideDaysVisible: false,
-            todayDecoration: BoxDecoration(
-              color: cs.primary,
+            todayDecoration: const BoxDecoration(
               shape: BoxShape.circle,
             ),
             selectedDecoration: BoxDecoration(
@@ -113,8 +109,7 @@ class _RepsCalendarState extends State<RepsCalendar> {
         _DetailPanel(
           selectedDay: selected,
           data: selected != null
-              ? widget.reps[DateTime(
-                  selected.year, selected.month, selected.day)]
+              ? widget.reps[DateTime(selected.year, selected.month, selected.day)]
               : null,
         ),
       ],
@@ -134,9 +129,7 @@ class _RepsCalendarState extends State<RepsCalendar> {
     return Container(
       margin: const EdgeInsets.all(3),
       decoration: BoxDecoration(
-        color: isToday
-            ? cs.primary
-            : isSelected
+        color: isSelected
                 ? Colors.transparent
                 : heat,
         shape: BoxShape.circle,
@@ -151,28 +144,26 @@ class _RepsCalendarState extends State<RepsCalendar> {
             Text(
               '${day.day}',
               style: theme.textTheme.labelSmall!.copyWith(
-                color: isToday
-    ? cs.onPrimary
-    : isSelected
-        ? cs.primary
-        : heat != Colors.transparent && heat.computeLuminance() < 0.35
-            ? Colors.white
-            : cs.onSurface,
+                color: isSelected
+                        ? cs.primary
+                        : heat != Colors.transparent && heat.computeLuminance() < 0.35
+                            ? Colors.white
+                            : cs.onSurface,
               ),
             ),
             if (total > 0)
-            Text(
-              '$total',
-              style: TextStyle(
-                fontSize: 9,
-                fontWeight: FontWeight.w600,
-                color: isSelected
-                ? cs.primary
-                : heat.computeLuminance() > 0.35
-                ? Colors.black87
-                : Colors.white,
+              Text(
+                '$total',
+                style: TextStyle(
+                  fontSize: 9,
+                  fontWeight: FontWeight.w600,
+                  color: isSelected
+                      ? cs.primary
+                      : heat.computeLuminance() > 0.35
+                          ? Colors.black87
+                          : Colors.white,
+                ),
               ),
-            ),
           ],
         ),
       ),
@@ -182,7 +173,7 @@ class _RepsCalendarState extends State<RepsCalendar> {
 
 class _DetailPanel extends StatelessWidget {
   final DateTime? selectedDay;
-  final ({int spores, int fragments})? data;
+  final DayReviewOverview? data;
 
   const _DetailPanel({this.selectedDay, this.data});
 
@@ -205,18 +196,21 @@ class _DetailPanel extends StatelessWidget {
 
     final d = data;
     final dateStr =
-    '${selectedDay!.day} ${_monthShort(selectedDay!.month)} ${selectedDay!.year}';
+        '${selectedDay!.day} ${_monthShort(selectedDay!.month)} ${selectedDay!.year}';
 
-    final spores = d?.spores ?? 0;
-    final fragments = d?.fragments ?? 0;
+    final spores = d?.dueSpores ?? 0;
+    final fragments = d?.dueFragments ?? 0;
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(dateStr,
-                style: theme.textTheme.labelMedium!
-                .copyWith(fontWeight: FontWeight.w500)),
+          Text(
+            dateStr,
+            style: theme.textTheme.labelMedium!
+                .copyWith(fontWeight: FontWeight.w500),
+          ),
           const SizedBox(height: 8),
           _Row('Fragments', fragments, theme),
           _Row('Spores', spores, theme),
@@ -234,21 +228,36 @@ class _DetailPanel extends StatelessWidget {
       child: Row(
         children: [
           Expanded(
-            child: Text(label,
-                style: theme.textTheme.bodySmall!.copyWith(
-                    fontWeight:
-                        bold ? FontWeight.w500 : FontWeight.w400)),
+            child: Text(
+              label,
+              style: theme.textTheme.bodySmall!
+                  .copyWith(fontWeight: bold ? FontWeight.w500 : FontWeight.w400),
+            ),
           ),
-          Text('$value',
-              style: theme.textTheme.bodySmall!.copyWith(
-                  fontWeight: bold ? FontWeight.w500 : FontWeight.w400)),
+          Text(
+            '$value',
+            style: theme.textTheme.bodySmall!
+                .copyWith(fontWeight: bold ? FontWeight.w500 : FontWeight.w400),
+          ),
         ],
       ),
     );
   }
 
   String _monthShort(int m) => const [
-        '', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-        'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+        '',
+        'Jan',
+        'Feb',
+        'Mar',
+        'Apr',
+        'May',
+        'Jun',
+        'Jul',
+        'Aug',
+        'Sep',
+        'Oct',
+        'Nov',
+        'Dec'
       ][m];
 }
+

@@ -10,11 +10,13 @@ import 'package:mycelium/core/stores/node_store.dart';
 import 'package:mycelium/core/stores/review_state.dart';
 import 'package:mycelium/core/stores/review_store.dart';
 import 'package:mycelium/data/api_result.dart';
+import 'package:mycelium/data/models/day_review_overview.dart';
 import 'package:mycelium/data/models/node.dart';
 import 'package:mycelium/data/models/node_type.dart';
 import 'package:mycelium/data/repositories/node_repository.dart';
 import 'package:mycelium/data/services/api_service.dart';
 import 'package:mycelium/domain/check_api_usecase.dart';
+import 'package:mycelium/domain/get_calendar_usecase.dart';
 import 'package:mycelium/domain/navigation_usecase.dart';
 import 'package:mycelium/domain/node_usecase.dart';
 import 'package:mycelium/domain/review_usecase.dart';
@@ -32,6 +34,7 @@ class HomeViewModel extends ChangeNotifier {
   final ApiStore apiStore;
   final CheckApiUseCase checkApiUseCase;
   final NotificationBus notificationBus;
+  final GetCalendarUseCase getCalendarUseCase;
 
   bool noMoreReviewsFlag = false;
 
@@ -48,6 +51,7 @@ class HomeViewModel extends ChangeNotifier {
     this.apiStore,
     this.checkApiUseCase,
     this.notificationBus,
+    this.getCalendarUseCase,
   ) {
     reviewStore.addListener(_onReviewChanged);
     nodeStore.addListener(_onNodeStoreChange);
@@ -262,4 +266,18 @@ class HomeViewModel extends ChangeNotifier {
     DateTime(2026, 5, 18): (spores: 1, fragments: 0),
     DateTime(2026, 5, 13): (spores: 1, fragments: 6),
   };
+
+  Map<DateTime, DayReviewOverview> calendar = {};
+
+  Future<void> getCalendar() async {
+    final colId = collectionStore.currentCollection?.id;
+    if (colId == null) return;
+    final newCalendar = await getCalendarUseCase.execute(colId);
+    if (newCalendar == null) {
+      calendar = {};
+    } else {
+      calendar = newCalendar;
+      notifyListeners();
+    }
+  }
 }

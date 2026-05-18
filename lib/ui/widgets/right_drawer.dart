@@ -71,6 +71,7 @@ class CalendarTile extends StatelessWidget {
   }
 
   void _showRepsCalendar(BuildContext context) async {
+    await vm.getCalendar();
     if (!context.mounted) return;
     showModalBottomSheet(
       context: context,
@@ -80,7 +81,7 @@ class CalendarTile extends StatelessWidget {
           padding: EdgeInsets.only(
             bottom: MediaQuery.of(context).viewInsets.bottom,
           ),
-          child: RepsCalendar(reps: vm.repsData),
+          child: RepsCalendar(reps: vm.calendar),
         ),
       ),
     );
