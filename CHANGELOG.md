@@ -5,6 +5,7 @@
 ### Fixed
 - Delete the previous Mycel instance cache when changing the Mycel instance
 - Include newlines in cloze regex matching (currently disallowed)
+- Markdown-mycel-fork: Fixed two crashes in the rendering engine and resolved a code syntax stripping inconsistency.
 
 ## v0.0.3
 ### Added

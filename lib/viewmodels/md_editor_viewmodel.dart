@@ -73,6 +73,15 @@ class MdEditorViewModel extends ChangeNotifier {
   bool get showUnsavedChangesDialog => _showUnsavedChangesDialog;
   Node? _pendingNode;
 
+  
+  void Function(String content, int? cursor)? onContentCommand;
+
+  // To update content from vm
+  void _applyContent(String newContent, {int? cursor}) {
+    content = newContent;
+    onContentCommand?.call(newContent, cursor);
+  }
+
   Future<void> _onNodeStoreChanged() async {
     if (_showUnsavedChangesDialog) return;
     if (_pendingNode != null) {
@@ -259,30 +268,22 @@ class MdEditorViewModel extends ChangeNotifier {
     if (await nodeUseCase.deleteNode(colId, node.id)) notifyListeners();
   }
 
-  Future<void> createExtract(String extractType) async {
+  Future<void> createExtract(String extractType, String currentContent) async {
     final node = this.node;
-
     TextSelection? sel = selection;
     if (node == null || sel == null) return;
+    content = currentContent;
     await saveContent();
-
-    final result = await createExtractUseCase.execute(
-      node,
-      extractType,
-      content,
-      sel,
-    );
-    if (result) {
-      notifyListeners();
-    }
+    final result = await createExtractUseCase.execute(node, extractType, currentContent, sel);
+    if (result) notifyListeners();
   }
 
-  Future<void> createFragment() async {
-    await createExtract("FRAGMENT");
+  Future<void> createFragment(String currentContent) async {
+    await createExtract("FRAGMENT", currentContent);
   }
 
-  Future<void> createSpore() async {
-    await createExtract("SPORE");
+  Future<void> createSpore(String currentContent) async {
+    await createExtract("SPORE", currentContent);
   }
 
   Future<void> toggleDismiss() async {
@@ -318,17 +319,18 @@ class MdEditorViewModel extends ChangeNotifier {
   void editMode() {
     if (isCurrentNodeSpore() && !isEditing) {
       isEditing = true;
-      content = node?.content?["0"] ?? "";
+      _applyContent(node?.content?["0"] ?? "");
       notifyListeners();
     }
   }
 
   void showAnswer() {
     isAnswerVisible = true;
-    content = reviewUseCase.transformClozeContent(
+    final newContent = reviewUseCase.transformClozeContent(
       node?.content?["0"] ?? "",
       mode: ClozeMode.show,
     );
+    _applyContent(newContent);
     notifyListeners();
   }
 
@@ -339,43 +341,47 @@ class MdEditorViewModel extends ChangeNotifier {
       isDirty = false;
       undoController.value = UndoHistoryValue.empty;
       isEditing = false;
+      String newContent;
       if (isCurrentNodeSpore()) {
         if (reviewStore.currentNodeId == node.id) {
-          content = reviewUseCase.transformClozeContent(
+          newContent = reviewUseCase.transformClozeContent(
             node.content?["0"] ?? "",
             mode: ClozeMode.hide,
           );
         } else {
-          content = node.content?["0"] ?? "";
+          newContent = node.content?["0"] ?? "";
         }
       } else {
-        content = node.content?["0"] ?? "";
+        newContent = node.content?["0"] ?? "";
       }
-
+      
+      _applyContent(newContent);
       notifyListeners();
     } else {
       this.node = null;
-      content = "";
+      _applyContent("");
       notifyListeners();
       isDirty = false;
     }
   }
 
-  int? targetCursorPosition; // used to move cursor manually
-
-  Future<void> deleteBeforeCursor() async {
+  Future<void> deleteBeforeCursor(String currentContent) async {
     final pos = cursorPosition;
     if (pos == null) return;
-    targetCursorPosition = 0;
-    updateContent(content.substring(pos));
+    final newContent = currentContent.substring(pos);
+    _applyContent(newContent, cursor: 0);
+    content = newContent;
+    isDirty = true;
     await saveContent();
   }
 
-  Future<void> deleteAfterCursor() async {
+  Future<void> deleteAfterCursor(String currentContent) async {
     final pos = cursorPosition;
     if (pos == null) return;
-    targetCursorPosition = pos;
-    updateContent(content.substring(0, pos));
+    final newContent = currentContent.substring(0, pos);
+    _applyContent(newContent, cursor: pos);
+    content = newContent;
+    isDirty = true;
     await saveContent();
   }
 
@@ -383,7 +389,6 @@ class MdEditorViewModel extends ChangeNotifier {
     content = value;
     isDirty = true;
     tryAutoSave();
-    notifyListeners();
   }
 
   void tryAutoSave() {

@@ -24,26 +24,44 @@ class MdEditorState extends State<MdEditor> {
   @override
   void initState() {
     super.initState();
-
     vm = context.read<MdEditorViewModel>();
 
-    markdownController.text = vm.content;
+    markdownController.value = TextEditingValue(
+      text: vm.content,
+      selection: const TextSelection.collapsed(offset: 0),
+    );
     markdownController.addListener(_onSelectionChanged);
-    markdownController.addListener(() {
-      if (vm.isUpdatingCursor || _isRemovingFocus) return;
-      vm.onCursorChanged(markdownController.selection.baseOffset);
-    });
+    markdownController.addListener(_onCursorChanged);
 
-    vm.addListener(_syncFromVm);
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
+    vm.onContentCommand = (content, cursor) {
       if (!mounted) return;
-      await _syncFromVm();
-    });
+      markdownController.value = TextEditingValue(
+        text: content,
+        selection: TextSelection.collapsed(
+          offset: (cursor ?? 0).clamp(0, content.length),
+        ),
+      );
+      
+      if (cursor != null && content.isNotEmpty) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (!mounted || !scrollController.hasClients) return;
+            final cursorOffset = cursor * scrollController.position.maxScrollExtent / content.length;
+            scrollController.animateTo(
+              cursorOffset,
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeOut,
+            );
+        });
+      }
+    };
+  }
+
+  void _onCursorChanged() {
+    if (vm.isUpdatingCursor || _isRemovingFocus) return;
+    vm.onCursorChanged(markdownController.selection.baseOffset);
   }
 
   final ScrollController scrollController = ScrollController();
-
-  int? _lastNodeId;
 
   bool _isRemovingFocus = false; // avoid stack overflow
   void removeFocusAndCursor() {
@@ -57,63 +75,7 @@ class MdEditorState extends State<MdEditor> {
     });
   }
 
-  bool _isShowingDialog = false;
-  Future<void> _syncFromVm() async {
-    if (!mounted) return;
 
-    if (vm.showUnsavedChangesDialog) {
-      if (_isShowingDialog) return;
-      _isShowingDialog = true;
-      final result = await ConfirmationDialog.show(
-        context,
-        title: "Discard Changes?",
-        text:
-            "Your changes couldn't be saved. Switching to another node will discard them.\n\nTo keep your changes, try restoring the API connection before switching nodes.\n\nDiscard?",
-        destructive: true,
-      );
-      _isShowingDialog = false;
-      result.confirmed ? vm.confirmDiscardChanges() : vm.cancelNodeChange();
-    }
-
-    if (!mounted) return;
-    final currentId = vm.node?.id;
-
-    if (_lastNodeId != currentId) {
-      removeFocusAndCursor();
-
-      _lastNodeId = currentId;
-    }
-    if (vm.isUpdatingSelection || vm.isUpdatingCursor) return;
-
-    if (markdownController.text != vm.content) {
-      final target = vm.targetCursorPosition;
-      markdownController.value = TextEditingValue(
-        text: vm.content,
-        selection: TextSelection.collapsed(
-          offset:
-              target ??
-              markdownController.selection.baseOffset.clamp(
-                0,
-                vm.content.length,
-              ),
-        ),
-      );
-      if (target != null) {
-        vm.targetCursorPosition = null;
-        if (vm.content.isNotEmpty && mounted) {
-          final cursorOffset =
-              target *
-              scrollController.position.maxScrollExtent /
-              vm.content.length;
-          scrollController.animateTo(
-            cursorOffset,
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.easeOut,
-          );
-        }
-      }
-    }
-  }
 
   void _onSelectionChanged() {
     if (vm.isUpdatingSelection) return;
@@ -123,9 +85,10 @@ class MdEditorState extends State<MdEditor> {
   @override
   void dispose() {
     focusNode.unfocus();
+    vm.onContentCommand = null;
     markdownController.removeListener(_onSelectionChanged);
+    markdownController.removeListener(_onCursorChanged);
     markdownController.dispose();
-    vm.removeListener(_syncFromVm);
     focusNode.dispose();
     scrollController.dispose();
     super.dispose();
@@ -288,32 +251,22 @@ class MdEditorState extends State<MdEditor> {
                               ),
                             ),
                             FloatingActionButton(
-                              onPressed: vm.hasSelection
-                                  ? () async {
-                                      await vm.createFragment();
-                                      markdownController.selection =
-                                          const TextSelection.collapsed(
-                                            offset: -1,
-                                          );
-                                      focusNode.unfocus();
-                                    }
-                                  : null,
+                              onPressed: vm.hasSelection ? () async {
+                                await vm.createFragment(markdownController.text);
+                                markdownController.selection = const TextSelection.collapsed(offset: -1);
+                                focusNode.unfocus();
+                              } : null,
                               child: Opacity(
                                 opacity: vm.hasSelection ? 1.0 : 0.4,
                                 child: const Icon(Icons.content_cut),
                               ),
                             ),
                             FloatingActionButton(
-                              onPressed: vm.hasSelection
-                                  ? () async {
-                                      await vm.createSpore();
-                                      markdownController.selection =
-                                          const TextSelection.collapsed(
-                                            offset: -1,
-                                          );
-                                      focusNode.unfocus();
-                                    }
-                                  : null,
+                              onPressed: vm.hasSelection ? () async {
+                                await vm.createSpore(markdownController.text);
+                                markdownController.selection = const TextSelection.collapsed(offset: -1);
+                                focusNode.unfocus();
+                              } : null,
                               child: Opacity(
                                 opacity: vm.hasSelection ? 1.0 : 0.4,
                                 child: const Icon(Icons.quiz),
@@ -349,7 +302,7 @@ class MdEditorState extends State<MdEditor> {
                                               'Delete all content before cursor',
                                             ),
                                             onTap: () async {
-                                              await vm.deleteBeforeCursor();
+                                              await vm.deleteBeforeCursor(markdownController.text);
                                               Navigator.pop(context);
                                             },
                                           ),
@@ -363,7 +316,7 @@ class MdEditorState extends State<MdEditor> {
                                               'Delete all content after cursor',
                                             ),
                                             onTap: () async {
-                                              await vm.deleteAfterCursor();
+                                              await vm.deleteAfterCursor(markdownController.text);
                                               Navigator.pop(context);
                                             },
                                           ),
