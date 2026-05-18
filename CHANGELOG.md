@@ -1,6 +1,7 @@
 ## Unreleased
 ### Added
 - Warning message when undoing a review of a deleted node.
+- Spore title/pre-text appears in primary color in the node tree
 
 ### Fixed
 - Delete the previous Mycel instance cache when changing the Mycel instance

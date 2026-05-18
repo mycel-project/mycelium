@@ -214,7 +214,9 @@ int _getDepth(TreeSliverNode node) {
                                           maxLines: 1,
                                           overflow: TextOverflow.ellipsis,
                                           style: TextStyle(
-                                            color: typedNode.typeData?["dismiss"] == true
+                                            color: isSporeNode == true
+                                            ? Theme.of(context).colorScheme.primary
+                                            : (typedNode.typeData?["dismiss"] as bool?) == true
                                             ? Colors.grey.withValues(alpha: 0.5)
                                             : Theme.of(context).textTheme.bodyMedium?.color,
                                           ),
