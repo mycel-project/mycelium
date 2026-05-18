@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mycelium/core/stores/node_store.dart';
 import 'package:mycelium/data/models/node.dart';
 import 'package:mycelium/ui/widgets/priority_selector.dart';
+import 'package:mycelium/ui/widgets/reps_calendar.dart';
 import 'package:mycelium/viewmodels/home_viewmodel.dart';
 import 'package:provider/provider.dart';
 
@@ -19,28 +20,13 @@ class RightDrawer extends StatelessWidget {
           children: [
             const _RightDrawerReviewHeader(),
             const Divider(height: 1),
-            Expanded(
-              child: ListView(
-                children: [
-                  ListTile(
-                    leading: const Icon(Icons.calendar_month),
-                    title: const Text("Calendar"),
-                    onTap: () {
-                      print("yo");
-                    },
-                    
-                  ),
-                ],
-              ),
-            ),
+            Expanded(child: ListView(children: [CalendarTile(vm: vm)])),
             if (node != null) ...[
               _RightDrawerNodeHeader(node: node),
               const Divider(height: 1),
               Expanded(
                 child: ListView(
-                  children: [
-                    _PriorityTile(node: node, vm: vm)
-                  ],
+                  children: [_PriorityTile(node: node, vm: vm)],
                 ),
               ),
             ],
@@ -70,6 +56,37 @@ class _RightDrawerReviewHeader extends StatelessWidget {
   }
 }
 
+class CalendarTile extends StatelessWidget {
+  final HomeViewModel vm;
+
+  const CalendarTile({super.key, required this.vm});
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      leading: const Icon(Icons.calendar_month),
+      title: const Text("Calendar"),
+      onTap: () => _showRepsCalendar(context),
+    );
+  }
+
+  void _showRepsCalendar(BuildContext context) async {
+    if (!context.mounted) return;
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (_) => SafeArea(
+        child: Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+          ),
+          child: RepsCalendar(reps: vm.repsData),
+        ),
+      ),
+    );
+  }
+}
+
 class _PriorityTile extends StatelessWidget {
   final Node node;
   final HomeViewModel vm;
@@ -87,7 +104,9 @@ class _PriorityTile extends StatelessWidget {
   }
 
   void _showPriorityPicker(BuildContext context) async {
-    if (vm.nodeCount < 500) await vm.refreshPriorities(); // Above this limit, priorities are diluted enough that a full refresh is unnecessary I guess.
+    if (vm.nodeCount < 500)
+      await vm
+          .refreshPriorities(); // Above this limit, priorities are diluted enough that a full refresh is unnecessary I guess.
     if (!context.mounted) return;
     showModalBottomSheet(
       context: context,

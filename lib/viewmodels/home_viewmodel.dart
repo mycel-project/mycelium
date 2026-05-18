@@ -256,4 +256,10 @@ class HomeViewModel extends ChangeNotifier {
         return false;
     }
   }
+
+  Map<DateTime, ({int spores, int fragments})> repsData = {
+    DateTime(2026, 5, 12): (spores: 300, fragments: 9),
+    DateTime(2026, 5, 18): (spores: 1, fragments: 0),
+    DateTime(2026, 5, 13): (spores: 1, fragments: 6),
+  };
 }

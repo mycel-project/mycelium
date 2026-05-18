@@ -1,4 +1,6 @@
 ## Unreleased
+### Added
+- Calendar Widget to visualize repetitions left for months/days (unplugged to backend)
 
 ## v0.0.4
 ### Added
