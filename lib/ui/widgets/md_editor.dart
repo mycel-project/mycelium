@@ -9,11 +9,13 @@ import 'package:provider/provider.dart';
 
 /// Widget that handles the current node editing and review process.
 class MdEditor extends StatefulWidget {
+  const MdEditor({super.key});
+  
   @override
-  _MdEditorState createState() => _MdEditorState();
+  MdEditorState createState() => MdEditorState();
 }
 
-class _MdEditorState extends State<MdEditor> {
+class MdEditorState extends State<MdEditor> {
   late final MarkdownController markdownController = MarkdownController();
   late MdEditorViewModel vm;
 
@@ -34,6 +36,7 @@ class _MdEditorState extends State<MdEditor> {
 
     vm.addListener(_syncFromVm);
     WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted) return;
       await _syncFromVm();
     });
   }
@@ -56,6 +59,8 @@ class _MdEditorState extends State<MdEditor> {
 
   bool _isShowingDialog = false;
   Future<void> _syncFromVm() async {
+    if (!mounted) return;
+
     if (vm.showUnsavedChangesDialog) {
       if (_isShowingDialog) return;
       _isShowingDialog = true;
@@ -69,6 +74,8 @@ class _MdEditorState extends State<MdEditor> {
       _isShowingDialog = false;
       result.confirmed ? vm.confirmDiscardChanges() : vm.cancelNodeChange();
     }
+
+    if (!mounted) return;
     final currentId = vm.node?.id;
 
     if (_lastNodeId != currentId) {
@@ -93,7 +100,7 @@ class _MdEditorState extends State<MdEditor> {
       );
       if (target != null) {
         vm.targetCursorPosition = null;
-        if (vm.content.isNotEmpty) {
+        if (vm.content.isNotEmpty && mounted) {
           final cursorOffset =
               target *
               scrollController.position.maxScrollExtent /
@@ -115,6 +122,7 @@ class _MdEditorState extends State<MdEditor> {
 
   @override
   void dispose() {
+    focusNode.unfocus();
     markdownController.removeListener(_onSelectionChanged);
     markdownController.dispose();
     vm.removeListener(_syncFromVm);
@@ -254,13 +262,12 @@ class _MdEditorState extends State<MdEditor> {
                                   ? () async => await vm.toggleDismiss()
                                   : () async {
                                       focusNode.unfocus();
-                                      final result =
-                                          await ConfirmationDialog.show(
-                                            context,
-                                            title: "Confirmation",
-                                            text:
-                                                "Have you extracted all the relevant information from this fragment?\n\nIt won’t be shown again in future reviews.",
-                                          );
+                                      final result = await ConfirmationDialog.show(
+                                        context,
+                                        title: "Confirmation",
+                                        text:
+                                            "Have you extracted all the relevant information from this fragment?\n\nIt won’t be shown again in future reviews.",
+                                      );
                                       if (result.confirmed == true) {
                                         if (!vm.hasChildren()) {
                                           final result =
