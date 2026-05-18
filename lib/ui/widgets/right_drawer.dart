@@ -13,19 +13,37 @@ class RightDrawer extends StatelessWidget {
     final vm = context.watch<HomeViewModel>();
     final node = context.watch<NodeStore>().currentNode;
 
-    if (node == null) return const SizedBox.shrink();
-
     return Drawer(
       child: SafeArea(
         child: Column(
           children: [
-            _RightDrawerHeader(node: node),
+            const _RightDrawerReviewHeader(),
             const Divider(height: 1),
             Expanded(
               child: ListView(
-                children: [_PriorityTile(node: node, vm: vm)],
+                children: [
+                  ListTile(
+                    leading: const Icon(Icons.calendar_month),
+                    title: const Text("Calendar"),
+                    onTap: () {
+                      print("yo");
+                    },
+                    
+                  ),
+                ],
               ),
             ),
+            if (node != null) ...[
+              _RightDrawerNodeHeader(node: node),
+              const Divider(height: 1),
+              Expanded(
+                child: ListView(
+                  children: [
+                    _PriorityTile(node: node, vm: vm)
+                  ],
+                ),
+              ),
+            ],
           ],
         ),
       ),
@@ -33,13 +51,22 @@ class RightDrawer extends StatelessWidget {
   }
 }
 
-class _RightDrawerHeader extends StatelessWidget {
+class _RightDrawerNodeHeader extends StatelessWidget {
   final Node node;
-  const _RightDrawerHeader({required this.node});
+  const _RightDrawerNodeHeader({required this.node});
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(title: Text(node.id.toString()));
+    return const ListTile(title: Text("Current Node"));
+  }
+}
+
+class _RightDrawerReviewHeader extends StatelessWidget {
+  const _RightDrawerReviewHeader();
+
+  @override
+  Widget build(BuildContext context) {
+    return const ListTile(title: Text("General"));
   }
 }
 
