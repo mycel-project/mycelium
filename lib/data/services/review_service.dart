@@ -22,6 +22,10 @@ class ReviewService {
     return await api.get("/collections/$colId/reviews/next");
   }
 
+  Future<ApiResult<String>> getCalendar(int colId) async {
+    return await api.get("/collections/$colId/reviews/calendar");
+  }
+
   Future<ApiResult<String>> undoReview(int colId) async {
     return await api.post("/collections/$colId/reviews/undo", {});
   }

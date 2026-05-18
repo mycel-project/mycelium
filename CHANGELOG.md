@@ -1,6 +1,6 @@
 ## Unreleased
 ### Added
-- Calendar Widget to visualize repetitions left for months/days (unplugged to backend)
+- Calendar Widget to visualize repetitions left for months/days (heatmap coloration, plugged to backend)
 
 ## v0.0.4
 ### Added

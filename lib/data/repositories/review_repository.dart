@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:mycelium/data/api_result.dart';
+import 'package:mycelium/data/models/day_review_overview.dart';
 import 'package:mycelium/data/models/node.dart';
 import 'package:mycelium/data/services/review_service.dart';
 
@@ -36,6 +37,26 @@ class ReviewRepository {
       duration,
       rating,
     );
+  }
+
+  Future<ApiResult<Map<DateTime, DayReviewOverview>>> getCalendar(
+    int colId,
+  ) async {
+    final result = await reviewService.getCalendar(colId);
+    if (result is ApiError) return result;
+
+    final json = jsonDecode((result as ApiSuccess<String>).data);
+    final calendar = json["calendar"] as List;
+
+    final list = calendar
+    .map((e) => DayReviewOverview.fromJson(e))
+    .toList();
+
+    final map = {
+      for (final item in list) DateTime.parse(item.date): item,
+    };
+
+    return ApiSuccess(map);
   }
 
   ApiResult<Node?> parsedReviewData(ApiResult<String> result) {

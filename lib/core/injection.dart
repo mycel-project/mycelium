@@ -27,6 +27,7 @@ import 'package:mycelium/domain/app_coordinator.dart';
 import 'package:mycelium/domain/check_api_compatibility_usecase.dart';
 import 'package:mycelium/domain/check_app_update_usecase.dart';
 import 'package:mycelium/domain/create_extract_usecase.dart';
+import 'package:mycelium/domain/get_calendar_usecase.dart';
 import 'package:mycelium/domain/init_api_usecase.dart';
 import 'package:mycelium/domain/init_collections_usecase.dart';
 import 'package:mycelium/domain/init_data_usecase.dart';
@@ -91,6 +92,7 @@ Future<void> setup() async {
   sl.registerSingleton(NodeUseCase(sl(), sl(), sl(), sl(), sl()));
   sl.registerSingleton(CheckAppUpdateUseCase(sl(), sl(), sl()));
   sl.registerSingleton(CreateExtractUseCase(sl(), sl(), sl(), sl(), sl()));
+  sl.registerSingleton(GetCalendarUseCase(sl(), sl()));
   sl.registerSingleton(
     AppCoordinator(sl(), sl(), sl(), sl(), sl(), sl(), sl()),
   );
@@ -105,6 +107,7 @@ Future<void> setup() async {
   //// should reduce dependencies ?
   sl.registerFactory(
     () => HomeViewModel(
+      sl(),
       sl(),
       sl(),
       sl(),
