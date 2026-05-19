@@ -18,8 +18,13 @@ class ReviewService {
     return ApiSuccess<String?>(json["regex"] as String?);
   }
 
-  Future<ApiResult<String>> getNextReview(int colId) async {
-    return await api.get("/collections/$colId/reviews/next");
+  Future<ApiResult<String>> getNextReview(int colId, int tzOffset) async {
+    return await api.get(
+      "/collections/$colId/reviews/next",
+      queryParams: {
+        "tz_offset": tzOffset.toString()
+      },
+    );
   }
 
   Future<ApiResult<String>> getCalendar(int colId, int tzOffset) async {

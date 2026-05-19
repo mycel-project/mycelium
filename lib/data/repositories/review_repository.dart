@@ -70,8 +70,11 @@ class ReviewRepository {
     return ApiSuccess(Node.fromJson(nodeJson));
   }
 
-  Future<ApiResult<Node?>> getNextReview(int colId) async {
-    final result = await reviewService.getNextReview(colId);
+  Future<ApiResult<Node?>> getNextReview(
+    int colId,
+    int tzOffset
+  ) async {
+    final result = await reviewService.getNextReview(colId, tzOffset);
     return parsedReviewData(result);
   }
 

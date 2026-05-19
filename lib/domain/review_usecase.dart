@@ -7,6 +7,7 @@ import 'package:mycelium/data/repositories/node_repository.dart';
 import 'package:mycelium/data/repositories/review_repository.dart';
 import 'package:mycelium/domain/cloze_mode.dart';
 import 'package:mycelium/domain/navigation_usecase.dart';
+import 'package:mycelium/utils/time_utils.dart';
 
 class ReviewUseCase {
   final ReviewStore reviewStore;
@@ -29,7 +30,7 @@ class ReviewUseCase {
     final colId = collectionStore.currentCollection?.id;
     if (colId == null) return ApiError("no_collection");
 
-    final result = await reviewRepository.getNextReview(colId);
+    final result = await reviewRepository.getNextReview(colId, tzOffsetMinutes);
     if (result is ApiError) return result;
     if (result is ApiSuccess) {
       final node = (result as ApiSuccess).data;
