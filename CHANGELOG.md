@@ -1,4 +1,6 @@
 ## Unreleased
+
+## v0.0.5
 ### Added
 - Calendar Widget to visualize repetitions left for months/days (heatmap coloration, plugged to backend)
 - Plug timezone when querying reps calendar or next review, and when creating nodes
