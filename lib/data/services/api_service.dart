@@ -17,21 +17,23 @@ class ApiService {
     this.timeout = const Duration(seconds: 5),
   });
 
-  Uri _uri(String path) => Uri.parse("${apiStore.baseUrl}$path");
+  Uri _uri(String path, {Map<String, String>? queryParams}) => Uri.parse("${apiStore.baseUrl}$path").replace(queryParameters: queryParams);
 
-  Future<ApiResult<String>> get(String path) {
+  Future<ApiResult<String>> get(String path, {Map<String, String>? queryParams}) {
     return _request(
-      () async => http.get(_uri(path)).timeout(timeout),
+      () async => http.get(_uri(path, queryParams: queryParams)).timeout(timeout),
       method: "GET",
       url: path,
     );
   }
 
-  Future<ApiResult<String>> post(String path, Map<String, dynamic> body) {
+  Future<ApiResult<String>> post(String path, Map<String, dynamic> body, {Map<String, String>? queryParams}) {
     return _request(
       () async => http
           .post(
-            _uri(path),
+            _uri(
+              path, queryParams: queryParams
+            ),
             headers: {"Content-Type": "application/json"},
             body: jsonEncode(body),
           )
