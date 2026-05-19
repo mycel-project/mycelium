@@ -28,6 +28,11 @@ class NodeRepository {
     _typesCache = null;
   }
 
+  void updateCache(int id, Node node) {
+    // When used from external access must be used in consequence of a fetch from backend, no direct modification from frontend. For example if review_repo get back a node and we want to store this node in cache, use this method.
+    _nodeCache[id] = node;
+  }
+
   Future<ApiResult<Node>> rescheduleNode(
     int colId,
     int nodeId,

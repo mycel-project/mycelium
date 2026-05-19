@@ -17,6 +17,7 @@ import 'package:mycelium/domain/cloze_mode.dart';
 import 'package:mycelium/domain/create_extract_usecase.dart';
 import 'package:mycelium/domain/navigation_usecase.dart';
 import 'package:mycelium/domain/node_usecase.dart';
+import 'package:mycelium/domain/review_node_usecase.dart';
 import 'package:mycelium/domain/review_usecase.dart';
 
 enum ActionMode { undo, redo }
@@ -33,6 +34,7 @@ class MdEditorViewModel extends ChangeNotifier {
   NavigationUseCase navigationUseCase;
   ReviewUseCase reviewUseCase;
   CreateExtractUseCase createExtractUseCase;
+  ReviewNodeUseCase reviewNodeUseCase;
 
   bool isAnswerVisible = false;
   bool isEditing = false;
@@ -60,6 +62,7 @@ class MdEditorViewModel extends ChangeNotifier {
     this.notificationBus,
     this.navigationUseCase,
     this.createExtractUseCase,
+    this.reviewNodeUseCase,
   ) {
     nodeStore.addListener(_onNodeStoreChanged);
     apiStore.addListener(_onApiStoreChanged);
@@ -73,7 +76,6 @@ class MdEditorViewModel extends ChangeNotifier {
   bool get showUnsavedChangesDialog => _showUnsavedChangesDialog;
   Node? _pendingNode;
 
-  
   void Function(String content, int? cursor)? onContentCommand;
 
   // To update content from vm
@@ -142,7 +144,7 @@ class MdEditorViewModel extends ChangeNotifier {
   String content = "";
   bool isDirty = false;
 
-  bool _handleReviewError(ApiError error, String context) {
+  bool _handleReviewError(ApiError error, String context) { // put that in ReviewNodeUseCase
     switch (error.code) {
       case "NO_PENDING_NODE":
         notificationBus.showWarning(
@@ -155,40 +157,34 @@ class MdEditorViewModel extends ChangeNotifier {
     }
   }
 
-  Future<bool> reviewSpore(int rating) async {
-    final result = await reviewRepository.reviewSpore(
-      node!.collectionId,
-      node!.id,
-      10,
-      rating,
-    );
-    if (result case ApiError error) return _handleReviewError(error, "Spore");
-    return true;
-  }
-
-  Future<bool> reviewFragment() async {
-    final result = await reviewRepository.reviewFragment(
-      node!.collectionId,
-      node!.id,
-      10,
-    );
-    if (result case ApiError error)
-      return _handleReviewError(error, "Fragment");
-    return true;
-  }
-
-  Future<void> _handleReview(Future<bool> Function() reviewAction) async {
+  Future<void> _handleReview(String type, {int? rating}) async {
     if (!await saveContent()) return;
-    if (!await reviewAction()) return;
+
+    final error = await reviewNodeUseCase.execute(
+      node!.collectionId,
+      node!.id,
+      type,
+      rating: rating,
+    );
+
+    if (error != null) {
+      _handleReviewError(error, type);
+      return;
+    }
+
+    notifyListeners();
+
     if (!await nextReview()) {
       reviewStore.setLoading();
     }
   }
 
-  Future<void> handleSporeReview(int rating) async =>
-      await _handleReview(() => reviewSpore(rating));
-  Future<void> handleFragmentReview() async =>
-      await _handleReview(reviewFragment);
+  Future<void> handleSporeReview(int rating) async => _handleReview(
+    "spore",
+    rating: rating,
+  ); // maybe that hardocing node type is better to use NodeType.spore as in backend...
+
+  Future<void> handleFragmentReview() async => _handleReview("fragment");
 
   Future<bool> nextReview() async {
     final result = await reviewUseCase.handleNextReview();
@@ -274,7 +270,12 @@ class MdEditorViewModel extends ChangeNotifier {
     if (node == null || sel == null) return;
     content = currentContent;
     await saveContent();
-    final result = await createExtractUseCase.execute(node, extractType, currentContent, sel);
+    final result = await createExtractUseCase.execute(
+      node,
+      extractType,
+      currentContent,
+      sel,
+    );
     if (result) notifyListeners();
   }
 
@@ -354,7 +355,7 @@ class MdEditorViewModel extends ChangeNotifier {
       } else {
         newContent = node.content?["0"] ?? "";
       }
-      
+
       _applyContent(newContent);
       notifyListeners();
     } else {

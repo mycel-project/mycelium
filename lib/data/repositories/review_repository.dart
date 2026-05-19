@@ -17,26 +17,28 @@ class ReviewRepository {
     return parsedReviewData(result);
   }
 
-  Future<ApiResult<void>> reviewFragment(
+  Future<ApiResult<Node?>> reviewFragment(
     int colId,
     int nodeId,
     int duration,
   ) async {
-    return await reviewService.completeFragmentReview(colId, nodeId, duration);
+    final result = await reviewService.completeFragmentReview(colId, nodeId, duration);
+    return parsedReviewData(result);
   }
 
-  Future<ApiResult<void>> reviewSpore(
+  Future<ApiResult<Node?>> reviewSpore(
     int colId,
     int nodeId,
     int duration,
     int rating,
   ) async {
-    return await reviewService.completeSporeReview(
+    final result = await reviewService.completeSporeReview(
       colId,
       nodeId,
       duration,
       rating,
     );
+    return parsedReviewData(result);
   }
 
   Future<ApiResult<Map<DateTime, DayReviewOverview>>> getCalendar(
@@ -63,7 +65,7 @@ class ReviewRepository {
   ApiResult<Node?> parsedReviewData(ApiResult<String> result) {
     if (result is ApiError) return result;
     final json = jsonDecode((result as ApiSuccess<String>).data);
-    final nodeJson = json["node_review"];
+    final nodeJson = json["node"];
     if (nodeJson == null) return ApiSuccess(null);
     return ApiSuccess(Node.fromJson(nodeJson));
   }
