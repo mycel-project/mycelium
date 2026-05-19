@@ -90,7 +90,7 @@ Future<void> setup() async {
   sl.registerSingleton(InitApiUseCase(sl(), sl(), sl(), sl()));
   sl.registerSingleton(SelectCollectionUseCase(sl(), sl()));
   sl.registerSingleton(NavigationUseCase(sl(), sl(), sl(), sl()));
-  sl.registerSingleton(ReviewUseCase(sl(), sl(), sl(), sl(), sl()));
+  sl.registerSingleton(ReviewUseCase(sl(), sl(), sl(), sl(), sl(), sl()));
   sl.registerSingleton(NodeUseCase(sl(), sl(), sl(), sl(), sl()));
   sl.registerSingleton(CheckAppUpdateUseCase(sl(), sl(), sl()));
   sl.registerSingleton(CreateExtractUseCase(sl(), sl(), sl(), sl(), sl()));
