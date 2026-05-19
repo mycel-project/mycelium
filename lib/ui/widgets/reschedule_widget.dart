@@ -57,12 +57,6 @@ class _RescheduleWidgetState extends State<_RescheduleWidget> {
     super.dispose();
   }
 
-  int get _currentOffset {
-    final d = DateTime(_selectedDay.year, _selectedDay.month, _selectedDay.day);
-    final t = DateTime(_today.year, _today.month, _today.day);
-    return d.difference(t).inDays;
-  }
-
   void _onDaySelected(DateTime day) {
     if (day.isBefore(DateTime(_today.year, _today.month, _today.day))) return;
     final offset = DateTime(day.year, day.month, day.day)

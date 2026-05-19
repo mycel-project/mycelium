@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:mycelium/core/stores/node_store.dart';
 import 'package:mycelium/data/models/node.dart';
 import 'package:mycelium/ui/widgets/priority_selector.dart';
