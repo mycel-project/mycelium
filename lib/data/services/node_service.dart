@@ -42,6 +42,21 @@ class NodeService {
     );
   }
 
+  Future<ApiResult<String>> rescheduleNode(
+    int collectionId,
+    int nodeId,
+    String dateIso,
+    int tzOffset,
+  ) async {
+    return await api.post(
+      "/collections/$collectionId/nodes/$nodeId/reschedule",
+      {
+        "date": dateIso,
+        "tz_offset": tzOffset,
+      },
+    );
+  }
+
   Future<ApiResult<String>> restoreNode(int collectionId, int nodeId, bool restoreAncestors, bool restoreDescendants) async {
     return await api.post(
       "/collections/$collectionId/nodes/$nodeId/restore",

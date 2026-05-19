@@ -19,6 +19,7 @@ import 'package:mycelium/domain/check_api_usecase.dart';
 import 'package:mycelium/domain/get_calendar_usecase.dart';
 import 'package:mycelium/domain/navigation_usecase.dart';
 import 'package:mycelium/domain/node_usecase.dart';
+import 'package:mycelium/domain/reschedule_node_usecase.dart';
 import 'package:mycelium/domain/review_usecase.dart';
 
 class HomeViewModel extends ChangeNotifier {
@@ -35,6 +36,7 @@ class HomeViewModel extends ChangeNotifier {
   final CheckApiUseCase checkApiUseCase;
   final NotificationBus notificationBus;
   final GetCalendarUseCase getCalendarUseCase;
+  final RescheduleNodeUseCase rescheduleNodeUseCase;
 
   bool noMoreReviewsFlag = false;
 
@@ -52,6 +54,7 @@ class HomeViewModel extends ChangeNotifier {
     this.checkApiUseCase,
     this.notificationBus,
     this.getCalendarUseCase,
+    this.rescheduleNodeUseCase,
   ) {
     reviewStore.addListener(_onReviewChanged);
     nodeStore.addListener(_onNodeStoreChange);
@@ -238,6 +241,19 @@ class HomeViewModel extends ChangeNotifier {
       case ApiError error:
         notificationBus.showError("Cannot update priority", error);
         return false;
+    }
+  }
+
+  Future<bool> rescheduleNode(int nodeId, String dateIso) async {
+    final colId = collectionStore.currentCollection?.id;
+    if (colId == null) return false;
+    final result = await rescheduleNodeUseCase.execute(colId, nodeId, dateIso);
+    if (result is Node) {
+      nodeStore.selectNode(result);
+      notifyListeners();
+      return true;
+    } else {
+      return false;
     }
   }
 

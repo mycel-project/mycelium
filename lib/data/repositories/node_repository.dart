@@ -28,6 +28,17 @@ class NodeRepository {
     _typesCache = null;
   }
 
+  Future<ApiResult<Node>> rescheduleNode(int colId, int nodeId, String dateIso, int tzOffset) async {
+    final result = await nodeService.rescheduleNode(colId, nodeId, dateIso, tzOffset);
+
+    if (result is ApiError) return result;
+
+    final success = result as ApiSuccess<String>;
+    final node = _parseNode(success);
+    _nodeCache[node.id] = node;
+    return ApiSuccess(node);
+  }
+
   Future<ApiResult<Node>> fetchRessourceFromUrl(int colId, String url) async {
     final result = await nodeService.fetchRessourceFromUrl(colId, url);
 
