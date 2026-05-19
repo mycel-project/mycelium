@@ -70,10 +70,14 @@ class NodeService {
   Future<ApiResult<String>> fetchRessourceFromUrl(
     int collectionId,
     String url,
+    int tzOffset,
   ) async {
     return await api.post("/collections/$collectionId/nodes", {
       "type": "url",
       "url": url,
+    },
+    queryParams: {
+      "tz_offset": tzOffset.toString()
     });
   }
 
@@ -103,6 +107,7 @@ class NodeService {
     int startIndex,
     int endIndex,
     int extractType,
+    int tzOffset,
   ) async {
     return await api.post("/collections/$collectionId/nodes/$nodeId/extracts", {
       "text": text,
@@ -110,6 +115,7 @@ class NodeService {
       "start_index": startIndex,
       "end_index": endIndex,
       "extract_type": extractType,
+      "tz_offset": tzOffset.toString(),
     });
   }
 

@@ -54,8 +54,8 @@ class NodeRepository {
     return ApiSuccess(node);
   }
 
-  Future<ApiResult<Node>> fetchRessourceFromUrl(int colId, String url) async {
-    final result = await nodeService.fetchRessourceFromUrl(colId, url);
+  Future<ApiResult<Node>> fetchRessourceFromUrl(int colId, String url, int tzOffset) async {
+    final result = await nodeService.fetchRessourceFromUrl(colId, url, tzOffset);
 
     if (result is ApiError) return result;
 
@@ -73,6 +73,7 @@ class NodeRepository {
     int startIndex,
     int endIndex,
     int extractType,
+    int tzOffset,
   ) async {
     final result = await nodeService.createExtract(
       colId,
@@ -82,6 +83,7 @@ class NodeRepository {
       startIndex,
       endIndex,
       extractType,
+      tzOffset,
     );
     if (result is ApiError) return result;
     final success = result as ApiSuccess<String>;

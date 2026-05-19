@@ -21,6 +21,7 @@ import 'package:mycelium/domain/navigation_usecase.dart';
 import 'package:mycelium/domain/node_usecase.dart';
 import 'package:mycelium/domain/reschedule_node_usecase.dart';
 import 'package:mycelium/domain/review_usecase.dart';
+import 'package:mycelium/utils/time_utils.dart';
 
 class HomeViewModel extends ChangeNotifier {
   final ApiService apiService;
@@ -263,7 +264,7 @@ class HomeViewModel extends ChangeNotifier {
     }
     final colId = collectionStore.currentCollection?.id;
     if (colId == null) return false;
-    final result = await nodeRepository.fetchRessourceFromUrl(colId, url);
+    final result = await nodeRepository.fetchRessourceFromUrl(colId, url, tzOffsetMinutes); // require dedicated UseCase
     switch (result) {
       case ApiSuccess(:final data):
         final node = data;

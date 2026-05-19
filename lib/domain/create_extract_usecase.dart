@@ -7,6 +7,7 @@ import 'package:mycelium/data/api_result.dart';
 import 'package:mycelium/data/models/node.dart';
 import 'package:mycelium/data/repositories/node_repository.dart';
 import 'package:mycelium/domain/navigation_usecase.dart';
+import 'package:mycelium/utils/time_utils.dart';
 
 class CreateExtractUseCase {
   final NodeRepository nodeRepository;
@@ -50,6 +51,7 @@ class CreateExtractUseCase {
       selection.start,
       selection.end,
       nodeType.key,
+      tzOffsetMinutes,
     );
 
     switch (result) {

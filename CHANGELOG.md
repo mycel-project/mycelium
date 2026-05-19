@@ -1,7 +1,7 @@
 ## Unreleased
 ### Added
 - Calendar Widget to visualize repetitions left for months/days (heatmap coloration, plugged to backend)
-- Plug timezone when querying reps calendar or next review
+- Plug timezone when querying reps calendar or next review, and when creating nodes
 - Reschedule widget to change current node due date
 - Refresh the node data after it has been reviewed
 
