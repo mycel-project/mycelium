@@ -129,7 +129,9 @@ class _RepsCalendarState extends State<RepsCalendar> {
     return Container(
       margin: const EdgeInsets.all(3),
       decoration: BoxDecoration(
-        color: isSelected
+        color: isToday
+            ? cs.primary
+            : isSelected
                 ? Colors.transparent
                 : heat,
         shape: BoxShape.circle,
@@ -144,7 +146,9 @@ class _RepsCalendarState extends State<RepsCalendar> {
             Text(
               '${day.day}',
               style: theme.textTheme.labelSmall!.copyWith(
-                color: isSelected
+                color: isToday
+                    ? cs.onPrimary
+                    : isSelected
                         ? cs.primary
                         : heat != Colors.transparent && heat.computeLuminance() < 0.35
                             ? Colors.white

@@ -6,6 +6,7 @@ class Node {
     required this.type,
     required this.collectionId,
     required this.priority,
+    this.due,
     this.parentId,
     this.content,
     this.typeData,
@@ -21,7 +22,8 @@ class Node {
   final Map? typeData;
   final NodeData? data;
   final int? deletedAt;
-  
+  final int? due;
+
   factory Node.fromJson(Map<String, dynamic> json) {
     final rawContent = json['content'];
     return Node(
@@ -34,21 +36,23 @@ class Node {
           : null,
       typeData: json['type_data'],
       data: json['data'] != null ? NodeData.fromJson(json['data']) : null,
+      due: json['due'],
       deletedAt: json['deleted_at'],
       priority: json['priority'],
     );
   }
 
   Node copyWith({
-      int? id,
-      int? type,
-      int? collectionId,
-      int? priority,
-      int? parentId,
-      Map? content,
-      Map? typeData,
-      NodeData? data,
-      int? deletedAt,
+    int? id,
+    int? type,
+    int? collectionId,
+    int? priority,
+    int? parentId,
+    int? due,
+    Map? content,
+    Map? typeData,
+    NodeData? data,
+    int? deletedAt,
   }) {
     return Node(
       id: id ?? this.id,
@@ -60,6 +64,7 @@ class Node {
       typeData: typeData ?? this.typeData,
       data: data ?? this.data,
       deletedAt: deletedAt ?? this.deletedAt,
+      due: due ?? this.due,
     );
   }
 }
