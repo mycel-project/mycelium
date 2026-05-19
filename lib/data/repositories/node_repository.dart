@@ -28,8 +28,18 @@ class NodeRepository {
     _typesCache = null;
   }
 
-  Future<ApiResult<Node>> rescheduleNode(int colId, int nodeId, String dateIso, int tzOffset) async {
-    final result = await nodeService.rescheduleNode(colId, nodeId, dateIso, tzOffset);
+  Future<ApiResult<Node>> rescheduleNode(
+    int colId,
+    int nodeId,
+    String dateIso,
+    int tzOffset,
+  ) async {
+    final result = await nodeService.rescheduleNode(
+      colId,
+      nodeId,
+      dateIso,
+      tzOffset,
+    );
 
     if (result is ApiError) return result;
 

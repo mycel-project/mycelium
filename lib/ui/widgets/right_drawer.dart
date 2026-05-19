@@ -4,6 +4,7 @@ import 'package:mycelium/core/stores/node_store.dart';
 import 'package:mycelium/data/models/node.dart';
 import 'package:mycelium/ui/widgets/priority_selector.dart';
 import 'package:mycelium/ui/widgets/reps_calendar.dart';
+import 'package:mycelium/ui/widgets/reschedule_widget.dart';
 import 'package:mycelium/viewmodels/home_viewmodel.dart';
 import 'package:provider/provider.dart';
 
@@ -97,16 +98,13 @@ class CalendarTile extends StatelessWidget {
 class _DueTile extends StatelessWidget {
   final Node node;
   final HomeViewModel vm;
-
   const _DueTile({required this.node, required this.vm});
 
   int _daysDiff(int ts) {
     final now = DateTime.now();
     final due = DateTime.fromMillisecondsSinceEpoch(ts);
-
     final today = DateTime(now.year, now.month, now.day);
     final target = DateTime(due.year, due.month, due.day);
-
     return target.difference(today).inDays;
   }
 
@@ -117,40 +115,17 @@ class _DueTile extends StatelessWidget {
       title: const Text("Due"),
       trailing: node.due != null
       ? Chip(
-        label: Text(
-          "${DateFormat('yyyy-MM-dd').format(
-          DateTime.fromMillisecondsSinceEpoch(node.due!),
-      )} (${_daysDiff(node.due!)}d)",
+        label: Text("${_daysDiff(node.due!)}d",
         ),
       )
       : const SizedBox(),
-      onTap: () => _showPriorityPicker(context),
-    );
-  }
-
-  void _showPriorityPicker(BuildContext context) async {
-    if (vm.nodeCount < 500) {
-      await vm.refreshPriorities();
-    } // Above this limit, priorities are diluted enough that a full refresh is unnecessary I guess.
-    if (!context.mounted) return;
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      builder: (_) => SafeArea(
-        child: Padding(
-          padding: EdgeInsets.only(
-            bottom: MediaQuery.of(context).viewInsets.bottom,
-          ),
-          child: PrioritySelector(
-            nodes: vm.getNodes(),
-            currentNodeId: node.id,
-            onConfirm: (value) {
-              vm.updatePriority(node.id, value);
-              Navigator.pop(context);
-            },
-          ),
-        ),
-      ),
+      onTap: () => showRescheduleWidget(
+        context,
+        initialDate: node.due != null
+        ? DateTime.fromMillisecondsSinceEpoch(node.due!)
+        : null,
+        onConfirm: (dateIso) => vm.rescheduleNode(node.id, dateIso),
+      )
     );
   }
 }

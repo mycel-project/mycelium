@@ -250,7 +250,6 @@ class HomeViewModel extends ChangeNotifier {
     final result = await rescheduleNodeUseCase.execute(colId, nodeId, dateIso);
     if (result is Node) {
       nodeStore.selectNode(result);
-      notifyListeners();
       return true;
     } else {
       return false;
