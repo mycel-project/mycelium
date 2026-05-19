@@ -41,8 +41,9 @@ class ReviewRepository {
 
   Future<ApiResult<Map<DateTime, DayReviewOverview>>> getCalendar(
     int colId,
+    int tzOffset
   ) async {
-    final result = await reviewService.getCalendar(colId);
+    final result = await reviewService.getCalendar(colId, tzOffset);
     if (result is ApiError) return result;
 
     final json = jsonDecode((result as ApiSuccess<String>).data);

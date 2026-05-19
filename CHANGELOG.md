@@ -1,10 +1,10 @@
 ## Unreleased
 ### Added
 - Calendar Widget to visualize repetitions left for months/days (heatmap coloration, plugged to backend)
+- Plug timezone when querying reps calendar
 
 ### Fixed
 - In node tree, left triangle was grayed out even if the current node had a non-dismissed fragment child, when that fragment only had spore children. It is not the case anymore.
-
 
 ## v0.0.4
 ### Added
