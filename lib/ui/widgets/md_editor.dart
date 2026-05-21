@@ -3,6 +3,8 @@ import "package:mycelium/core/stores/review_store.dart";
 import "package:mycelium/ui/controllers/markdown_controller.dart";
 import "package:mycelium/ui/widgets/node_action_buttons.dart";
 import "package:mycelium/ui/widgets/review_action_bar.dart";
+import "package:mycelium/utils/device.dart";
+import "package:mycelium/utils/responsive.dart";
 import "package:mycelium/viewmodels/md_editor_viewmodel.dart";
 import 'package:provider/provider.dart';
 
@@ -99,6 +101,10 @@ class MdEditorState extends State<MdEditor> {
     final vm = context.watch<MdEditorViewModel>();
     final reviewNodeId = context.watch<ReviewStore>().currentNodeId;
 
+    final readOnly = Device.isDesktop
+        ? false
+        : vm.isLocked() || (!vm.activeKeyboard && !vm.isCurrentNodeSpore());
+
     return SafeArea(
       child: Column(
         children: [
@@ -149,6 +155,7 @@ class MdEditorState extends State<MdEditor> {
                                 decoration: const InputDecoration(
                                   border: InputBorder.none,
                                 ),
+                              ),
                             ),
                           ),
                         ),
@@ -159,10 +166,14 @@ class MdEditorState extends State<MdEditor> {
                       left: 8,
                       right: 8,
                       child: Center(
+                        child: ConstrainedBox(
+                          constraints:
+                          BoxConstraints(maxWidth: !Device.isDesktop ? 500 : 300),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: [
                               if (!vm.isCurrentNodeSpore()) ...[
+                                if (!Device.isDesktop) 
                                 HistoryButton(vm: vm),
                                 DismissButton(vm: vm),
                                 FragmentButton(
@@ -173,6 +184,7 @@ class MdEditorState extends State<MdEditor> {
                                   vm: vm,
                                   markdownController: markdownController,
                                 ),
+                                if (!Device.isDesktop) 
                                 KeyboardButton(
                                   vm: vm,
                                   removeFocusAndCursor: removeFocusAndCursor,
@@ -183,6 +195,7 @@ class MdEditorState extends State<MdEditor> {
                               ],
                             ],
                           ),
+                        ),
                       ),
                     ),
                   ],
