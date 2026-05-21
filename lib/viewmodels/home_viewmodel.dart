@@ -223,7 +223,7 @@ class HomeViewModel extends ChangeNotifier {
     nodeUseCase.selectParentNode();
   }
 
-  void longUpPress() {
+  void goRootNode() {
     nodeUseCase.selectRootNode();
   }
 

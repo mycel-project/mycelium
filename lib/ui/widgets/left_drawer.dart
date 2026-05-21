@@ -35,10 +35,9 @@ class LeftDrawer extends StatelessWidget {
                 },
                 popOnClick: !Device.isDesktop ? true : false,
                 clickCallback: (int value) => vm.navigateTo(value),
-                longPressCallback:
-                    (int nodeId, LongPressStartDetails details) async {
+                secondaryAction:
+                    (int nodeId, Offset position) async {
                       final screenWidth = MediaQuery.of(context).size.width;
-                      final position = details.globalPosition;
                       double dx = position.dx - 75;
                       if (dx < 8) dx = 8;
 

@@ -56,52 +56,59 @@ class HomePage extends StatelessWidget {
             ),
           )
          :
-        null,
-        titleText: "",
-        actions: [
-          IconButton(
-            onPressed: vm.hasPreviousNodes()
-            ? () {
-              vm.previousNode();
-            }
-            : null,
-            onLongPress: () {
-              vm.openHistory();
-            },
-            icon: const Icon(Icons.chevron_left),
+         null,
+         titleText: "",
+         actions: [
+           Tooltip(
+             message: Device.isDesktop
+             ? 'Previous Node (right-click for history (coming-soon))'
+             : 'Previous Node (hold for history (coming-soon))',
+             child: GestureDetector(
+               onSecondaryTap: Device.isDesktop ? vm.openHistory : null,
+               child: IconButton(
+                 onPressed: vm.hasPreviousNodes() ? vm.previousNode : null,
+                 onLongPress: !Device.isDesktop ? vm.openHistory : null,
+                 icon: const Icon(Icons.chevron_left),
+               ),
+             ),
+           ),
+           Tooltip(
+             message: Device.isDesktop
+             ? 'Next Node (right-click for history (coming-soon))'
+             : 'Next Node (hold for history (coming-soon))',
+             child: GestureDetector(
+               onSecondaryTap: Device.isDesktop ? vm.openHistory : null,
+               child: IconButton(
+                 onPressed: vm.hasNextNodes() ? vm.nextNode : null,
+                 onLongPress: !Device.isDesktop ? vm.openHistory : null,
+                 icon: const Icon(Icons.chevron_right),
+               ),
+             ),
+           ),
+          Tooltip(
+            message: Device.isDesktop 
+            ? 'Parent Node (right-click for root)'
+            : 'Parent Node (hold for root)',
+            child: GestureDetector(
+              onSecondaryTap: Device.isDesktop ? vm.goRootNode : null,
+              child: IconButton(
+                onPressed: vm.hasParent ? vm.upPress : null,
+                onLongPress: Device.isMobile ? vm.goRootNode : null,
+                icon: const Icon(Icons.arrow_upward),
+              ),
+            ),
           ),
-          IconButton(
-            onPressed: vm.hasNextNodes()
-            ? () {
-              vm.nextNode();
-            }
-            : null,
-            onLongPress: () {
-              vm.openHistory();
-            },
-            icon: const Icon(Icons.chevron_right),
+          Tooltip(
+            message: "Start review",
+            child: IconButton(
+              onPressed: !vm.isCurrentNodeUnderReview()
+              ? () {
+                vm.handleNextReview();
+              }
+              : null,
+              icon: const Icon(Icons.school),
+            ),
           ),
-          IconButton(
-            onPressed: vm.hasParent
-            ? () {
-              vm.upPress();
-            }
-            : null,
-            onLongPress: () {
-              vm.longUpPress();
-            },
-            icon: const Icon(Icons.arrow_upward),
-            
-          ),
-          IconButton(
-            onPressed: !vm.isCurrentNodeUnderReview()
-            ? () {
-              vm.handleNextReview();
-            }
-            : null,
-            icon: const Icon(Icons.school),
-          ),
-          
           const ApiStatusDotWidget(),
           PopupMenuButton(
             onSelected: (value) {

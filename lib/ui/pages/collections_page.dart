@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:mycelium/core/stores/collection_store.dart';
+import 'package:mycelium/data/models/collection.dart';
 import 'package:mycelium/ui/widgets/api_status_dot_widget.dart';
 import 'package:mycelium/ui/widgets/app_bar.dart';
 import 'package:mycelium/ui/widgets/confirmation_dialog.dart';
 import 'package:mycelium/ui/widgets/input_dialog.dart';
+import 'package:mycelium/utils/device.dart';
 import 'package:mycelium/viewmodels/collections_viewmodel.dart';
 import 'package:provider/provider.dart';
 
@@ -20,7 +22,7 @@ class CollectionsPage extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: () =>
-                context.read<CollectionsViewModel>().loadCollections(),
+            context.read<CollectionsViewModel>().loadCollections(),
           ),
         ],
       ),
@@ -37,17 +39,22 @@ class CollectionsPage extends StatelessWidget {
               ).textTheme.headlineLarge?.copyWith(fontWeight: FontWeight.bold),
             ),
             Padding(padding: EdgeInsetsGeometry.all(16)),
-            Expanded(  child: Center(
-                child: context.watch<CollectionsViewModel>().collections.isNotEmpty
+            Expanded(
+              child: Center(
+                child:
+                context.watch<CollectionsViewModel>().collections.isNotEmpty
                 ? const CollectionsList()
                 : const Text("No collection"),
-            ),),
+              ),
+            ),
             ElevatedButton(
               onPressed: () async {
                 await showInputDialogWithRetry(
                   context: context,
                   title: "Collection name",
-                  onSubmit: (name) => context.read<CollectionsViewModel>().createCollection(name),
+                  onSubmit: (name) => context
+                  .read<CollectionsViewModel>()
+                  .createCollection(name),
                 );
               },
               child: Text("Create collection"),
@@ -71,7 +78,7 @@ class _CollectionsListState extends State<CollectionsList> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<CollectionsViewModel>().reloadIfEmpty();
+        context.read<CollectionsViewModel>().reloadIfEmpty();
     });
   }
 
@@ -79,73 +86,85 @@ class _CollectionsListState extends State<CollectionsList> {
   Widget build(BuildContext context) {
     final vm = context.watch<CollectionsViewModel>();
     final store = context.watch<CollectionStore>();
+
+    Widget manageCollection(Collection collection) {
+      return SafeArea(
+        child: Wrap(
+          children: [
+            ListTile(
+              leading: Icon(Icons.edit),
+              title: Text("Rename"),
+              onTap: () async {
+                await showInputDialogWithRetry(
+                  context: context,
+                  title: "New name",
+                  initialValue: collection.name,
+                  onSubmit: (name) => vm.renameCollection(collection.id, name),
+                );
+                if (!context.mounted) return;
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.delete, color: Colors.red),
+              title: Text("Delete", style: TextStyle(color: Colors.red)),
+              onTap: () async {
+                final result = await ConfirmationDialog.show(
+                  context,
+                  title: "Delete confirmation",
+                  text:
+                  "Delete collection ${collection.name} and all data associated?",
+                  destructive: true,
+                );
+                if (!context.mounted) return;
+                Navigator.pop(context);
+                if (result.confirmed == true) {
+                  vm.deleteCollection(collection.id);
+                }
+              },
+            ),
+          ],
+        ),
+      );
+    }
+
     return SafeArea(
       child: ListView.builder(
         itemCount: vm.collections.length,
         itemBuilder: (context, index) {
           final collection = vm.collections[index];
           return Center(
-            child: ListTile(
-              tileColor: collection.id == store.currentCollection?.id
-                  ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.1)
-                  : null,
-              onTap: () {
-                vm.setCollection(collection.id);
-                Navigator.pop(context);
-              },
-              onLongPress: () {
-                showModalBottomSheet(
-                  context: context,
-                  builder: (_) {
-                    return SafeArea(
-                      child: Wrap(
-                        children: [
-                          ListTile(
-                            leading: Icon(Icons.edit),
-                            title: Text("Rename"),
-                            onTap: () async {
-                              await showInputDialogWithRetry(
-                                context: context,
-                                title: "New name",
-                                initialValue: collection.name,
-                                onSubmit: (name) => vm.renameCollection(collection.id, name),
-                              );
-                              if (!context.mounted) return;
-                              Navigator.pop(context);
-                            },
-                          ),
-                          ListTile(
-                            leading: Icon(Icons.delete, color: Colors.red),
-                            title: Text(
-                              "Delete",
-                              style: TextStyle(color: Colors.red),
-                            ),
-                            onTap: () async {
-                              final result = await ConfirmationDialog.show(
-                                context,
-                                title: "Delete confirmation",
-                                text:
-                                    "Delete collection ${collection.name} and all data associated?",
-                                destructive: true,
-                              );
-                              if (!context.mounted) return;
-                              Navigator.pop(context);
-                              if (result.confirmed == true) {
-                                vm.deleteCollection(collection.id);
-                              }
-                            },
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                );
-              },
-              title: Text(
-                collection.name,
-                style: Theme.of(context).textTheme.headlineSmall,
+            child: GestureDetector(
+              onSecondaryTap: Device.isDesktop ?
+              () => showModalBottomSheet(
+                context: context,
+                builder: (_) {
+                  return manageCollection(collection);
+                },
+              )
+              : null,
+              child: ListTile(
+                tileColor: collection.id == store.currentCollection?.id
+                ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.1)
+                : null,
+                onTap: () {
+                  vm.setCollection(collection.id);
+                  Navigator.pop(context);
+                },
+                onLongPress: !Device.isDesktop ? () {
+                  showModalBottomSheet(
+                    context: context,
+                    builder: (_) {
+                      return manageCollection(collection);
+                    },
+                  );
+                } : null,
+                title: Text(
+                  collection.name,
+                  style: Theme.of(context).textTheme.headlineSmall,
+                ),
+                trailing: Icon(Icons.chevron_right),
               ),
-              trailing: Icon(Icons.chevron_right),
             ),
           );
         },
