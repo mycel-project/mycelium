@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mycelium/utils/device.dart';
 
 class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String titleText;
@@ -16,7 +17,7 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
       title: Text(titleText),
       backgroundColor: Theme.of(context).colorScheme.primary,
       foregroundColor: Colors.white,
-      actions: actions == null ? null : [...actions!, const SizedBox(width: 8)],
+      actions: actions == null ? null : [...actions!, SizedBox(width: Device.isDesktop ? 0 : 8)],
     );
   }
 
