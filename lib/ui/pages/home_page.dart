@@ -182,7 +182,7 @@ class HomePage extends StatelessWidget {
             child: vm.noMoreReviewsFlag
             ? NoMoreReviewsWidget(onDismiss: vm.dismissNoMoreReviews)
             : context.watch<NodeStore>().currentNode != null
-            ? MdEditor()
+            ? const MdEditor()
             : apiStore.apiStatus != ApiStatus.reachable
             ? ApiNotReachableWidget()
             : context.watch<CollectionStore>().currentCollection == null
@@ -213,7 +213,7 @@ class HomePage extends StatelessWidget {
               duration: const Duration(milliseconds: 250),
               curve: Curves.easeInOut,
               child: Container(
-                width: 400,
+                width:  MediaQuery.sizeOf(context).width * 0.25,
                 decoration: BoxDecoration(
                   border: Border(
                     right: BorderSide(
@@ -236,7 +236,7 @@ class HomePage extends StatelessWidget {
               duration: const Duration(milliseconds: 250),
               curve: Curves.easeInOut,
               child: Container(
-                width: 300,
+                width: MediaQuery.sizeOf(context).width * 0.25,
                 decoration: BoxDecoration(
                   border: Border(
                     left: BorderSide(

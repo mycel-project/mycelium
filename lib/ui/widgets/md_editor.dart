@@ -111,7 +111,7 @@ class MdEditorState extends State<MdEditor> {
           Expanded(
             child: Center(
               child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 1000),
+                constraints: BoxConstraints(maxWidth: Responsive.isDesktop(context) ? MediaQuery.sizeOf(context).width * 0.5 : double.infinity),
                 child: Stack(
                   fit: StackFit.expand,
                   children: [
@@ -168,7 +168,7 @@ class MdEditorState extends State<MdEditor> {
                       child: Center(
                         child: ConstrainedBox(
                           constraints:
-                          BoxConstraints(maxWidth: !Device.isDesktop ? 500 : 300),
+                          BoxConstraints(maxWidth: Device.isDesktop ? 300 : double.infinity),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: [
@@ -203,10 +203,14 @@ class MdEditorState extends State<MdEditor> {
               ),
             ),
           ),
-          ReviewActionBar(
-            vm: vm,
-            focusNode: focusNode,
-            reviewNodeId: reviewNodeId,
+          ConstrainedBox(
+            constraints:
+            BoxConstraints(maxWidth: Responsive.isDesktop(context) ? MediaQuery.sizeOf(context).width * 0.5 : double.infinity),
+            child: ReviewActionBar(
+              vm: vm,
+              focusNode: focusNode,
+              reviewNodeId: reviewNodeId,
+            ),
           ),
         ],
       ),
