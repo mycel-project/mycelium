@@ -79,6 +79,12 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
         title: 'Mycelium',
         theme: ThemeData(
+          pageTransitionsTheme: const PageTransitionsTheme(
+            builders: {
+              TargetPlatform.android: ZoomPageTransitionsBuilder(),
+              TargetPlatform.linux: FadeUpwardsPageTransitionsBuilder(),
+            },
+          ),
           colorScheme: const ColorScheme(
             brightness: Brightness.light,
             primary: Color(0xFF3D7A6E),
