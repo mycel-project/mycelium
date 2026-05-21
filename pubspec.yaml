@@ -34,7 +34,7 @@ dependencies:
   pub_semver: ^2.1.4
   mocktail: ^1.0.4
   table_calendar: ^3.2.0
-  window_manager: ^0.3.9
+  window_manager: ^0.5.1
     
   provider: ^6.1.5
   markdown_mycel_fork:

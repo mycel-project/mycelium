@@ -13,6 +13,7 @@ import 'package:mycelium/domain/api_status.dart';
 import 'package:mycelium/domain/check_app_update_usecase.dart';
 import 'package:mycelium/domain/init_api_usecase.dart';
 import 'package:mycelium/ui/pages/api_config_page.dart';
+import 'package:mycelium/ui/widgets/window_initializer.dart';
 import 'package:mycelium/utils/device.dart';
 import 'package:mycelium/viewmodels/about_viewmodel.dart';
 import 'package:mycelium/viewmodels/api_viewmodel.dart';
@@ -25,25 +26,12 @@ import 'package:mycelium/viewmodels/settings_viewmodel.dart';
 import 'package:toastification/toastification.dart';
 import 'ui/pages/home_page.dart';
 import 'package:provider/provider.dart';
-import 'package:window_manager/window_manager.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // SharedPreferences preferences = await SharedPreferences.getInstance();
   // await preferences.clear();
-
-  if (Device.isDesktop) {
-    await windowManager.ensureInitialized();
-    await windowManager.waitUntilReadyToShow(
-      const WindowOptions(),
-      () async {
-        await windowManager.show();
-        await windowManager.focus();
-        await windowManager.maximize();
-      },
-    );
-  }
 
   await setup();
   await sl<AppStore>().init();
@@ -122,9 +110,15 @@ class MyApp extends StatelessWidget {
           ),
         ),
         home: MyceliumNotificationListener(
-          child: emptyApi == ApiStatus.emptyUrl
-              ? ApiConfigPage()
-              : const HomePage(),
+          child: Device.isDesktop
+          ? WindowInitializer(
+            child: emptyApi == ApiStatus.emptyUrl
+            ? ApiConfigPage()
+            : const HomePage(),
+          )
+          : (emptyApi == ApiStatus.emptyUrl
+            ? ApiConfigPage()
+            : const HomePage()),
         ),
       ),
     );
