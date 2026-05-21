@@ -111,13 +111,22 @@ jobs:
           VERSION_NUMBER=${VERSION#v}
           flutter config --enable-linux-desktop
           flutter build linux --release --build-name=$VERSION_NUMBER
-
+          
       - name: Create AppImage
         run: |
           mkdir -p AppDir/usr/bin
+          mkdir -p AppDir/usr/lib
           cp -r build/linux/x64/release/bundle/* AppDir/usr/bin/
-          
-          cat > AppDir/mycelium.desktop << EOF
+              
+          cat > AppDir/AppRun << 'EOF'
+          #!/bin/bash
+          HERE="$(dirname "$(readlink -f "${0}")")"
+          export LD_LIBRARY_PATH="${HERE}/usr/bin:${LD_LIBRARY_PATH}"
+          exec "${HERE}/usr/bin/mycelium" "$@"
+          EOF
+          chmod +x AppDir/AppRun
+              
+          cat > AppDir/mycelium.desktop << 'EOF'
           [Desktop Entry]
           Name=Mycelium
           Exec=mycelium
@@ -125,13 +134,12 @@ jobs:
           Type=Application
           Categories=Utility;
           EOF
-          
+              
           cp assets/full.png AppDir/mycelium.png
-          
-          ln -s mycelium.desktop AppDir/.DirIcon 2>/dev/null || true
           
           ARCH=x86_64 ./appimagetool-x86_64.AppImage AppDir mycelium-linux-${{ github.ref_name }}.AppImage
 
+          
       - name: Upload Linux artifact
         uses: actions/upload-artifact@v4
         with:
