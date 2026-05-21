@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mycelium/core/stores/collection_store.dart';
 import 'package:mycelium/data/models/collection.dart';
+import 'package:mycelium/ui/widgets/adaptative_sheet.dart';
 import 'package:mycelium/ui/widgets/api_status_dot_widget.dart';
 import 'package:mycelium/ui/widgets/app_bar.dart';
 import 'package:mycelium/ui/widgets/confirmation_dialog.dart';
@@ -136,11 +137,9 @@ class _CollectionsListState extends State<CollectionsList> {
           return Center(
             child: GestureDetector(
               onSecondaryTap: Device.isDesktop ?
-              () => showModalBottomSheet(
+              () => showAdaptiveSheet(
                 context: context,
-                builder: (_) {
-                  return manageCollection(collection);
-                },
+                child: manageCollection(collection)
               )
               : null,
               child: ListTile(
@@ -151,14 +150,11 @@ class _CollectionsListState extends State<CollectionsList> {
                   vm.setCollection(collection.id);
                   Navigator.pop(context);
                 },
-                onLongPress: !Device.isDesktop ? () {
-                  showModalBottomSheet(
-                    context: context,
-                    builder: (_) {
-                      return manageCollection(collection);
-                    },
-                  );
-                } : null,
+                onLongPress: !Device.isDesktop ? () => showAdaptiveSheet(
+                  context: context,
+                  child: manageCollection(collection)
+                )
+                : null,
                 title: Text(
                   collection.name,
                   style: Theme.of(context).textTheme.headlineSmall,

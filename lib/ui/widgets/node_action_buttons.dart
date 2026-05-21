@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mycelium/ui/widgets/adaptative_sheet.dart';
 import 'package:mycelium/ui/widgets/confirmation_dialog.dart';
 import 'package:mycelium/viewmodels/md_editor_viewmodel.dart';
 import 'package:provider/provider.dart';
@@ -183,9 +184,9 @@ class MoreButton extends StatelessWidget {
     return FloatingActionButton(
       child: const Icon(Icons.more_vert),
       onPressed: () {
-        showModalBottomSheet(
+        showAdaptiveSheet(
           context: context,
-          builder: (_) => MoreBottomSheet(markdownController: markdownController),
+          child: MoreBottomSheet(markdownController: markdownController),
         );
       },
     );

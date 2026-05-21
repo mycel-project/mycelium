@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:mycelium/ui/widgets/adaptative_sheet.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 /// Shows the reschedule bottom sheet and calls [onConfirm] with the selected ISO date.
@@ -11,10 +12,9 @@ Future<void> showRescheduleWidget(
   required Future<bool> Function(String dateIso) onConfirm,
   DateTime? initialDate,
 }) {
-  return showModalBottomSheet(
+  return showAdaptiveSheet(
     context: context,
-    isScrollControlled: true,
-    builder: (ctx) => SafeArea(
+    child: SafeArea(
         child: _RescheduleWidget(onConfirm: onConfirm, initialDate: initialDate),
     ),
   );

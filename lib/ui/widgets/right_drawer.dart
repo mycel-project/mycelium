@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mycelium/core/stores/node_store.dart';
 import 'package:mycelium/data/models/node.dart';
+import 'package:mycelium/ui/widgets/adaptative_sheet.dart';
 import 'package:mycelium/ui/widgets/priority_selector.dart';
 import 'package:mycelium/ui/widgets/reps_calendar.dart';
 import 'package:mycelium/ui/widgets/reschedule_widget.dart';
@@ -79,18 +80,7 @@ class CalendarTile extends StatelessWidget {
   void _showRepsCalendar(BuildContext context) async {
     await vm.getCalendar();
     if (!context.mounted) return;
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      builder: (_) => SafeArea(
-        child: Padding(
-          padding: EdgeInsets.only(
-            bottom: MediaQuery.of(context).viewInsets.bottom,
-          ),
-          child: RepsCalendar(reps: vm.calendar),
-        ),
-      ),
-    );
+    showAdaptiveSheet(context: context, child: RepsCalendar(reps: vm.calendar));
   }
 }
 
@@ -150,24 +140,15 @@ class _PriorityTile extends StatelessWidget {
       await vm.refreshPriorities();
     } // Above this limit, priorities are diluted enough that a full refresh is unnecessary I guess.
     if (!context.mounted) return;
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      builder: (_) => SafeArea(
-        child: Padding(
-          padding: EdgeInsets.only(
-            bottom: MediaQuery.of(context).viewInsets.bottom,
-          ),
-          child: PrioritySelector(
-            nodes: vm.getNodes(),
-            currentNodeId: node.id,
-            onConfirm: (value) {
-              vm.updatePriority(node.id, value);
-              Navigator.pop(context);
-            },
-          ),
-        ),
-      ),
+    showAdaptiveSheet(context: context, child: PrioritySelector(
+        nodes: vm.getNodes(),
+        currentNodeId: node.id,
+        onConfirm: (value) {
+          vm.updatePriority(node.id, value);
+          Navigator.pop(context);
+        },
+      )
     );
   }
 }
+
