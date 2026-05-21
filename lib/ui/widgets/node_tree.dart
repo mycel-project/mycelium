@@ -13,9 +13,12 @@ class NodeTree extends StatefulWidget {
   final Future<void> Function(int id, Offset offset)?
   secondaryAction;
   final bool Function(Node node)? isSpore;
+  final String Function(String content) formatSpore;
   final bool popOnClick;
   final String? Function(Node node)? subtitleBuilder;
-  final Node? selectedNode; 
+  final Node? selectedNode;
+
+  static String _defaultFormatSpore(String content) => content;
 
   const NodeTree({
       super.key,
@@ -25,6 +28,7 @@ class NodeTree extends StatefulWidget {
       this.secondaryAction,
       this.subtitleBuilder,
       this.popOnClick = true,
+      this.formatSpore =  _defaultFormatSpore,
       this.selectedNode, 
   });
 
@@ -214,7 +218,7 @@ class _NodeTreeState extends State<NodeTree> {
                                   children: [
                                     Text(
                                       formatNodeTitle(
-                                        typedNode.data?.title ?? typedNode.content?['0'],
+                                        typedNode.data?.title ?? (isSporeNode ? widget.formatSpore(typedNode.content?['0']) : typedNode.content?['0'])
                                       ),
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,

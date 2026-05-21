@@ -16,6 +16,7 @@ import 'package:mycelium/data/models/node_type.dart';
 import 'package:mycelium/data/repositories/node_repository.dart';
 import 'package:mycelium/data/services/api_service.dart';
 import 'package:mycelium/domain/check_api_usecase.dart';
+import 'package:mycelium/domain/cloze_mode.dart';
 import 'package:mycelium/domain/get_calendar_usecase.dart';
 import 'package:mycelium/domain/navigation_usecase.dart';
 import 'package:mycelium/domain/node_usecase.dart';
@@ -280,7 +281,11 @@ class HomeViewModel extends ChangeNotifier {
     }
     final colId = collectionStore.currentCollection?.id;
     if (colId == null) return false;
-    final result = await nodeRepository.fetchRessourceFromUrl(colId, url, tzOffsetMinutes); // require dedicated UseCase
+    final result = await nodeRepository.fetchRessourceFromUrl(
+      colId,
+      url,
+      tzOffsetMinutes,
+    ); // require dedicated UseCase
     switch (result) {
       case ApiSuccess(:final data):
         final node = data;
@@ -311,5 +316,12 @@ class HomeViewModel extends ChangeNotifier {
       calendar = newCalendar;
       notifyListeners();
     }
+  }
+
+  String hideSpore (String content) {
+    return reviewUseCase.transformClozeContent(
+      content,
+      mode: ClozeMode.hide,
+    );
   }
 }

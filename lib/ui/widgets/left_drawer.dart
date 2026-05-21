@@ -27,6 +27,7 @@ class LeftDrawer extends StatelessWidget {
             Expanded(
               child: NodeTree(
                 selectedNode: context.watch<NodeStore>().currentNode,
+                formatSpore: (content) => vm.hideSpore(content),
                 nodes: vm.getNodes(),
                 isSpore: (node) {
                   final type = vm.getNodeTypes().firstWhere(
