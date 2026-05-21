@@ -51,24 +51,26 @@ jobs:
           --build-number=${{ github.run_number }}
           
       - name: Rename APK
-        run: mv build/app/outputs/flutter-apk/app-release.apk build/app/outputs/flutter-apk/mycelium-${{ github.ref_name }}.apk
+        run: mv build/app/outputs/flutter-apk/app-release.apk build/app/outputs/flutter-apk/mycelium-android-${{ github.ref_name }}.apk
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: android-apk
-          path: build/app/outputs/flutter-apk/mycelium-${{ github.ref_name }}.apk
+          path: build/app/outputs/flutter-apk/mycelium-android-${{ github.ref_name }}.apk
 
   build-windows:
     runs-on: windows-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
       - name: Install Flutter
         uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.x'
           channel: 'stable'
+
       - name: Install dependencies
         run: flutter pub get
       - name: Build Windows
@@ -137,6 +139,6 @@ jobs:
           prerelease: false
           body_path: release_notes.md
           files: |
-            android-apk/mycelium-android${{ github.ref_name }}.apk
             windows-bundle/mycelium-windows-${{ github.ref_name }}.zip
+            android-apk/mycelium-android-${{ github.ref_name }}.apk
             linux-bundle/mycelium-linux-${{ github.ref_name }}.zip

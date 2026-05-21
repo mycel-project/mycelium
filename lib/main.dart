@@ -83,6 +83,7 @@ class MyApp extends StatelessWidget {
             builders: {
               TargetPlatform.android: ZoomPageTransitionsBuilder(),
               TargetPlatform.linux: FadeUpwardsPageTransitionsBuilder(),
+              TargetPlatform.windows: FadeUpwardsPageTransitionsBuilder(),
             },
           ),
           colorScheme: const ColorScheme(
