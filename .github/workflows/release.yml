@@ -73,8 +73,9 @@ jobs:
         run: flutter pub get
       - name: Build Windows
         run: |
+          $VERSION="${{ github.ref_name }}".TrimStart('v')
           flutter config --enable-windows-desktop
-          flutter build windows --release
+          flutter build windows --release --build-name=$VERSION
       - name: Zip bundle
         run: |
           Compress-Archive -Path build/windows/x64/runner/Release/* -DestinationPath mycelium-windows-${{ github.ref_name }}.zip
@@ -101,8 +102,10 @@ jobs:
           flutter pub get
       - name: Build Linux
         run: |
+          VERSION=${{ github.ref_name }}
+          VERSION_NUMBER=${VERSION#v}
           flutter config --enable-linux-desktop
-          flutter build linux --release
+          flutter build linux --release --build-name=$VERSION_NUMBER
       - name: Zip bundle
         run: |
           cd build/linux/x64/release/bundle
@@ -134,6 +137,6 @@ jobs:
           prerelease: false
           body_path: release_notes.md
           files: |
-            android-apk/mycelium-${{ github.ref_name }}.apk
+            android-apk/mycelium-android${{ github.ref_name }}.apk
             windows-bundle/mycelium-windows-${{ github.ref_name }}.zip
             linux-bundle/mycelium-linux-${{ github.ref_name }}.zip
