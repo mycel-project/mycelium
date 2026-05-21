@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:mycelium/core/stores/collection_store.dart';
+import 'package:mycelium/core/stores/node_store.dart';
 import 'package:mycelium/data/models/node_type.dart';
 import 'package:mycelium/ui/widgets/confirmation_dialog.dart';
 import 'package:mycelium/ui/widgets/input_dialog.dart';
@@ -25,6 +26,7 @@ class LeftDrawer extends StatelessWidget {
             const Divider(height: 1),
             Expanded(
               child: NodeTree(
+                selectedNode: context.watch<NodeStore>().currentNode,
                 nodes: vm.getNodes(),
                 isSpore: (node) {
                   final type = vm.getNodeTypes().firstWhere(

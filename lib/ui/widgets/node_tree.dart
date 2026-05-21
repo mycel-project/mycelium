@@ -1,9 +1,7 @@
 import "package:flutter/material.dart";
 import "package:flutter/foundation.dart";
-import "package:mycelium/core/stores/node_store.dart";
 import "package:mycelium/data/models/node.dart";
 import "package:mycelium/utils/device.dart";
-import 'package:provider/provider.dart';
 import 'package:collection/collection.dart';
 
 import 'package:flutter_svg/flutter_svg.dart';
@@ -17,6 +15,7 @@ class NodeTree extends StatefulWidget {
   final bool Function(Node node)? isSpore;
   final bool popOnClick;
   final String? Function(Node node)? subtitleBuilder;
+  final Node? selectedNode; 
 
   const NodeTree({
       super.key,
@@ -26,6 +25,7 @@ class NodeTree extends StatefulWidget {
       this.secondaryAction,
       this.subtitleBuilder,
       this.popOnClick = true,
+      this.selectedNode, 
   });
 
   @override
@@ -36,16 +36,13 @@ class _NodeTreeState extends State<NodeTree> {
   final TreeSliverController controller = TreeSliverController();
 
   List<TreeSliverNode<Node>> _tree = [];
-  Node? selectedNode;
 
   @override
   void initState() {
     super.initState();
-    final store = context.read<NodeStore>();
-    selectedNode = store.currentNode;
     _tree = buildTree(
       widget.nodes,
-      selectedNode: selectedNode,
+      selectedNode: widget.selectedNode, 
       isSpore: widget.isSpore,
     );
   }
@@ -53,11 +50,12 @@ class _NodeTreeState extends State<NodeTree> {
   @override
   void didUpdateWidget(covariant NodeTree oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (!listEquals(oldWidget.nodes, widget.nodes)) {
+    if (!listEquals(oldWidget.nodes, widget.nodes) ||
+      oldWidget.selectedNode?.id != widget.selectedNode?.id) {
       setState(() {
           _tree = buildTree(
             widget.nodes,
-            selectedNode: selectedNode,
+            selectedNode: widget.selectedNode,
             isSpore: widget.isSpore,
           );
       });
@@ -95,7 +93,7 @@ class _NodeTreeState extends State<NodeTree> {
             AnimationStyle animationStyle,
           ) {
             final Node typedNode = node.content as Node;
-            final isSelected = selectedNode?.id == typedNode.id;
+            final isSelected = widget.selectedNode?.id == typedNode.id;
             final hasChildren = node.children.isNotEmpty;
             final isSporeNode = widget.isSpore?.call(typedNode) ?? false;
             final depth = _getDepth(node);
