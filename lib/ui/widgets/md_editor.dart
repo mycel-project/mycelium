@@ -102,7 +102,7 @@ class MdEditorState extends State<MdEditor> {
     final reviewNodeId = context.watch<ReviewStore>().currentNodeId;
 
     final readOnly = Device.isDesktop
-        ? false
+        ? vm.isLocked()
         : vm.isLocked() || (!vm.activeKeyboard && !vm.isCurrentNodeSpore());
 
     return SafeArea(
