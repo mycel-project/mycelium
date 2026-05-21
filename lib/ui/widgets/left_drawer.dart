@@ -6,6 +6,7 @@ import 'package:mycelium/data/models/node_type.dart';
 import 'package:mycelium/ui/widgets/confirmation_dialog.dart';
 import 'package:mycelium/ui/widgets/input_dialog.dart';
 import 'package:mycelium/ui/widgets/node_tree.dart';
+import 'package:mycelium/utils/device.dart';
 import 'package:mycelium/viewmodels/home_viewmodel.dart';
 import 'package:provider/provider.dart';
 
@@ -32,7 +33,7 @@ class LeftDrawer extends StatelessWidget {
                   );
                   return type.label == "SPORE";
                 },
-                popOnClick:  true,
+                popOnClick: !Device.isDesktop ? true : false,
                 clickCallback: (int value) => vm.navigateTo(value),
                 longPressCallback:
                     (int nodeId, LongPressStartDetails details) async {

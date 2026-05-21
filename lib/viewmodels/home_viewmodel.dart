@@ -196,6 +196,22 @@ class HomeViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  bool _isEndPanelOpen = false;
+  bool get isEndPanelOpen => _isEndPanelOpen;
+
+  void toggleEndPanel() {
+    _isEndPanelOpen = !_isEndPanelOpen;
+    notifyListeners();
+  }
+
+  bool _isLeftPanelOpen = false;
+  bool get isLeftPanelOpen => _isLeftPanelOpen;
+
+  void toggleLeftPanel() {
+    _isLeftPanelOpen = !_isLeftPanelOpen;
+    notifyListeners();
+  }
+
   Future<void> deleteNode(int nodeId) async {
     final colId = collectionStore.currentCollection?.id;
     if (colId == null) return;
