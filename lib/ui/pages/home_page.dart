@@ -33,8 +33,7 @@ class HomePage extends StatelessWidget {
       drawerEdgeDragWidth: 200,
       appBar: MyAppBar(
         leading:
-        !Device.isMobile
-        ?
+
         Builder(
             builder: (context) => IconButton(
               icon: SvgPicture.asset(
@@ -54,9 +53,8 @@ class HomePage extends StatelessWidget {
                 }
               },
             ),
-          )
-         :
-         null,
+          ),
+
          titleText: "",
          actions: [
            Tooltip(
