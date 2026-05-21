@@ -1,5 +1,22 @@
 ## Unreleased
 
+## v0.1.0
+
+### Added
+- Linux and Windows support
+- Change drawer icon on mobile
+- Responsiveness based on Device type and screen width:
+  - Custom drawer/pannel behaviour based on device type
+  - Appbar buttons and padding
+  - Page animations
+  - Review buttons
+  - Map mobile "hold" actions to desktop right click
+  - Better sheet display on desktop
+- Hide spores responses fields in NodeTree
+
+### Fixed
+- Incoherent node selection in NodeTree (Desktop)
+
 ## v0.0.5
 ### Added
 - Calendar Widget to visualize repetitions left for months/days (heatmap coloration, plugged to backend)
