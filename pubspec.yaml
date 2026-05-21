@@ -62,6 +62,14 @@ flutter_launcher_icons:
   image_path: "assets/full.png"
   adaptive_icon_foreground: "assets/full.png"
   adaptive_icon_background: "#FFFFFF"
+  windows:
+    generate: true
+    image_path: "assets/full.png"
+    icon_size: 48
+  linux:
+    generate: true
+    image_path: "assets/full.png"
+    
 flutter_native_splash:
   color: "#343434ff"
 
