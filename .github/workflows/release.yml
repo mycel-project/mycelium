@@ -25,6 +25,13 @@ jobs:
         run: flutter pub get
 
         
+      - name: Set version
+        run: |
+          VERSION=${{ github.ref_name }}
+          VERSION_NUMBER=${VERSION#v}
+          sed -i "s/^version: .*/version: $VERSION_NUMBER+${{ github.run_number }}/" pubspec.yaml
+
+        
       - name: Setup keystore
         env:
           KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
@@ -44,11 +51,7 @@ jobs:
 
       - name: Build APK
         run: |
-          VERSION=${{ github.ref_name }}          
-          VERSION_NUMBER=${VERSION#v}             
-          flutter build apk --release \
-          --build-name=$VERSION_NUMBER \
-          --build-number=${{ github.run_number }}
+          flutter build apk --release
           
       - name: Rename APK
         run: mv build/app/outputs/flutter-apk/app-release.apk build/app/outputs/flutter-apk/mycelium-android-${{ github.ref_name }}.apk
@@ -73,11 +76,16 @@ jobs:
 
       - name: Install dependencies
         run: flutter pub get
-      - name: Build Windows
+        
+      - name: Set version
         run: |
           $VERSION="${{ github.ref_name }}".TrimStart('v')
+          (Get-Content pubspec.yaml) -replace '^version: .*', "version: $VERSION+${{ github.run_number }}" | Set-Content pubspec.yaml
+
+      - name: Build Windows
+        run: |
           flutter config --enable-windows-desktop
-          flutter build windows --release --build-name=$VERSION
+          flutter build windows --release
       - name: Zip bundle
         run: |
           Compress-Archive -Path build/windows/x64/runner/Release/* -DestinationPath mycelium-windows-${{ github.ref_name }}.zip
@@ -105,40 +113,45 @@ jobs:
           chmod +x appimagetool-x86_64.AppImage
           flutter pub get
 
-      - name: Build Linux
+      - name: Set version
         run: |
           VERSION=${{ github.ref_name }}
           VERSION_NUMBER=${VERSION#v}
+          sed -i "s/^version: .*/version: $VERSION_NUMBER+${{ github.run_number }}/" pubspec.yaml
+          grep "^version:" pubspec.yaml
+
+      - name: Build Linux
+        run: |
           flutter config --enable-linux-desktop
           flutter build linux --release --build-name=$VERSION_NUMBER
-          
+
       - name: Create AppImage
         run: |
           mkdir -p AppDir/usr/bin
-          mkdir -p AppDir/usr/lib
           cp -r build/linux/x64/release/bundle/* AppDir/usr/bin/
-              
+
           cat > AppDir/AppRun << 'EOF'
           #!/bin/bash
           HERE="$(dirname "$(readlink -f "${0}")")"
-          export LD_LIBRARY_PATH="${HERE}/usr/bin:${LD_LIBRARY_PATH}"
-          exec "${HERE}/usr/bin/mycelium" "$@"
+          export LD_LIBRARY_PATH="${HERE}/usr/bin/lib:${LD_LIBRARY_PATH}"
+          exec "${HERE}/usr/bin/Mycelium" "$@"
           EOF
           chmod +x AppDir/AppRun
-              
+
           cat > AppDir/mycelium.desktop << 'EOF'
           [Desktop Entry]
           Name=Mycelium
-          Exec=mycelium
+          Exec=Mycelium
           Icon=mycelium
           Type=Application
-          Categories=Utility;
+          Categories=Education;
           EOF
-              
-          cp assets/full.png AppDir/mycelium.png
-          
-          ARCH=x86_64 ./appimagetool-x86_64.AppImage AppDir mycelium-linux-${{ github.ref_name }}.AppImage
 
+          cp assets/full.png AppDir/mycelium.png
+
+          mkdir -p AppDir/usr/share/icons/hicolor/256x256/apps/
+          cp assets/full.png AppDir/usr/share/icons/hicolor/256x256/apps/mycelium.png
+          ARCH=x86_64 ./appimagetool-x86_64.AppImage --verbose AppDir mycelium-linux-${{ github.ref_name }}.AppImage
           
       - name: Upload Linux artifact
         uses: actions/upload-artifact@v4
