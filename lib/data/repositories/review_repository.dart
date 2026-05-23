@@ -21,8 +21,9 @@ class ReviewRepository {
     int colId,
     int nodeId,
     int duration,
+    int tzOffset,
   ) async {
-    final result = await reviewService.completeFragmentReview(colId, nodeId, duration);
+    final result = await reviewService.completeFragmentReview(colId, nodeId, duration, tzOffset);
     return parsedReviewData(result);
   }
 
@@ -31,12 +32,14 @@ class ReviewRepository {
     int nodeId,
     int duration,
     int rating,
+    int tzOffset,
   ) async {
     final result = await reviewService.completeSporeReview(
       colId,
       nodeId,
       duration,
       rating,
+      tzOffset,
     );
     return parsedReviewData(result);
   }

@@ -1,7 +1,10 @@
 ## Unreleased
 
-## v0.1.0
+## v0.1.1
+### Added
+- Pass timezone to Mycel when reviewing node
 
+## v0.1.0
 ### Added
 - Linux and Windows support
 - Change drawer icon on mobile

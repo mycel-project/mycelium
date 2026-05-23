@@ -1,6 +1,7 @@
 import 'package:mycelium/data/api_result.dart';
 import 'package:mycelium/data/repositories/node_repository.dart';
 import 'package:mycelium/data/repositories/review_repository.dart';
+import 'package:mycelium/utils/time_utils.dart';
 
 class ReviewNodeUseCase {
   final NodeRepository nodeRepository;
@@ -12,8 +13,8 @@ class ReviewNodeUseCase {
 
   Future<ApiError?> execute(int colId, int nodeId, String type, {int? rating}) async {
     final result = switch (type) {
-      "spore" => await reviewRepository.reviewSpore(colId, nodeId, 10, rating!),
-      "fragment" => await reviewRepository.reviewFragment(colId, nodeId, 10),
+      "spore" => await reviewRepository.reviewSpore(colId, nodeId, 10, rating!, tzOffsetMinutes),
+      "fragment" => await reviewRepository.reviewFragment(colId, nodeId, 10, tzOffsetMinutes),
       _ => throw ArgumentError("Unknown review type: $type"),
     };
 

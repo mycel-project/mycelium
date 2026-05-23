@@ -44,10 +44,12 @@ class ReviewService {
     int colId,
     int nodeId,
     int duration,
+    int tzOffset
   ) async {
     return await api.post("/collections/$colId/nodes/$nodeId/fragment-review", {
       "duration": duration,
       "type_review_data": {},
+      "tz_offset": tzOffset.toString(),
     });
   }
 
@@ -56,10 +58,12 @@ class ReviewService {
     int nodeId,
     int duration,
     int rating,
+    int tzOffset
   ) async {
     return await api.post("/collections/$colId/nodes/$nodeId/spore-review", {
       "duration": duration,
       "type_review_data": {"rating": rating},
+      "tz_offset": tzOffset.toString(),
     });
   }
 }
