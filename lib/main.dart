@@ -111,14 +111,14 @@ class MyApp extends StatelessWidget {
         ),
         home: MyceliumNotificationListener(
           child: Device.isDesktop
-          ? WindowInitializer(
-            child: emptyApi == ApiStatus.emptyUrl
-            ? ApiConfigPage()
-            : const HomePage(),
-          )
-          : (emptyApi == ApiStatus.emptyUrl
-            ? ApiConfigPage()
-            : const HomePage()),
+              ? WindowInitializer(
+                  child: emptyApi == ApiStatus.emptyUrl
+                      ? ApiConfigPage()
+                      : const HomePage(),
+                )
+              : (emptyApi == ApiStatus.emptyUrl
+                    ? ApiConfigPage()
+                    : const HomePage()),
         ),
       ),
     );
