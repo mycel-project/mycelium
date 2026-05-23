@@ -35,6 +35,7 @@ import 'package:mycelium/domain/init_user_usecase.dart';
 import 'package:mycelium/domain/navigation_usecase.dart';
 import 'package:mycelium/domain/node_usecase.dart';
 import 'package:mycelium/domain/check_api_usecase.dart';
+import 'package:mycelium/domain/remove_links_usecase.dart';
 import 'package:mycelium/domain/reschedule_node_usecase.dart';
 import 'package:mycelium/domain/review_node_usecase.dart';
 import 'package:mycelium/domain/review_usecase.dart';
@@ -97,9 +98,11 @@ Future<void> setup() async {
   sl.registerSingleton(GetCalendarUseCase(sl(), sl()));
   sl.registerSingleton(RescheduleNodeUseCase(sl(), sl()));
   sl.registerSingleton(ReviewNodeUseCase(sl(), sl()));
+  sl.registerSingleton(RemoveLinksUseCase(sl(), sl(), sl()));
   sl.registerSingleton(
     AppCoordinator(sl(), sl(), sl(), sl(), sl(), sl(), sl()),
   );
+  
   
 
   // Misc
@@ -131,6 +134,7 @@ Future<void> setup() async {
   //// should reduce dependencies ?
   sl.registerFactory(
     () => MdEditorViewModel(
+      sl(),
       sl(),
       sl(),
       sl(),

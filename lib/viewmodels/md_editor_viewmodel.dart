@@ -17,6 +17,7 @@ import 'package:mycelium/domain/cloze_mode.dart';
 import 'package:mycelium/domain/create_extract_usecase.dart';
 import 'package:mycelium/domain/navigation_usecase.dart';
 import 'package:mycelium/domain/node_usecase.dart';
+import 'package:mycelium/domain/remove_links_usecase.dart';
 import 'package:mycelium/domain/review_node_usecase.dart';
 import 'package:mycelium/domain/review_usecase.dart';
 
@@ -35,6 +36,7 @@ class MdEditorViewModel extends ChangeNotifier {
   ReviewUseCase reviewUseCase;
   CreateExtractUseCase createExtractUseCase;
   ReviewNodeUseCase reviewNodeUseCase;
+  RemoveLinksUseCase removeLinksUseCase;
 
   bool isAnswerVisible = false;
   bool isEditing = false;
@@ -63,6 +65,7 @@ class MdEditorViewModel extends ChangeNotifier {
     this.navigationUseCase,
     this.createExtractUseCase,
     this.reviewNodeUseCase,
+    this.removeLinksUseCase,
   ) {
     nodeStore.addListener(_onNodeStoreChanged);
     apiStore.addListener(_onApiStoreChanged);
@@ -144,7 +147,8 @@ class MdEditorViewModel extends ChangeNotifier {
   String content = "";
   bool isDirty = false;
 
-  bool _handleReviewError(ApiError error, String context) { // put that in ReviewNodeUseCase
+  bool _handleReviewError(ApiError error, String context) {
+    // put that in ReviewNodeUseCase
     switch (error.code) {
       case "NO_PENDING_NODE":
         notificationBus.showWarning(
@@ -285,6 +289,16 @@ class MdEditorViewModel extends ChangeNotifier {
 
   Future<void> createSpore(String currentContent) async {
     await createExtract("SPORE", currentContent);
+  }
+
+  Future<void> removeLinks(String currentContent) async {
+    final node = this.node;
+    TextSelection? sel = selection;
+    if (node == null || sel == null) return;
+    content = currentContent;
+    await saveContent();
+    final result = await removeLinksUseCase.execute(node, currentContent, sel);
+    if (result) notifyListeners();
   }
 
   Future<void> toggleDismiss() async {

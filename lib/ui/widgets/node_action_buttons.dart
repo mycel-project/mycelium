@@ -225,6 +225,16 @@ class MoreBottomSheet extends StatelessWidget {
             },
           ),
           ListTile(
+            enabled: vm.hasCursor,
+            leading: Transform.flip(flipX: true, child: const Icon(Icons.link_off)),
+            title: const Text('Remove links in selection'),
+            onTap: () async {
+              await vm.removeLinks(markdownController.text);
+              if (!context.mounted) return;
+              Navigator.pop(context);
+            },
+          ),
+          ListTile(
             leading: const Icon(Icons.delete),
             title: const Text('Delete this fragment'),
             onTap: () async {

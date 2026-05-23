@@ -119,6 +119,22 @@ class NodeService {
     });
   }
 
+  Future<ApiResult<String>> removeLinks(
+    int collectionId,
+    int nodeId,
+    String text,
+    String field,
+    int startIndex,
+    int endIndex,
+  ) async {
+    return await api.post("/collections/$collectionId/nodes/$nodeId/remove-links", {
+        "text": text,
+        "field": field,
+        "start_index": startIndex,
+        "end_index": endIndex,
+    });
+  }
+
   Future<ApiResult<String>> saveNodeContent(
     int collectionId,
     int nodeId,

@@ -1,6 +1,9 @@
 ## Unreleased
 
-## Fixed
+### Added
+- Functionnality to remove all markdown links formatting from a text selection
+
+### Fixed
 - Use double rather than int to display priorities
 
 ## v0.1.1

@@ -278,6 +278,29 @@ class NodeRepository {
     return _handleUpdateResult(result, nodeId);
   }
 
+  Future<ApiResult<Node>> removeLinks(
+    int colId,
+    int nodeId,
+    String text,
+    String field,
+    int startIndex,
+    int endIndex,
+  ) async {
+    final result = await nodeService.removeLinks(
+      colId,
+      nodeId,
+      text,
+      field,
+      startIndex,
+      endIndex
+    );
+
+    final success = result as ApiSuccess<String>;
+    final node = _parseNode(success);
+    _nodeCache[node.id] = node;
+    return ApiSuccess(node);
+  }
+
   Future<Either<NodeError, Map<int, NodeType>>> getNodeTypes() async {
     if (_typesCache != null) return Right(_typesCache!);
     final result = await nodeService.getNodeTypes();
