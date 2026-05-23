@@ -242,7 +242,7 @@ class HomeViewModel extends ChangeNotifier {
     return collectionStore.currentCollection?.name;
   }
 
-  Future<bool> updatePriority(int nodeId, int priority) async {
+  Future<bool> updatePriority(int nodeId, double priority) async {
     final colId = collectionStore.currentCollection?.id;
     if (colId == null) return false;
     final result = await nodeRepository.reprioritiseNode(

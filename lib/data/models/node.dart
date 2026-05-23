@@ -16,7 +16,7 @@ class Node {
   final int id;
   final int type;
   final int collectionId;
-  final int priority;
+  final double priority;
   final int? parentId;
   final Map? content;
   final Map? typeData;
@@ -38,7 +38,7 @@ class Node {
       data: json['data'] != null ? NodeData.fromJson(json['data']) : null,
       due: json['due'],
       deletedAt: json['deleted_at'],
-      priority: json['priority'],
+      priority: double.parse(json['priority'].toStringAsFixed(3)),
     );
   }
 
@@ -46,7 +46,7 @@ class Node {
     int? id,
     int? type,
     int? collectionId,
-    int? priority,
+    double? priority,
     int? parentId,
     int? due,
     Map? content,

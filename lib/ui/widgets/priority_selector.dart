@@ -9,7 +9,7 @@ import "package:mycelium/data/models/node.dart";
 class PrioritySelector extends StatefulWidget {
   final List<Node> nodes;
   final int currentNodeId;
-  final void Function(int newPriority) onConfirm;
+  final void Function(double newPriority) onConfirm;
 
   const PrioritySelector({
       super.key,
@@ -23,8 +23,8 @@ class PrioritySelector extends StatefulWidget {
 }
 
 class _PrioritySelectorState extends State<PrioritySelector> {
-  late List<int> _sortedPriorities;
-  late int _selectedPriority;
+  late List<double> _sortedPriorities;
+  late double _selectedPriority;
   late TextEditingController _textController;
   late FocusNode _textFocusNode;
 
@@ -56,7 +56,7 @@ class _PrioritySelectorState extends State<PrioritySelector> {
 
   static const double _logIntensity = 2; // control log intensity
 
-  double _priorityToSlider(int priority) {
+  double _priorityToSlider(double priority) {
     if (_sortedPriorities.length <= 1) return 0.0;
     final index = _sortedPriorities.indexOf(priority);
     if (index == -1) return 0.0;
@@ -64,7 +64,7 @@ class _PrioritySelectorState extends State<PrioritySelector> {
     return log(1 + t * (exp(_logIntensity) - 1)) / _logIntensity;
   }
 
-  int _sliderToPriority(double sliderVal) {
+  double _sliderToPriority(double sliderVal) {
     if (_sortedPriorities.length <= 1) return _sortedPriorities.first;
     final t = (exp(sliderVal * _logIntensity) - 1) / (exp(_logIntensity) - 1);
     final index = (t * (_sortedPriorities.length - 1)).round()
@@ -87,8 +87,8 @@ class _PrioritySelectorState extends State<PrioritySelector> {
       return;
     }
     final clamped = parsed.clamp(0, 100);
-    int nearest = _sortedPriorities.first;
-    int minDist = (clamped - nearest).abs();
+    double nearest = _sortedPriorities.first;
+    double minDist = (clamped - nearest).abs();
     for (final p in _sortedPriorities) {
       final dist = (clamped - p).abs();
       if (dist < minDist || (dist == minDist && p > nearest)) {
@@ -227,7 +227,7 @@ class _NeighborCard extends StatelessWidget {
   final String label;
   final Node? node;
   final String? excerpt;
-  final int? priority;
+  final double? priority;
   final bool dimmed;
 
   const _NeighborCard({

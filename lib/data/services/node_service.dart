@@ -34,7 +34,7 @@ class NodeService {
   Future<ApiResult<String>> reprioritiseNode(
     int collectionId,
     int nodeId,
-    int priority,
+    double priority,
   ) async {
     return await api.post(
       "/collections/$collectionId/nodes/$nodeId/reprioritise",

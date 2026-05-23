@@ -1,5 +1,8 @@
 ## Unreleased
 
+## Fixed
+- Use double rather than int to display priorities
+
 ## v0.1.1
 ### Added
 - Pass timezone to Mycel when reviewing node

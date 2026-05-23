@@ -111,7 +111,7 @@ class NodeRepository {
   Future<ApiResult<Node>> reprioritiseNode(
     int colId,
     int nodeId,
-    int priority,
+    double priority,
   ) async {
     final result = await nodeService.reprioritiseNode(colId, nodeId, priority);
     if (result is ApiError) return result;
@@ -129,7 +129,7 @@ class NodeRepository {
       final id = int.parse(entry.key);
       final node = _nodeCache[id];
       if (node != null) {
-        _nodeCache[id] = node.copyWith(priority: entry.value as int);
+        _nodeCache[id] = node.copyWith(priority: double.parse((entry.value as double).toStringAsFixed(3)));
       }
     }
     return ApiSuccess(null);
