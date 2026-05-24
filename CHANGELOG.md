@@ -1,7 +1,9 @@
 ## Unreleased
 
+## v0.1.2-alpha
 ### Added
 - Functionnality to remove all markdown links formatting from a text selection
+- Prerelease versions now share the same compatibility rules as their corresponding release
 
 ### Fixed
 - Use double rather than int to display priorities

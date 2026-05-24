@@ -9,7 +9,7 @@ class CompatibilityChecker {
   ) {
     if (frontendVersion == "dev") return ApiCompatibility.compatible;
     try {
-      final frontend = Version.parse(frontendVersion);
+      final frontend = Version.parse(frontendVersion.replaceAll(RegExp(r'-(alpha|beta|rc).*'), ''));
       final backend = Version.parse(backendVersion);
       for (final entry in compatibilityMatrix.entries) {
         final frontendConstraint = VersionConstraint.parse(entry.key);
