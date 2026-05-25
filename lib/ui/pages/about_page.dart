@@ -79,7 +79,7 @@ class AboutPage extends StatelessWidget {
                     onPressed: () {
                       launchUrl(
                         Uri.parse(
-                          "https://mycel-project.github.io/download.html",
+                          "https://mycel-project.com/download.html",
                         ),
                       );
                     },
