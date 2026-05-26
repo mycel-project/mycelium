@@ -20,8 +20,10 @@ import 'package:mycelium/domain/cloze_mode.dart';
 import 'package:mycelium/domain/get_calendar_usecase.dart';
 import 'package:mycelium/domain/navigation_usecase.dart';
 import 'package:mycelium/domain/node_usecase.dart';
+import 'package:mycelium/domain/refresh_priorities_usecase.dart';
 import 'package:mycelium/domain/reschedule_node_usecase.dart';
 import 'package:mycelium/domain/review_usecase.dart';
+import 'package:mycelium/domain/update_priority_usecase.dart';
 import 'package:mycelium/utils/time_utils.dart';
 
 class HomeViewModel extends ChangeNotifier {
@@ -39,6 +41,8 @@ class HomeViewModel extends ChangeNotifier {
   final NotificationBus notificationBus;
   final GetCalendarUseCase getCalendarUseCase;
   final RescheduleNodeUseCase rescheduleNodeUseCase;
+  final UpdatePriorityUseCase updatePriorityUseCase;
+  final RefreshPrioritiesUseCase refreshPrioritiesUseCase;
 
   bool noMoreReviewsFlag = false;
 
@@ -57,6 +61,8 @@ class HomeViewModel extends ChangeNotifier {
     this.notificationBus,
     this.getCalendarUseCase,
     this.rescheduleNodeUseCase,
+    this.updatePriorityUseCase,
+    this.refreshPrioritiesUseCase,
   ) {
     reviewStore.addListener(_onReviewChanged);
     nodeStore.addListener(_onNodeStoreChange);
@@ -173,17 +179,9 @@ class HomeViewModel extends ChangeNotifier {
   }
 
   Future<bool> refreshPriorities() async {
-    final colId = collectionStore.currentCollection?.id;
-    if (colId == null) return false;
-    final result = await nodeRepository.getPriorities(colId);
-    switch (result) {
-      case ApiSuccess():
-        notifyListeners();
-        return true;
-      case ApiError error:
-        notificationBus.showError("Cannot refresh priorities", error);
-        return false;
-    }
+    final result = await refreshPrioritiesUseCase.execute();
+    if (result) notifyListeners();
+    return result;
   }
 
   List<NodeType> getNodeTypes() =>
@@ -249,21 +247,13 @@ class HomeViewModel extends ChangeNotifier {
   Future<bool> updatePriority(int nodeId, double priority) async {
     final colId = collectionStore.currentCollection?.id;
     if (colId == null) return false;
-    final result = await nodeRepository.reprioritiseNode(
-      colId,
-      nodeId,
-      priority,
-    );
-    switch (result) {
-      case ApiSuccess(:final data):
-        final node = data;
-        nodeStore.selectNode(node);
-        notifyListeners();
-        return true;
-      case ApiError error:
-        notificationBus.showError("Cannot update priority", error);
-        return false;
+    final result = await updatePriorityUseCase.execute(colId, nodeId, priority);
+    if (result is Node) {
+      nodeStore.selectNode(result);
+      notifyListeners();
+      return true;
     }
+    return false;
   }
 
   Future<bool> rescheduleNode(int nodeId, String dateIso) async {
