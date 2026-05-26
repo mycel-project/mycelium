@@ -17,9 +17,11 @@ import 'package:mycelium/domain/cloze_mode.dart';
 import 'package:mycelium/domain/create_extract_usecase.dart';
 import 'package:mycelium/domain/navigation_usecase.dart';
 import 'package:mycelium/domain/node_usecase.dart';
+import 'package:mycelium/domain/refresh_priorities_usecase.dart';
 import 'package:mycelium/domain/remove_links_usecase.dart';
 import 'package:mycelium/domain/review_node_usecase.dart';
 import 'package:mycelium/domain/review_usecase.dart';
+import 'package:mycelium/domain/update_priority_usecase.dart';
 
 enum ActionMode { undo, redo }
 
@@ -37,6 +39,8 @@ class MdEditorViewModel extends ChangeNotifier {
   CreateExtractUseCase createExtractUseCase;
   ReviewNodeUseCase reviewNodeUseCase;
   RemoveLinksUseCase removeLinksUseCase;
+  UpdatePriorityUseCase updatePriorityUseCase;
+  RefreshPrioritiesUseCase refreshPrioritiesUseCase;
 
   bool isAnswerVisible = false;
   bool isEditing = false;
@@ -66,6 +70,8 @@ class MdEditorViewModel extends ChangeNotifier {
     this.createExtractUseCase,
     this.reviewNodeUseCase,
     this.removeLinksUseCase,
+    this.updatePriorityUseCase,
+    this.refreshPrioritiesUseCase,
   ) {
     nodeStore.addListener(_onNodeStoreChanged);
     apiStore.addListener(_onApiStoreChanged);
@@ -453,5 +459,24 @@ class MdEditorViewModel extends ChangeNotifier {
         notificationBus.showError("Cannot save content", error);
         return false;
     }
+  }
+
+  Future<bool> updatePriority(int nodeId, double priority) async {
+    final colId = collectionStore.currentCollection?.id;
+    if (colId == null) return false;
+    final result = await updatePriorityUseCase.execute(colId, nodeId, priority);
+    if (result is Node) {
+      notifyListeners();
+      return true;
+    }
+    return false;
+  }
+
+  List<Node> getNodes() => nodeRepository.nodeCache.values.toList();
+
+  Future<bool> refreshPriorities() async {
+    final result = await refreshPrioritiesUseCase.execute();
+    if (result) notifyListeners();
+    return result;
   }
 }

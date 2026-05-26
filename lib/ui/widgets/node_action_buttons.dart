@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:mycelium/data/models/node.dart';
 import 'package:mycelium/ui/widgets/adaptative_sheet.dart';
 import 'package:mycelium/ui/widgets/confirmation_dialog.dart';
+import 'package:mycelium/ui/widgets/priority_selector.dart';
+import 'package:mycelium/utils/device.dart';
 import 'package:mycelium/viewmodels/md_editor_viewmodel.dart';
 import 'package:provider/provider.dart';
 
@@ -103,23 +106,45 @@ class FragmentButton extends StatelessWidget {
     required this.markdownController,
   });
 
+  Future<Node?> _createFragment(BuildContext context) async {
+    final extract = await vm.createFragment(markdownController.text);
+    markdownController.selection = const TextSelection.collapsed(offset: -1);
+    if (!context.mounted) return null;
+    FocusScope.of(context).unfocus();
+    return extract;
+  }
+
+  Future<void> _onSecondary(BuildContext context) async {
+    final extract = await _createFragment(context);
+    if (extract is Node && context.mounted) {
+      await showPriorityPicker(
+        context,
+        nodes: vm.getNodes(),
+        currentNodeId: extract.id,
+        onRefresh: vm.refreshPriorities,
+        onUpdate: vm.updatePriority,
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return FloatingActionButton(
-      heroTag: "fab_fragment",
-      onPressed: vm.hasSelection
-          ? () async {
-              await vm.createFragment(markdownController.text);
-              markdownController.selection = const TextSelection.collapsed(
-                offset: -1,
-              );
-              if (!context.mounted) return;
-              FocusScope.of(context).unfocus();
-            }
+    return GestureDetector(
+      onSecondaryTap: Device.isDesktop
+          ? () async => await _onSecondary(context)
           : null,
-      child: Opacity(
-        opacity: vm.hasSelection ? 1.0 : 0.4,
-        child: const Icon(Icons.content_cut),
+      onLongPress: !Device.isDesktop
+          ? () async => await _onSecondary(context)
+          : null,
+      child: FloatingActionButton(
+        heroTag: "fab_fragment",
+        onPressed: vm.hasSelection
+            ? () async => await _createFragment(context)
+            : null,
+        child: Opacity(
+          opacity: vm.hasSelection ? 1.0 : 0.4,
+          child: const Icon(Icons.content_cut),
+        ),
       ),
     );
   }
@@ -134,23 +159,41 @@ class SporeButton extends StatelessWidget {
     required this.markdownController,
   });
 
+  Future<Node?> _createSpore(BuildContext context) async {
+    final spore = await vm.createSpore(markdownController.text);
+    markdownController.selection = const TextSelection.collapsed(offset: -1);
+    if (!context.mounted) return null;
+    FocusScope.of(context).unfocus();
+    return spore;
+  }
+
+  Future<void> _onSecondary(BuildContext context) async {
+    final spore = await _createSpore(context);
+    if (spore is Node && context.mounted) {
+      await showPriorityPicker(
+        context,
+        nodes: vm.getNodes(),
+        currentNodeId: spore.id,
+        onRefresh: vm.refreshPriorities,
+        onUpdate: vm.updatePriority,
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return FloatingActionButton(
-      heroTag: "fab_spore",
-      onPressed: vm.hasSelection
-          ? () async {
-              await vm.createSpore(markdownController.text);
-              markdownController.selection = const TextSelection.collapsed(
-                offset: -1,
-              );
-              if (!context.mounted) return;
-              FocusScope.of(context).unfocus();
-            }
-          : null,
-      child: Opacity(
-        opacity: vm.hasSelection ? 1.0 : 0.4,
-        child: const Icon(Icons.quiz),
+    return GestureDetector(
+      onSecondaryTap: Device.isDesktop ? () async => await _onSecondary(context) : null,
+      onLongPress: !Device.isDesktop ? () async => await _onSecondary(context) : null,
+      child: FloatingActionButton(
+        heroTag: "fab_spore",
+        onPressed: vm.hasSelection
+            ? () async => await _createSpore(context)
+            : null,
+        child: Opacity(
+          opacity: vm.hasSelection ? 1.0 : 0.4,
+          child: const Icon(Icons.quiz),
+        ),
       ),
     );
   }
@@ -222,7 +265,10 @@ class MoreBottomSheet extends StatelessWidget {
           ),
           ListTile(
             enabled: vm.hasCursor,
-            leading: Transform.flip(flipX: true, child: const Icon(Icons.backspace)),
+            leading: Transform.flip(
+              flipX: true,
+              child: const Icon(Icons.backspace),
+            ),
             title: const Text('Delete all content after cursor'),
             onTap: () async {
               await vm.deleteAfterCursor(markdownController.text);
@@ -232,8 +278,13 @@ class MoreBottomSheet extends StatelessWidget {
           ),
           ListTile(
             enabled: vm.hasCursor,
-            leading: Transform.flip(flipX: true, child: const Icon(Icons.link_off)),
-            title: vm.hasSelection? const Text('Remove link formatting in selection') : const Text('Remove all link formatting'),
+            leading: Transform.flip(
+              flipX: true,
+              child: const Icon(Icons.link_off),
+            ),
+            title: vm.hasSelection
+                ? const Text('Remove link formatting in selection')
+                : const Text('Remove all link formatting'),
             onTap: () async {
               await vm.removeLinks(markdownController.text);
               if (!context.mounted) return;
