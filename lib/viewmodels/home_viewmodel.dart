@@ -131,7 +131,9 @@ class HomeViewModel extends ChangeNotifier {
   }
 
   void navigateTo(int nodeId) async {
-    navigationUseCase.navigateTo(nodeId);
+    if (nodeId != nodeStore.currentNode?.id) {
+      navigationUseCase.navigateTo(nodeId);
+    }
   }
 
   void _checkHasParent() {
@@ -318,10 +320,7 @@ class HomeViewModel extends ChangeNotifier {
     }
   }
 
-  String hideSpore (String content) {
-    return reviewUseCase.transformClozeContent(
-      content,
-      mode: ClozeMode.hide,
-    );
+  String hideSpore(String content) {
+    return reviewUseCase.transformClozeContent(content, mode: ClozeMode.hide);
   }
 }

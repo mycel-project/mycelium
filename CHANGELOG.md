@@ -4,6 +4,7 @@
 
 ### Fixed
 - Static URL to mycel-project.com
+- Navigating to an already open node no longer clears the navigation history.
 
 ## v0.1.2-alpha
 ### Added
