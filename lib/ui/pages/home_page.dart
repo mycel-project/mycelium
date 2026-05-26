@@ -178,7 +178,7 @@ class HomePage extends StatelessWidget {
         children: [
           Positioned.fill(
             child: vm.noMoreReviewsFlag
-            ? NoMoreReviewsWidget(onDismiss: vm.dismissNoMoreReviews)
+            ? NoMoreReviewsWidget(onDismiss: vm.dismissNoMoreReviews, onUndo: vm.undoReview)
             : context.watch<NodeStore>().currentNode != null
             ? const MdEditor()
             : apiStore.apiStatus != ApiStatus.reachable

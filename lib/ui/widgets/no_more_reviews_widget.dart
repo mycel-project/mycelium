@@ -2,10 +2,12 @@ import "package:flutter/material.dart";
 
 class NoMoreReviewsWidget extends StatelessWidget {
   final VoidCallback onDismiss;
+  final VoidCallback onUndo;
 
   const NoMoreReviewsWidget({
-      super.key,
-      required this.onDismiss,
+    super.key,
+    required this.onDismiss,
+    required this.onUndo,
   });
 
   @override
@@ -33,10 +35,20 @@ class NoMoreReviewsWidget extends StatelessWidget {
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: onDismiss,
-                    child: const Icon(Icons.check),
-                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      ElevatedButton(
+                        onPressed: onUndo,
+                        child: const Icon(Icons.undo),
+                      ),
+                      const SizedBox(width: 16),
+                      ElevatedButton(
+                        onPressed: onDismiss,
+                        child: const Icon(Icons.check),
+                      ), 
+                    ]
+                  )
                 ],
               ),
             ),

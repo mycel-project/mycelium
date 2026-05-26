@@ -135,6 +135,12 @@ class HomeViewModel extends ChangeNotifier {
     }
   }
 
+  Future<void> undoReview() async {
+    final colId = collectionStore.currentCollection?.id;
+    if (colId == null) return;
+    await reviewUseCase.undo(colId);
+  }
+
   void _checkHasParent() {
     final parentId = nodeStore.currentNode?.parentId;
     final exists =
