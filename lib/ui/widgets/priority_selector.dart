@@ -119,7 +119,7 @@ class _PrioritySelectorState extends State<PrioritySelector> {
   }
 
   String _excerpt(Node node) {
-    final raw = node.content?['0'] as String?;
+    final raw = node.content?['0'].trim() as String?;
     if (raw == null || raw.isEmpty) return '(no content)';
     return raw.length > 100 ? "${raw.substring(0, 100)}…" : raw;
   }
