@@ -118,7 +118,6 @@ class HomeViewModel extends ChangeNotifier {
     if (colId == null) return false;
     final result = await nodeUseCase.updateNodeTitle(colId, nodeId, title);
     if (result is Node) {
-      nodeStore.selectNode(result);
       notifyListeners();
       return true;
     }
