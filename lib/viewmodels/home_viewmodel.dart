@@ -232,10 +232,7 @@ class HomeViewModel extends ChangeNotifier {
   Future<void> handleNextReview() async {
     final result = await reviewUseCase.handleNextReview();
     if (result case ApiError error) {
-      final msg = error.code == "no_collection"
-          ? "No collection selected"
-          : "Cannot load next review";
-      notificationBus.showError(msg, error);
+      notificationBus.showError("Cannot get review", error);
     }
   }
 
