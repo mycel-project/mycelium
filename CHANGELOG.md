@@ -2,6 +2,7 @@
 ### Added
 - Rescheduling a node that is currently under review now automatically clears its review state.
 - Show "No collection selected" when no collection is active in the right drawer. 
+- Remove link formatting now applies to the full content when nothing is selected.
 
 ### Fixed
 - Static URL to mycel-project.com

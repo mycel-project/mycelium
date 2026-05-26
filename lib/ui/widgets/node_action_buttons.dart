@@ -227,7 +227,7 @@ class MoreBottomSheet extends StatelessWidget {
           ListTile(
             enabled: vm.hasCursor,
             leading: Transform.flip(flipX: true, child: const Icon(Icons.link_off)),
-            title: const Text('Remove links in selection'),
+            title: vm.hasSelection? const Text('Remove link formatting in selection') : const Text('Remove all link formatting'),
             onTap: () async {
               await vm.removeLinks(markdownController.text);
               if (!context.mounted) return;

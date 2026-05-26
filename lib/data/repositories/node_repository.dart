@@ -54,8 +54,16 @@ class NodeRepository {
     return ApiSuccess(node);
   }
 
-  Future<ApiResult<Node>> fetchRessourceFromUrl(int colId, String url, int tzOffset) async {
-    final result = await nodeService.fetchRessourceFromUrl(colId, url, tzOffset);
+  Future<ApiResult<Node>> fetchRessourceFromUrl(
+    int colId,
+    String url,
+    int tzOffset,
+  ) async {
+    final result = await nodeService.fetchRessourceFromUrl(
+      colId,
+      url,
+      tzOffset,
+    );
 
     if (result is ApiError) return result;
 
@@ -129,7 +137,9 @@ class NodeRepository {
       final id = int.parse(entry.key);
       final node = _nodeCache[id];
       if (node != null) {
-        _nodeCache[id] = node.copyWith(priority: double.parse((entry.value as double).toStringAsFixed(3)));
+        _nodeCache[id] = node.copyWith(
+          priority: double.parse((entry.value as double).toStringAsFixed(3)),
+        );
       }
     }
     return ApiSuccess(null);
@@ -292,9 +302,9 @@ class NodeRepository {
       text,
       field,
       startIndex,
-      endIndex
+      endIndex,
     );
-
+    if (result is ApiError) return result;
     final success = result as ApiSuccess<String>;
     final node = _parseNode(success);
     _nodeCache[node.id] = node;

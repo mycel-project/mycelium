@@ -290,8 +290,10 @@ class MdEditorViewModel extends ChangeNotifier {
 
   Future<void> removeLinks(String currentContent) async {
     final node = this.node;
-    TextSelection? sel = selection;
-    if (node == null || sel == null) return;
+    if (node == null) return;
+    final sel = hasSelection
+        ? selection
+        : null;
     content = currentContent;
     await saveContent();
     final result = await removeLinksUseCase.execute(node, currentContent, sel);

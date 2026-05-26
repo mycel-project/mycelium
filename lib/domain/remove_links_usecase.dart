@@ -10,24 +10,29 @@ class RemoveLinksUseCase {
   final NotificationBus notificationBus;
   final NodeStore nodeStore;
 
-  RemoveLinksUseCase(
-    this.nodeRepository,
-    this.notificationBus,
-    this.nodeStore,
-  );
+  RemoveLinksUseCase(this.nodeRepository, this.notificationBus, this.nodeStore);
 
   Future<bool> execute(
     Node node,
     String content,
-    TextSelection selection,
+    TextSelection? selection,
   ) async {
+    int start;
+    int end;
+    if (selection == null) {
+      start = 0;
+      end = content.length;
+    } else {
+      start = selection.start;
+      end = selection.end;
+    }
     final result = await nodeRepository.removeLinks(
       node.collectionId,
       node.id,
-      content.substring(selection.start, selection.end),
+      content.substring(start, end),
       "0",
-      selection.start,
-      selection.end,
+      start,
+      end,
     );
 
     switch (result) {
