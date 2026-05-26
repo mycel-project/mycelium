@@ -433,7 +433,7 @@ class MdEditorViewModel extends ChangeNotifier {
     final collectionId = node?.collectionId;
     final nodeId = node?.id;
     if (collectionId == null || nodeId == null) return false;
-
+    final contentAtSaveTime = content; 
     final result = await nodeRepository.updateNodeContent(
       collectionId,
       nodeId,
@@ -443,7 +443,7 @@ class MdEditorViewModel extends ChangeNotifier {
       case ApiSuccess():
         node = result.data;
         // Need to reput node in node store ? to update content...
-        isDirty = false;
+        if (content == contentAtSaveTime) isDirty = false;
         notifyListeners();
         return true;
       case ApiError error:

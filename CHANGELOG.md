@@ -1,5 +1,8 @@
 ## Unreleased
 
+### Fixed
+- Fixed an issue where edits made during a save operation could be silently discarded.
+
 ## v0.1.2
 ### Added
 - Prerelease versions now share the same compatibility rules as their corresponding release
