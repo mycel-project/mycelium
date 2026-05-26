@@ -24,13 +24,13 @@ class CreateExtractUseCase {
     this.navigationUseCase,
   );
 
-  Future<bool> execute(
+  Future<Node?> execute(
     Node node,
     String extractType,
     String content,
     TextSelection selection,
   ) async {
-    /// Return true if extract has been created
+    /// Return created extract if extract has been created
 
     bool? addNav = userStore.conf?.get("add_extract_to_nav");
 
@@ -40,7 +40,7 @@ class CreateExtractUseCase {
         "Cannot extract: unknown node type: $extractType",
         NotificationType.error,
       );
-      return false;
+      return null;
     }
 
     final result = await nodeRepository.createExtract(
@@ -64,10 +64,10 @@ class CreateExtractUseCase {
       if (addNav == true) {
         navigationUseCase.pushToHistory(extract.id, offset: 0);
       }
-      return true;
+      return extract;
       case ApiError error:
         notificationBus.showError("Can't create extract", error);
-        return false;
+        return null;
     }
   }
 }

@@ -265,35 +265,38 @@ class MdEditorViewModel extends ChangeNotifier {
     if (await nodeUseCase.deleteNode(colId, node.id)) notifyListeners();
   }
 
-  Future<void> createExtract(String extractType, String currentContent) async {
+  Future<Node?> createExtract(String extractType, String currentContent) async {
     final node = this.node;
     TextSelection? sel = selection;
-    if (node == null || sel == null) return;
+    if (node == null || sel == null) return null;
     content = currentContent;
     await saveContent();
-    final result = await createExtractUseCase.execute(
+    final extract = await createExtractUseCase.execute(
       node,
       extractType,
       currentContent,
       sel,
     );
-    if (result) notifyListeners();
+    if (extract is Node) {
+      notifyListeners();
+      return extract;
+    } else {
+      return null;
+    }
   }
 
-  Future<void> createFragment(String currentContent) async {
-    await createExtract("FRAGMENT", currentContent);
+  Future<Node?> createFragment(String currentContent) async {
+    return await createExtract("FRAGMENT", currentContent);
   }
 
-  Future<void> createSpore(String currentContent) async {
-    await createExtract("SPORE", currentContent);
+  Future<Node?> createSpore(String currentContent) async {
+    return await createExtract("SPORE", currentContent);
   }
 
   Future<void> removeLinks(String currentContent) async {
     final node = this.node;
     if (node == null) return;
-    final sel = hasSelection
-        ? selection
-        : null;
+    final sel = hasSelection ? selection : null;
     content = currentContent;
     await saveContent();
     final result = await removeLinksUseCase.execute(node, currentContent, sel);
