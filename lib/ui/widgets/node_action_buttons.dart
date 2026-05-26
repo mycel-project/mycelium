@@ -16,6 +16,7 @@ class HistoryButton extends StatelessWidget {
         clipBehavior: Clip.none,
         children: [
           FloatingActionButton(
+            heroTag: "fab_history",
             onPressed: vm.canPerformHistoryAction
                 ? vm.performHistoryAction
                 : null,
@@ -60,6 +61,7 @@ class DismissButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FloatingActionButton(
+      heroTag: "fab_dismiss",
       onPressed: vm.dismissState == true
           ? () async => await vm.toggleDismiss()
           : () async {
@@ -104,6 +106,7 @@ class FragmentButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FloatingActionButton(
+      heroTag: "fab_fragment",
       onPressed: vm.hasSelection
           ? () async {
               await vm.createFragment(markdownController.text);
@@ -134,6 +137,7 @@ class SporeButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FloatingActionButton(
+      heroTag: "fab_spore",
       onPressed: vm.hasSelection
           ? () async {
               await vm.createSpore(markdownController.text);
@@ -164,6 +168,7 @@ class KeyboardButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FloatingActionButton(
+      heroTag: "fab_keyboard",
       onPressed: () {
         if (vm.activeKeyboard) removeFocusAndCursor();
         vm.toggleKeyboard();
@@ -182,6 +187,7 @@ class MoreButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FloatingActionButton(
+      heroTag: "fab_more",
       child: const Icon(Icons.more_vert),
       onPressed: () {
         showAdaptiveSheet(
