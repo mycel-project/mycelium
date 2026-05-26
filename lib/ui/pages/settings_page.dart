@@ -33,9 +33,12 @@ class _SettingsPageState extends State<SettingsPage> {
         titleText: "Settings",
         actions: [
           ApiStatusDotWidget(),
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: () => context.read<SettingViewModel>().reloadSchema(),
+          Tooltip(
+            message: "Reload settings",
+            child: IconButton(
+              icon: const Icon(Icons.refresh),
+              onPressed: () => context.read<SettingViewModel>().reloadSchema(),
+            ),
           ),
         ],
       ),
@@ -61,7 +64,11 @@ class _SettingsPageState extends State<SettingsPage> {
                         final currentValue =
                             vm.conf?.data[field.key] ?? field.defaultValue;
                         return Padding(
-                          padding: const EdgeInsets.only(bottom: 24, left: 32, right: 32),
+                          padding: const EdgeInsets.only(
+                            bottom: 24,
+                            left: 32,
+                            right: 32,
+                          ),
                           child: _SettingField(
                             field: field,
                             value: currentValue,
@@ -85,7 +92,11 @@ class _SettingField extends StatefulWidget {
   final dynamic value;
   final Function(dynamic) onChanged;
 
-  const _SettingField({required this.field, required this.value, required this.onChanged});
+  const _SettingField({
+    required this.field,
+    required this.value,
+    required this.onChanged,
+  });
 
   @override
   State<_SettingField> createState() => _SettingFieldState();
@@ -94,7 +105,7 @@ class _SettingField extends StatefulWidget {
 class _SettingFieldState extends State<_SettingField> {
   bool _warningConfirmed = false;
 
-  Future<void> _handleChange(dynamic newValue) async {
+  Future<bool> _handleChange(dynamic newValue) async {
     if (widget.field.warning != null && !_warningConfirmed) {
       final result = await ConfirmationDialog.show(
         context,
@@ -102,10 +113,11 @@ class _SettingFieldState extends State<_SettingField> {
         text: widget.field.warning!,
         destructive: true,
       );
-      if (!result.confirmed) return;
+      if (!result.confirmed) return false;
       setState(() => _warningConfirmed = true);
     }
     widget.onChanged(newValue);
+    return true;
   }
 
   @override
@@ -130,7 +142,7 @@ class _SettingFieldState extends State<_SettingField> {
           _IntField(
             field: widget.field as IntConfigField,
             value: (widget.value as num).toInt(),
-            onChanged: _handleChange,
+            onChanged: (v) => _handleChange(v),
           )
         else if (widget.field is StringConfigField)
           _StringField(
@@ -152,9 +164,13 @@ class _SettingFieldState extends State<_SettingField> {
 class _IntField extends StatefulWidget {
   final IntConfigField field;
   final int value;
-  final Function(int) onChanged;
+  final Future<bool> Function(int) onChanged;
 
-  const _IntField({required this.field, required this.value, required this.onChanged});
+  const _IntField({
+    required this.field,
+    required this.value,
+    required this.onChanged,
+  });
 
   @override
   State<_IntField> createState() => _IntFieldState();
@@ -197,11 +213,14 @@ class _IntFieldState extends State<_IntField> {
             max: max,
             divisions: divisions > 0 ? divisions : null,
             onChanged: (v) => setState(() => _localValue = v),
-            onChangeEnd: (v) => widget.onChanged(v.toInt()),
+            onChangeEnd: (v) async {
+              final accepted = await widget.onChanged(v.toInt());
+              if (!accepted) setState(() => _localValue = widget.value.toDouble());
+            },
           ),
         ),
         SizedBox(
-          width: 80, 
+          width: 80,
           child: Text(
             "${_localValue.toInt()} $unit",
             textAlign: TextAlign.end,
@@ -215,10 +234,11 @@ class _IntFieldState extends State<_IntField> {
     );
   }
 }
+
 class _StringField extends StatefulWidget {
-  final StringConfigField field; 
+  final StringConfigField field;
   final String value;
-  final Function(String) onChanged;
+  final Future<bool> Function(String) onChanged;
 
   const _StringField({
     required this.field,
@@ -267,7 +287,10 @@ class _StringFieldState extends State<_StringField> {
             decoration: const InputDecoration(
               border: OutlineInputBorder(),
               isDense: true,
-              contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              contentPadding: EdgeInsets.symmetric(
+                horizontal: 12,
+                vertical: 10,
+              ),
             ),
             onSubmitted: widget.onChanged,
           ),
@@ -288,7 +311,7 @@ class _StringFieldState extends State<_StringField> {
 class _BoolField extends StatelessWidget {
   final BoolConfigField field;
   final bool value;
-  final Function(bool) onChanged;
+  final Future<bool> Function(bool) onChanged;
 
   const _BoolField({
     required this.field,
@@ -304,10 +327,7 @@ class _BoolField extends StatelessWidget {
           icon: const Icon(Icons.refresh, size: 20),
           onPressed: () => onChanged(field.defaultValue),
         ),
-        Switch(
-          value: value,
-          onChanged: onChanged,
-        ),
+        Switch(value: value, onChanged: onChanged),
       ],
     );
   }

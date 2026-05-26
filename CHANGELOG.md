@@ -4,6 +4,7 @@
 - Show "No collection selected" when no collection is active in the right drawer. 
 - Remove link formatting now applies to the full content when nothing is selected.
 - Added undo action to the end-of-review screen.
+- Canceling a warning dialog on a settings field now properly reverts the slider to its previous value.
 
 ### Fixed
 - Static URL to mycel-project.com
