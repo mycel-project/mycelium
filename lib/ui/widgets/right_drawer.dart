@@ -20,22 +20,28 @@ class RightDrawer extends StatelessWidget {
       child: SafeArea(
         child: Column(
           children: [
-            const _RightDrawerReviewHeader(),
-            const Divider(height: 1),
-            Expanded(
-              child: ListView(children: [CalendarTile(vm: vm)]),
-            ),
-            if (node != null) ...[
-              _RightDrawerNodeHeader(node: node),
+            if (vm.currentCollectionName() == null)
+            const Expanded(
+              child: Center(child: Text("No collection selected")),
+            )
+            else ...[
+              const _RightDrawerReviewHeader(),
               const Divider(height: 1),
               Expanded(
-                child: ListView(
-                  children: [
-                    _PriorityTile(node: node, vm: vm),
-                    _DueTile(node: node, vm: vm),                    
-                  ],
-                ),
+                child: ListView(children: [CalendarTile(vm: vm)]),
               ),
+              if (node != null) ...[
+                _RightDrawerNodeHeader(node: node),
+                const Divider(height: 1),
+                Expanded(
+                  child: ListView(
+                    children: [
+                      _PriorityTile(node: node, vm: vm),
+                      _DueTile(node: node, vm: vm),
+                    ],
+                  ),
+                ),
+              ],
             ],
           ],
         ),

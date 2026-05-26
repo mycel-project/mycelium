@@ -1,10 +1,12 @@
 ## Unreleased
 ### Added
 - Rescheduling a node that is currently under review now automatically clears its review state.
+- Show "No collection selected" when no collection is active in the right drawer. 
 
 ### Fixed
 - Static URL to mycel-project.com
 - Navigating to an already open node no longer clears the navigation history.
+- When renaming a node in NodeTree, don't open it.
 
 ## v0.1.2-alpha
 ### Added
