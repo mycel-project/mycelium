@@ -29,7 +29,7 @@ class _DeletedNodesPageState extends State<DeletedNodesPage> {
       appBar: MyAppBar(
         titleText: "Deleted nodes",
         actions: [
-          ApiStatusDotWidget(),
+          const ApiStatusDotWidget(),
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: () =>
@@ -42,6 +42,9 @@ class _DeletedNodesPageState extends State<DeletedNodesPage> {
         ? const Center(child: Text("No deleted nodes"))
         : NodeTree(
           nodes: vm.deletedNodes,
+          isSpore: (node) {
+            return node.type == 1;
+          },
           popOnClick: false,
           subtitleBuilder: (node) {
             return vm.formatDeletedAt(node);
@@ -52,12 +55,12 @@ class _DeletedNodesPageState extends State<DeletedNodesPage> {
               title: "Restore node",
               text: "Do you want to restore this node?",
               options: [
-                ConfirmationOption(
+                const ConfirmationOption(
                   key: "restore_ancestors",
                   label: "Also restore parents",
                   defaultValue: false,
                 ),
-                ConfirmationOption(
+                const ConfirmationOption(
                   key: "restore_descendants",
                   label: "Also restore children",
                   defaultValue: true,
