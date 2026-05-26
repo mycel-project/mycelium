@@ -36,7 +36,7 @@ class RightDrawer extends StatelessWidget {
                 Expanded(
                   child: ListView(
                     children: [
-                      _PriorityTile(node: node, vm: vm),
+                      _PriorityTile(node: node, nodes: vm.getNodes(), refreshPriorities: vm.refreshPriorities, updatePriority: vm.updatePriority),
                       _DueTile(node: node, vm: vm),
                     ],
                   ),
@@ -127,9 +127,16 @@ class _DueTile extends StatelessWidget {
 
 class _PriorityTile extends StatelessWidget {
   final Node node;
-  final HomeViewModel vm;
+  final List<Node> nodes;
+  final Future<void> Function() refreshPriorities;
+  final Future<bool> Function(int nodeId, double priority) updatePriority;
 
-  const _PriorityTile({required this.node, required this.vm});
+  const _PriorityTile({
+    required this.node,
+    required this.nodes,
+    required this.refreshPriorities,
+    required this.updatePriority,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -137,24 +144,13 @@ class _PriorityTile extends StatelessWidget {
       leading: const Icon(Icons.star_outline),
       title: const Text("Priority"),
       trailing: Chip(label: Text("${node.priority}")),
-      onTap: () => _showPriorityPicker(context),
-    );
-  }
-
-  void _showPriorityPicker(BuildContext context) async {
-    if (vm.nodeCount < 500) {
-      await vm.refreshPriorities();
-    } // Above this limit, priorities are diluted enough that a full refresh is unnecessary I guess.
-    if (!context.mounted) return;
-    showAdaptiveSheet(context: context, child: PrioritySelector(
-        nodes: vm.getNodes(),
+      onTap: () => showPriorityPicker(
+        context,
+        nodes: nodes,
         currentNodeId: node.id,
-        onConfirm: (value) {
-          vm.updatePriority(node.id, value);
-          Navigator.pop(context);
-        },
-      )
+        onRefresh: refreshPriorities,
+        onUpdate: updatePriority,
+      ),
     );
   }
 }
-

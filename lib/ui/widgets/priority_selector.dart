@@ -2,6 +2,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import "package:mycelium/data/models/node.dart";
+import 'package:mycelium/ui/widgets/adaptative_sheet.dart';
 
 // Maybe pass small node views embedding for instance title formatted (true title or content extract as in node tree)
 
@@ -287,4 +288,28 @@ class _NeighborCard extends StatelessWidget {
       ),
     );
   }
+}
+
+Future<void> showPriorityPicker(
+  BuildContext context, {
+  required List<Node> nodes,
+  required int currentNodeId,
+  required Future<void> Function() onRefresh,
+  required Future<bool> Function(int nodeId, double priority) onUpdate,
+}) async {
+  if (nodes.length < 500) {
+    await onRefresh();
+  }
+  if (!context.mounted) return;
+  showAdaptiveSheet(
+    context: context,
+    child: PrioritySelector(
+      nodes: nodes,
+      currentNodeId: currentNodeId,
+      onConfirm: (value) {
+        onUpdate(currentNodeId, value);
+        Navigator.pop(context);
+      },
+    ),
+  );
 }
