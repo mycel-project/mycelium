@@ -1,25 +1,22 @@
 ## Unreleased
+
+## v0.1.2
 ### Added
+- Prerelease versions now share the same compatibility rules as their corresponding release
 - Rescheduling a node that is currently under review now automatically clears its review state.
 - Show "No collection selected" when no collection is active in the right drawer. 
 - Remove link formatting now applies to the full content when nothing is selected.
 - Added undo action to the end-of-review screen.
 - Canceling a warning dialog on a settings field now properly reverts the slider to its previous value.
+- Functionnality to remove all markdown links formatting from a text selection
 
 ### Fixed
+- Use double rather than int to display priorities
 - Static URL to mycel-project.com
 - Navigating to an already open node no longer clears the navigation history.
 - When renaming a node in NodeTree, don't open it.
 - Expand/collapse tree indicators in deleted node page now correctly reflect the dismiss state of child nodes.
 - Refresh node navigability status when changing collections
-
-## v0.1.2-alpha
-### Added
-- Functionnality to remove all markdown links formatting from a text selection
-- Prerelease versions now share the same compatibility rules as their corresponding release
-
-### Fixed
-- Use double rather than int to display priorities
 
 ## v0.1.1
 ### Added
