@@ -18,12 +18,21 @@ class NavigationUseCase extends ChangeNotifier {
   bool _canGoBack = false;
   bool _canGoForward = false;
 
-  bool get canGoBack => _canGoBack;
-  bool get canGoForward => _canGoForward;
+  bool get canGoBack {
+    _updateCanNavigate();
+    return _canGoBack;
+  }
   
-  int? _cursorBeforeNavigation; // to allow 1 undo when not discarding action for instance
-  bool _didPushHistory = false; // specify if last action pushed into history to know when we undo if we have to delete this cancelled entry
-  
+  bool get canGoForward {
+    _updateCanNavigate();
+    return _canGoForward;
+  }
+
+  int?
+  _cursorBeforeNavigation; // to allow 1 undo when not discarding action for instance
+  bool _didPushHistory =
+      false; // specify if last action pushed into history to know when we undo if we have to delete this cancelled entry
+
   NavigationUseCase(
     this._nodeRepository,
     this._nodeStore,
@@ -57,8 +66,6 @@ class NavigationUseCase extends ChangeNotifier {
         break;
       }
     }
-
-    notifyListeners();
   }
 
   void pushToHistory(int nodeId, {int offset = 0}) {

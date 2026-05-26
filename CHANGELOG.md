@@ -11,6 +11,7 @@
 - Navigating to an already open node no longer clears the navigation history.
 - When renaming a node in NodeTree, don't open it.
 - Expand/collapse tree indicators in deleted node page now correctly reflect the dismiss state of child nodes.
+- Refresh node navigability status when changing collections
 
 ## v0.1.2-alpha
 ### Added
