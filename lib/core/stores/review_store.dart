@@ -12,6 +12,11 @@ class ReviewStore extends ChangeNotifier {
     notifyListeners();
   }
 
+  void stopReview() {
+    _state = ReviewNotStarted();
+    notifyListeners();
+  }
+
   void endReview() {
     _state = NoMoreReviews();
     notifyListeners();

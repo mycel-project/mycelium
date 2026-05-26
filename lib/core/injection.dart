@@ -96,7 +96,7 @@ Future<void> setup() async {
   sl.registerSingleton(CheckAppUpdateUseCase(sl(), sl(), sl()));
   sl.registerSingleton(CreateExtractUseCase(sl(), sl(), sl(), sl(), sl()));
   sl.registerSingleton(GetCalendarUseCase(sl(), sl()));
-  sl.registerSingleton(RescheduleNodeUseCase(sl(), sl()));
+  sl.registerSingleton(RescheduleNodeUseCase(sl(), sl(), sl()));
   sl.registerSingleton(ReviewNodeUseCase(sl(), sl()));
   sl.registerSingleton(RemoveLinksUseCase(sl(), sl(), sl()));
   sl.registerSingleton(

@@ -1,4 +1,9 @@
 ## Unreleased
+### Added
+- Rescheduling a node that is currently under review now automatically clears its review state.
+
+### Fixed
+- Static URL to mycel-project.com
 
 ## v0.1.2-alpha
 ### Added
