@@ -96,26 +96,6 @@ class HomePage extends StatelessWidget {
             ),
           ),
           Tooltip(
-            message: 'Node outline',
-            child: GestureDetector(
-              child: IconButton(
-                icon: const Icon(Icons.menu),
-                onPressed: vm.hasNode
-                ? () async {
-                  final entries = await vm.getCurrentOutline();
-                  if (!context.mounted) return;
-                  showOutlineSheet(
-                    context,
-                    entries: entries,
-                    onTap: vm.scrollToOffset,
-                    currentOffset: vm.scrollPosition
-                  );
-                }
-                : null,
-              ),
-            ),
-          ),
-          Tooltip(
             message: "Start review",
             child: IconButton(
               onPressed: !vm.isCurrentNodeUnderReview()
