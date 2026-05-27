@@ -86,7 +86,7 @@ class _OutlineSheetState extends State<OutlineSheet> {
     if (context != null) {
       Scrollable.ensureVisible(
         context,
-        duration: const Duration(milliseconds: 300),
+        duration: _didInitialScroll ? Duration.zero : const Duration(milliseconds: 300),
         curve: Curves.easeOut,
         alignment: 0.5
       );
