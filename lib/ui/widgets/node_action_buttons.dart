@@ -131,24 +131,25 @@ class FragmentButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onSecondaryTap: Device.isDesktop
-          ? () async => await _onSecondary(context)
-          : null,
-          onLongPress: !Device.isDesktop
-          ? () async {
-            HapticFeedback.mediumImpact();
-            await _onSecondary(context);
-          }
-          : null,
-      child: FloatingActionButton(
-        heroTag: "fab_fragment",
-        onPressed: vm.hasSelection
-            ? () async => await _createFragment(context)
-            : null,
-        child: Opacity(
-          opacity: vm.hasSelection ? 1.0 : 0.4,
-          child: const Icon(Icons.content_cut),
+    return Tooltip(
+      message: Device.isDesktop
+      ? 'Create fragment (right-click for direct priorization)'
+      : 'Create fragment (hold for direct priorization)',
+      child: GestureDetector(
+        onSecondaryTap: Device.isDesktop && vm.hasSelection ? () async => await _onSecondary(context) : null,
+        onLongPress: !Device.isDesktop && vm.hasSelection
+        ? () async {
+          HapticFeedback.mediumImpact();
+          await _onSecondary(context);
+        }
+        : null,
+        child: FloatingActionButton(
+          heroTag: "fab_fragment",
+          onPressed: vm.hasSelection ? () async => await _createFragment(context) : null,
+          child: Opacity(
+            opacity: vm.hasSelection ? 1.0 : 0.4,
+            child: const Icon(Icons.content_cut),
+          ),
         ),
       ),
     );
@@ -159,9 +160,9 @@ class SporeButton extends StatelessWidget {
   final MdEditorViewModel vm;
   final TextEditingController markdownController;
   const SporeButton({
-    super.key,
-    required this.vm,
-    required this.markdownController,
+      super.key,
+      required this.vm,
+      required this.markdownController,
   });
 
   Future<Node?> _createSpore(BuildContext context) async {
@@ -188,22 +189,25 @@ class SporeButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onSecondaryTap: Device.isDesktop ? () async => await _onSecondary(context) : null,
-      onLongPress: !Device.isDesktop
-      ? () async {
-        HapticFeedback.mediumImpact();
-        await _onSecondary(context);
-      }
-    : null,
-      child: FloatingActionButton(
-        heroTag: "fab_spore",
-        onPressed: vm.hasSelection
-            ? () async => await _createSpore(context)
-            : null,
-        child: Opacity(
-          opacity: vm.hasSelection ? 1.0 : 0.4,
-          child: const Icon(Icons.quiz),
+    return Tooltip(
+      message: Device.isDesktop
+      ? 'Create spore (right-click for direct priorization)'
+      : 'Create spore (hold for direct priorization)',
+      child: GestureDetector(
+        onSecondaryTap: Device.isDesktop && vm.hasSelection ? () async => await _onSecondary(context) : null,
+        onLongPress: !Device.isDesktop && vm.hasSelection
+        ? () async {
+          HapticFeedback.mediumImpact();
+          await _onSecondary(context);
+        }
+        : null,
+        child: FloatingActionButton(
+          heroTag: "fab_spore",
+          onPressed: vm.hasSelection ? () async => await _createSpore(context) : null,
+          child: Opacity(
+            opacity: vm.hasSelection ? 1.0 : 0.4,
+            child: const Icon(Icons.quiz),
+          ),
         ),
       ),
     );
