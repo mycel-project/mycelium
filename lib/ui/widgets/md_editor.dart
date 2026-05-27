@@ -1,5 +1,3 @@
-import "dart:async";
-
 import "package:flutter/material.dart";
 import "package:mycelium/core/stores/review_store.dart";
 import "package:mycelium/ui/controllers/markdown_controller.dart";
