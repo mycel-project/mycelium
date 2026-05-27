@@ -107,7 +107,7 @@ class _OutlineSheetState extends State<OutlineSheet> {
     if (e == null || e.isEmpty) {
       return const Padding(
         padding: EdgeInsets.all(24),
-        child: Center(child: Text("No headings found")),
+        child: Center(child: Text("No headings")),
       );
     }
 
@@ -144,25 +144,66 @@ class _OutlineSheetState extends State<OutlineSheet> {
                 });
               }
             },
-            child: Padding(
-              padding: EdgeInsets.only(
-                left: 16.0 + (entry.level - 1) * 16.0,
-                right: 16,
-                top: 10,
-                bottom: 10,
-              ),
-              child: Text(
-                entry.title,
-                style: TextStyle(
-                  fontSize: 16 - (entry.level - 1) * 1.5,
-                  fontWeight: entry.level == 1
-                  ? FontWeight.bold
-                  : FontWeight.normal,
-                  color: isActive
-                  ? Theme.of(context).colorScheme.primary
-                  : Theme.of(context).textTheme.bodyMedium?.color,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: EdgeInsets.only(
+                    left: entry.level >= 3 ? 8.0 + (entry.level - 3) * 12.0 : 8.0,
+                    right: 16,
+                    top: entry.level == 1 ? 14 : 8,
+                    bottom: entry.level == 1 ? 14 : 8,
+                  ),
+                  child: Row(
+                    children: [
+                      if (entry.level <= 2)
+                      Container(
+                        width: 3,
+                        height: 18,
+                        margin: const EdgeInsets.only(right: 8),
+                        decoration: BoxDecoration(
+                          color: entry.level == 1
+                          ? Theme.of(context).colorScheme.primary
+                          : Theme.of(context).colorScheme.primary.withValues(alpha: 0.4),
+                          borderRadius: BorderRadius.circular(2),
+                        ),
+                      )
+                      else
+                      Container(
+                        width: 4,
+                        height: 4,
+                        margin: const EdgeInsets.only(right: 10, left: 3),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).textTheme.bodyMedium?.color?.withValues(
+                            alpha: 0.3,
+                          ),
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                      Expanded(
+                        child: Text(
+                          entry.title,
+                          style: TextStyle(
+                            fontSize: (15 - (entry.level - 1) * 0.8).clamp(12.0, 15.0),
+                            fontWeight: entry.level == 1 ? FontWeight.w600 : FontWeight.normal,
+                            color: isActive
+                            ? Theme.of(context).colorScheme.primary
+                            : Theme.of(context).textTheme.bodyMedium?.color?.withValues(
+                              alpha: entry.level >= 3 ? 0.65 : 1.0,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
+                if (entry.level == 1)
+                Divider(
+                  height: 1,
+                  thickness: 0.5,
+                  color: Theme.of(context).dividerColor.withValues(alpha: 0.4),
+                ),
+              ],
             ),
           ),
         );
