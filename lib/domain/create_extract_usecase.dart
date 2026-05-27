@@ -29,6 +29,9 @@ class CreateExtractUseCase {
     String extractType,
     String content,
     TextSelection selection,
+    {
+      VoidCallback? onMismatch,
+    }
   ) async {
     /// Return created extract if extract has been created
 
@@ -66,8 +69,13 @@ class CreateExtractUseCase {
       }
       return extract;
       case ApiError error:
-        notificationBus.showError("Can't create extract", error);
+      if (error.code == "EXTRACT_MISMATCH") {
+        notificationBus.showError("Retry - report if this persists", error);
+        onMismatch?.call();
         return null;
+      }
+      notificationBus.showError("Can't create extract", error);
+      return null;
     }
   }
 }

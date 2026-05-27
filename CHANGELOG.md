@@ -2,7 +2,7 @@
 ### Added
 - When creating an extract, a long press on the button on mobile or a right-click on desktop will also open the priority selector dialog, allowing for smooth prioritization.
 - Closing the keyboard when reviewing fragment no longer remove the selection, just the cursor.
-- Keep selection when extraction failed
+- Keep selection when extraction failed (+ add custom error message)
 
 ### Fixed
 - Fixed an issue where edits made during a save operation could be silently discarded.

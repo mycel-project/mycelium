@@ -282,6 +282,7 @@ class MdEditorViewModel extends ChangeNotifier {
       extractType,
       currentContent,
       sel,
+      onMismatch: () => isDirty = true,
     );
     if (extract is Node) {
       notifyListeners();
@@ -442,7 +443,7 @@ class MdEditorViewModel extends ChangeNotifier {
     final collectionId = node?.collectionId;
     final nodeId = node?.id;
     if (collectionId == null || nodeId == null) return false;
-    final contentAtSaveTime = content; 
+    final contentAtSaveTime = content;
     final result = await nodeRepository.updateNodeContent(
       collectionId,
       nodeId,
