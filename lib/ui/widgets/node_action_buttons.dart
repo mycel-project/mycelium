@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:mycelium/data/models/node.dart';
 import 'package:mycelium/ui/widgets/adaptative_sheet.dart';
 import 'package:mycelium/ui/widgets/confirmation_dialog.dart';
@@ -134,8 +135,11 @@ class FragmentButton extends StatelessWidget {
       onSecondaryTap: Device.isDesktop
           ? () async => await _onSecondary(context)
           : null,
-      onLongPress: !Device.isDesktop
-          ? () async => await _onSecondary(context)
+          onLongPress: !Device.isDesktop
+          ? () async {
+            HapticFeedback.mediumImpact();
+            await _onSecondary(context);
+          }
           : null,
       child: FloatingActionButton(
         heroTag: "fab_fragment",
@@ -186,7 +190,12 @@ class SporeButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onSecondaryTap: Device.isDesktop ? () async => await _onSecondary(context) : null,
-      onLongPress: !Device.isDesktop ? () async => await _onSecondary(context) : null,
+      onLongPress: !Device.isDesktop
+      ? () async {
+        HapticFeedback.mediumImpact();
+        await _onSecondary(context);
+      }
+    : null,
       child: FloatingActionButton(
         heroTag: "fab_spore",
         onPressed: vm.hasSelection
