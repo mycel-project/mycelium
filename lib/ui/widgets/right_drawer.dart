@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:mycelium/core/stores/node_store.dart';
+import 'package:mycelium/core/stores/scroll_position_store.dart';
 import 'package:mycelium/data/models/node.dart';
+import 'package:mycelium/data/models/outline_entry.dart';
 import 'package:mycelium/ui/widgets/adaptative_sheet.dart';
+import 'package:mycelium/ui/widgets/outline_sheet.dart';
 import 'package:mycelium/ui/widgets/priority_selector.dart';
 import 'package:mycelium/ui/widgets/reps_calendar.dart';
 import 'package:mycelium/ui/widgets/reschedule_widget.dart';
+import 'package:mycelium/utils/responsive.dart';
 import 'package:mycelium/viewmodels/home_viewmodel.dart';
 import 'package:provider/provider.dart';
 
@@ -27,25 +31,99 @@ class RightDrawer extends StatelessWidget {
             else ...[
               const _RightDrawerReviewHeader(),
               const Divider(height: 1),
-              Expanded(
-                child: ListView(children: [CalendarTile(vm: vm)]),
+              SizedBox(
+                height: MediaQuery.of(context).size.height * 0.15,
+                child: SingleChildScrollView(child: CalendarTile(vm: vm)),
               ),
               if (node != null) ...[
                 _RightDrawerNodeHeader(node: node),
                 const Divider(height: 1),
+
                 Expanded(
                   child: ListView(
+                    padding: EdgeInsets.zero,
                     children: [
-                      _PriorityTile(node: node, nodes: vm.getNodes(), refreshPriorities: vm.refreshPriorities, updatePriority: vm.updatePriority),
+                      _PriorityTile(node: node, nodes: vm.getNodes(), refreshPriorities: vm.refreshPriorities, updatePriority: vm.updatePriority),                      
                       _DueTile(node: node, vm: vm),
                     ],
                   ),
+                ),
+                const _RightDrawerOutlineHeader(),
+                const Divider(height: 1),
+                SizedBox(
+                  height: MediaQuery.of(context).size.height * 0.40,
+                  child: _Outline(vm: vm, currentNodeId: node.id),
                 ),
               ],
             ],
           ],
         ),
       ),
+    );
+  }
+}
+
+class _Outline extends StatefulWidget {
+  final HomeViewModel vm;
+  final int? currentNodeId;
+
+  const _Outline({required this.vm, required this.currentNodeId});
+
+  @override
+  State<_Outline> createState() => _OutlineState();
+}
+
+class _OutlineState extends State<_Outline> {
+  late Future<List<OutlineEntry>?> _outlineFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _outlineFuture = widget.vm.getCurrentOutline();
+  }
+
+  @override
+  void didUpdateWidget(covariant _Outline oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (widget.currentNodeId != oldWidget.currentNodeId) {
+      setState(() {
+        _outlineFuture = widget.vm.getCurrentOutline();
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<List<OutlineEntry>?>(
+      future: _outlineFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting &&
+            snapshot.data == null) {
+          return const SizedBox(
+            height: 100,
+            child: Center(child: CircularProgressIndicator()),
+          );
+        }
+
+        return buildOutlineSheet(
+          context,
+          entries: snapshot.data,
+          onTap: (offset) {
+            widget.vm.scrollToOffset(offset);
+            if (Responsive.isMobile(context)) Navigator.pop(context);
+          },
+          currentOffset: context.select<ScrollPositionStore, int>(
+            (store) => store.offset,
+          ),
+          onRefresh: () async {
+            setState(() {
+              _outlineFuture = widget.vm.getCurrentOutline();
+            });
+            return _outlineFuture;
+          },
+        );
+      },
     );
   }
 }
@@ -57,6 +135,15 @@ class _RightDrawerNodeHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const ListTile(title: Text("Current Node"));
+  }
+}
+
+class _RightDrawerOutlineHeader extends StatelessWidget {
+  const _RightDrawerOutlineHeader();
+
+  @override
+  Widget build(BuildContext context) {
+    return const ListTile(title: Text("Outline"));
   }
 }
 
