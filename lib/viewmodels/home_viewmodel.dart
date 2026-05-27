@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:mycelium/core/either.dart';
 import 'package:mycelium/core/notifications/notification_bus.dart';
+import 'package:mycelium/core/scroll_event_bus.dart';
 import 'package:mycelium/core/stores/api_store.dart';
 import 'package:mycelium/core/stores/collection_store.dart';
 import 'package:mycelium/core/stores/navigation_store.dart';
@@ -13,11 +14,13 @@ import 'package:mycelium/data/api_result.dart';
 import 'package:mycelium/data/models/day_review_overview.dart';
 import 'package:mycelium/data/models/node.dart';
 import 'package:mycelium/data/models/node_type.dart';
+import 'package:mycelium/data/models/outline_entry.dart';
 import 'package:mycelium/data/repositories/node_repository.dart';
 import 'package:mycelium/data/services/api_service.dart';
 import 'package:mycelium/domain/check_api_usecase.dart';
 import 'package:mycelium/domain/cloze_mode.dart';
 import 'package:mycelium/domain/get_calendar_usecase.dart';
+import 'package:mycelium/domain/get_outline_usecase.dart';
 import 'package:mycelium/domain/navigation_usecase.dart';
 import 'package:mycelium/domain/node_usecase.dart';
 import 'package:mycelium/domain/refresh_priorities_usecase.dart';
@@ -43,6 +46,8 @@ class HomeViewModel extends ChangeNotifier {
   final RescheduleNodeUseCase rescheduleNodeUseCase;
   final UpdatePriorityUseCase updatePriorityUseCase;
   final RefreshPrioritiesUseCase refreshPrioritiesUseCase;
+  final GetOutlineUseCase getOutlineUseCase;
+  final ScrollEventBus scrollEventBus;
 
   bool noMoreReviewsFlag = false;
 
@@ -63,6 +68,8 @@ class HomeViewModel extends ChangeNotifier {
     this.rescheduleNodeUseCase,
     this.updatePriorityUseCase,
     this.refreshPrioritiesUseCase,
+    this.getOutlineUseCase,
+    this.scrollEventBus,
   ) {
     reviewStore.addListener(_onReviewChanged);
     nodeStore.addListener(_onNodeStoreChange);
@@ -156,6 +163,19 @@ class HomeViewModel extends ChangeNotifier {
 
     hasParent = exists;
     notifyListeners();
+  }
+
+  bool get hasNode => nodeStore.currentNode != null;
+
+  Future<List<OutlineEntry>?> getCurrentOutline() async {
+    Node? node = nodeStore.currentNode;
+    final colId = collectionStore.currentCollection?.id;
+    if (colId == null || node == null) return null;
+    return await getOutlineUseCase.execute(colId, node.id);
+  }
+
+  void scrollToOffset(int offset) {
+    scrollEventBus.requestScroll(offset);
   }
 
   // Not reloading the cache on each open — could this be a problem?

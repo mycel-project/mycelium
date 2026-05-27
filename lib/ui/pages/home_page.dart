@@ -16,6 +16,7 @@ import 'package:mycelium/ui/widgets/md_editor.dart';
 import 'package:mycelium/ui/widgets/no_collection_widget.dart';
 import 'package:mycelium/ui/widgets/no_more_reviews_widget.dart';
 import 'package:mycelium/ui/widgets/no_node_widget.dart';
+import 'package:mycelium/ui/widgets/outline_sheet.dart';
 import 'package:mycelium/ui/widgets/right_drawer.dart';
 import 'package:mycelium/utils/device.dart';
 import 'package:mycelium/utils/responsive.dart';
@@ -33,56 +34,54 @@ class HomePage extends StatelessWidget {
       drawerEdgeDragWidth: 200,
       appBar: MyAppBar(
         leading:
-
         Builder(
-            builder: (context) => IconButton(
-              icon: SvgPicture.asset(
-                  'assets/icons/panel.svg',
-                  width: 24,
-                  height: 24,
-                  colorFilter: const ColorFilter.mode(
-                    Colors.white,
-                    BlendMode.srcIn,
-                  ),
-                ),
-              onPressed: () {
-                if (!Responsive.isDesktop(context)) {
-                  Scaffold.of(context).openDrawer();
-                } else {
-                  vm.toggleLeftPanel();
-                }
-              },
+          builder: (context) => IconButton(
+            icon: SvgPicture.asset(
+              'assets/icons/panel.svg',
+              width: 24,
+              height: 24,
+              colorFilter: const ColorFilter.mode(
+                Colors.white,
+                BlendMode.srcIn,
+              ),
+            ),
+            onPressed: () {
+              if (!Responsive.isDesktop(context)) {
+                Scaffold.of(context).openDrawer();
+              } else {
+                vm.toggleLeftPanel();
+              }
+            },
+          ),
+        ),
+        titleText: "",
+        actions: [
+          Tooltip(
+            message: Device.isDesktop
+            ? 'Previous Node (right-click for history (coming-soon))'
+            : 'Previous Node (hold for history (coming-soon))',
+            child: GestureDetector(
+              onSecondaryTap: Device.isDesktop ? vm.openHistory : null,
+              child: IconButton(
+                onPressed: vm.hasPreviousNodes() ? vm.previousNode : null,
+                onLongPress: !Device.isDesktop ? vm.openHistory : null,
+                icon: const Icon(Icons.chevron_left),
+              ),
             ),
           ),
-
-         titleText: "",
-         actions: [
-           Tooltip(
-             message: Device.isDesktop
-             ? 'Previous Node (right-click for history (coming-soon))'
-             : 'Previous Node (hold for history (coming-soon))',
-             child: GestureDetector(
-               onSecondaryTap: Device.isDesktop ? vm.openHistory : null,
-               child: IconButton(
-                 onPressed: vm.hasPreviousNodes() ? vm.previousNode : null,
-                 onLongPress: !Device.isDesktop ? vm.openHistory : null,
-                 icon: const Icon(Icons.chevron_left),
-               ),
-             ),
-           ),
-           Tooltip(
-             message: Device.isDesktop
-             ? 'Next Node (right-click for history (coming-soon))'
-             : 'Next Node (hold for history (coming-soon))',
-             child: GestureDetector(
-               onSecondaryTap: Device.isDesktop ? vm.openHistory : null,
-               child: IconButton(
-                 onPressed: vm.hasNextNodes() ? vm.nextNode : null,
-                 onLongPress: !Device.isDesktop ? vm.openHistory : null,
-                 icon: const Icon(Icons.chevron_right),
-               ),
-             ),
-           ),
+          Tooltip(
+            message: Device.isDesktop
+            ? 'Next Node (right-click for history (coming-soon))'
+            : 'Next Node (hold for history (coming-soon))',
+            child: GestureDetector(
+              onSecondaryTap: Device.isDesktop ? vm.openHistory : null,
+              child: IconButton(
+                onPressed: vm.hasNextNodes() ? vm.nextNode : null,
+                onLongPress: !Device.isDesktop ? vm.openHistory : null,
+                icon: const Icon(Icons.chevron_right),
+              ),
+            ),
+          ),
           Tooltip(
             message: Device.isDesktop 
             ? 'Parent Node (right-click for root)'
@@ -93,6 +92,25 @@ class HomePage extends StatelessWidget {
                 onPressed: vm.hasParent ? vm.upPress : null,
                 onLongPress: Device.isMobile ? vm.goRootNode : null,
                 icon: const Icon(Icons.arrow_upward),
+              ),
+            ),
+          ),
+          Tooltip(
+            message: 'Node outline',
+            child: GestureDetector(
+              child: IconButton(
+                icon: const Icon(Icons.menu),
+                onPressed: vm.hasNode
+                ? () async {
+                  final entries = await vm.getCurrentOutline();
+                  if (!context.mounted) return;
+                  showOutlineSheet(
+                    context,
+                    entries: entries,
+                    onTap: vm.scrollToOffset,
+                  );
+                }
+                : null,
               ),
             ),
           ),
