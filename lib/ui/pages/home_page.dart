@@ -16,7 +16,6 @@ import 'package:mycelium/ui/widgets/md_editor.dart';
 import 'package:mycelium/ui/widgets/no_collection_widget.dart';
 import 'package:mycelium/ui/widgets/no_more_reviews_widget.dart';
 import 'package:mycelium/ui/widgets/no_node_widget.dart';
-import 'package:mycelium/ui/widgets/outline_sheet.dart';
 import 'package:mycelium/ui/widgets/right_drawer.dart';
 import 'package:mycelium/utils/device.dart';
 import 'package:mycelium/utils/responsive.dart';

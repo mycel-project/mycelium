@@ -20,6 +20,7 @@ class RightDrawer extends StatelessWidget {
     final vm = context.watch<HomeViewModel>();
     final node = context.watch<NodeStore>().currentNode;
 
+
     return Drawer(
       child: SafeArea(
         child: Column(
@@ -48,10 +49,8 @@ class RightDrawer extends StatelessWidget {
                     ],
                   ),
                 ),
-                const _RightDrawerOutlineHeader(),
-                const Divider(height: 1),
                 SizedBox(
-                  height: MediaQuery.of(context).size.height * 0.40,
+                  height: MediaQuery.of(context).size.height * 0.45,
                   child: _Outline(vm: vm, currentNodeId: node.id),
                 ),
               ],
@@ -66,7 +65,6 @@ class RightDrawer extends StatelessWidget {
 class _Outline extends StatefulWidget {
   final HomeViewModel vm;
   final int? currentNodeId;
-
   const _Outline({required this.vm, required this.currentNodeId});
 
   @override
@@ -85,12 +83,17 @@ class _OutlineState extends State<_Outline> {
   @override
   void didUpdateWidget(covariant _Outline oldWidget) {
     super.didUpdateWidget(oldWidget);
-
     if (widget.currentNodeId != oldWidget.currentNodeId) {
       setState(() {
         _outlineFuture = widget.vm.getCurrentOutline();
       });
     }
+  }
+
+  void _refresh() {
+    setState(() {
+      _outlineFuture = widget.vm.getCurrentOutline(forceRefresh: true);
+    });
   }
 
   @override
@@ -105,23 +108,31 @@ class _OutlineState extends State<_Outline> {
             child: Center(child: CircularProgressIndicator()),
           );
         }
-
-        return buildOutlineSheet(
-          context,
-          entries: snapshot.data,
-          onTap: (offset) {
-            widget.vm.scrollToOffset(offset);
-            if (Responsive.isMobile(context)) Navigator.pop(context);
-          },
-          currentOffset: context.select<ScrollPositionStore, int>(
-            (store) => store.offset,
-          ),
-          onRefresh: () async {
-            setState(() {
-              _outlineFuture = widget.vm.getCurrentOutline(forceRefresh: true);
-            });
-            return _outlineFuture;
-          },
+        return Column(
+          children: [
+            ListTile(
+              title: const Text("Outline"),
+              trailing: IconButton(
+                icon: const Icon(Icons.refresh),
+                tooltip: "Reload outline",
+                onPressed: _refresh,
+              ),
+            ),
+            const Divider(height: 1),
+            Expanded(
+              child: buildOutlineSheet(
+                context,
+                entries: snapshot.data,
+                onTap: (offset) {
+                  widget.vm.scrollToOffset(offset);
+                  if (Responsive.isMobile(context)) Navigator.pop(context);
+                },
+                currentOffset: context.select<ScrollPositionStore, int>(
+                  (store) => store.offset,
+                ),
+              ),
+            ),
+          ],
         );
       },
     );
@@ -138,14 +149,6 @@ class _RightDrawerNodeHeader extends StatelessWidget {
   }
 }
 
-class _RightDrawerOutlineHeader extends StatelessWidget {
-  const _RightDrawerOutlineHeader();
-
-  @override
-  Widget build(BuildContext context) {
-    return const ListTile(title: Text("Outline"));
-  }
-}
 
 class _RightDrawerReviewHeader extends StatelessWidget {
   const _RightDrawerReviewHeader();
