@@ -69,7 +69,7 @@ class MdEditorState extends State<MdEditor> {
 
   bool _isRemovingFocus = false; // avoid stack overflow
   void removeFocusAndCursor() {
-    if (_isRemovingFocus) return;
+    if (_isRemovingFocus || vm.hasSelection) return;
     _isRemovingFocus = true;
     focusNode.unfocus();
     vm.onCursorChanged(null);
