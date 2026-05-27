@@ -12,7 +12,8 @@ class GetOutlineUseCase {
     this.notificationBus,
   );
 
-  Future<List<OutlineEntry>?> execute(int colId, int nodeId) async {
+  Future<List<OutlineEntry>?> execute(int colId, int nodeId, {bool forceRefresh = false}) async {
+    if (forceRefresh) nodeRepository.clearOutlineCache();
     final result = await nodeRepository.getOutline(
       colId,
       nodeId,

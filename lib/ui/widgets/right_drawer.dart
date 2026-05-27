@@ -118,7 +118,7 @@ class _OutlineState extends State<_Outline> {
           ),
           onRefresh: () async {
             setState(() {
-              _outlineFuture = widget.vm.getCurrentOutline();
+              _outlineFuture = widget.vm.getCurrentOutline(forceRefresh: true);
             });
             return _outlineFuture;
           },

@@ -30,6 +30,7 @@ class InitDataUseCase {
     userRepository.clearConfigSchemaCache();
     nodeRepository.clearCache();
     nodeRepository.clearTypesCache();
+    nodeRepository.clearOutlineCache();
     nodeStore.selectNode(null);
     collectionStore.clearCollection();
     reviewRepository.clearClozeRegex();

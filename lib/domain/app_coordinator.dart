@@ -56,6 +56,7 @@ class AppCoordinator {
 
   void _onCollectionChanged() async {
     _nodeRepository.clearCache();
+    _nodeRepository.clearOutlineCache();
     _nodeStore.selectNode(null);
     _navigationStore.clear();
     final colId = _collectionStore.currentCollection?.id;

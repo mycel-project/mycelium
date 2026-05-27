@@ -15,11 +15,15 @@ class NodeRepository {
 
   Map<int, NodeType>? _typesCache;
   final Map<int, Node> _nodeCache = {};
+  (int, List<OutlineEntry>)? _outlineCache; // keeping only one node outline at a time to be sure to refresh when changin node. But is this necessary? a map could be an other way.
 
   NodeRepository(this.nodeService);
 
   Map<int, Node> get nodeCache => Map.unmodifiable(_nodeCache);
   Map<int, NodeType> get nodeTypesCache => Map.unmodifiable(_typesCache ?? {});
+
+  List<OutlineEntry>? getOutlineCache(int nodeId) =>
+    _outlineCache?.$1 == nodeId ? _outlineCache?.$2 : null;
 
   void clearCache() {
     _nodeCache.clear();
@@ -29,12 +33,22 @@ class NodeRepository {
     _typesCache = null;
   }
 
+  void clearOutlineCache() {
+    _outlineCache = null;
+  }
+
   void updateCache(int id, Node node) {
     // When used from external access must be used in consequence of a fetch from backend, no direct modification from frontend. For example if review_repo get back a node and we want to store this node in cache, use this method.
     _nodeCache[id] = node;
   }
 
   Future<ApiResult<List<OutlineEntry>>> getOutline(int colId, int nodeId) async {
+    final cached = getOutlineCache(nodeId);
+    if (cached != null) return ApiSuccess(cached);
+    return _loadOutline(colId, nodeId);
+  }
+
+  Future<ApiResult<List<OutlineEntry>>> _loadOutline(int colId, int nodeId) async {
     final result = await nodeService.getOutline(colId, nodeId);
     if (result is ApiError) return result;
     final success = result as ApiSuccess<String>;
@@ -42,6 +56,7 @@ class NodeRepository {
     final entries = (json["outline"]["entries"] as List? ?? [])
     .map((e) => OutlineEntry.fromJson(e))
     .toList();
+    _outlineCache = (nodeId, entries);
     return ApiSuccess(entries);
   }
 

@@ -169,13 +169,13 @@ class HomeViewModel extends ChangeNotifier {
 
   int get scrollPosition => scrollPositionStore.offset;
 
-  Future<List<OutlineEntry>?> getCurrentOutline() async {
+  Future<List<OutlineEntry>?> getCurrentOutline({bool forceRefresh = false}) async {
     Node? node = nodeStore.currentNode;
     final colId = collectionStore.currentCollection?.id;
     if (colId == null || node == null) return null;
-    return await getOutlineUseCase.execute(colId, node.id);
+    return await getOutlineUseCase.execute(colId, node.id, forceRefresh: forceRefresh);
   }
-
+  
   void scrollToOffset(int offset) {
     scrollPositionStore.update(offset);
   }
