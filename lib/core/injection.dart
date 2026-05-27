@@ -1,8 +1,6 @@
 import 'package:get_it/get_it.dart';
 import 'package:mycelium/core/debug/network_logger.dart';
 import 'package:mycelium/core/notifications/notification_bus.dart';
-import 'package:mycelium/core/scroll_event_bus.dart';
-
 import 'package:mycelium/core/stores/api_store.dart';
 import 'package:mycelium/core/stores/app_store.dart';
 import 'package:mycelium/core/stores/collection_store.dart';
@@ -60,7 +58,6 @@ final sl = GetIt.instance;
 
 Future<void> setup() async {
   sl.registerSingleton(NotificationBus());
-  sl.registerSingleton(ScrollEventBus());
   sl.registerSingleton(NetworkLogger());
   // Infra
   sl.registerSingleton(ApiPreferences());
@@ -142,14 +139,12 @@ Future<void> setup() async {
       sl(),
       sl(),
       sl(),
-      sl(),
     ),
   );
   sl.registerFactory(() => ApiViewModel(sl(), sl(), sl(), sl(), sl()));
   //// should reduce dependencies ?
   sl.registerFactory(
     () => MdEditorViewModel(
-      sl(),
       sl(),
       sl(),
       sl(),

@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mycelium/core/notifications/notification_bus.dart';
-import 'package:mycelium/core/scroll_event_bus.dart';
 import 'package:mycelium/core/stores/api_store.dart';
 import 'package:mycelium/core/stores/collection_store.dart';
 import 'package:mycelium/core/stores/node_store.dart';
@@ -43,7 +42,6 @@ class MdEditorViewModel extends ChangeNotifier {
   RemoveLinksUseCase removeLinksUseCase;
   UpdatePriorityUseCase updatePriorityUseCase;
   RefreshPrioritiesUseCase refreshPrioritiesUseCase;
-  ScrollEventBus scrollEventBus;
   ScrollPositionStore scrollPositionStore;
 
   bool isAnswerVisible = false;
@@ -76,7 +74,6 @@ class MdEditorViewModel extends ChangeNotifier {
     this.removeLinksUseCase,
     this.updatePriorityUseCase,
     this.refreshPrioritiesUseCase,
-    this.scrollEventBus,
     this.scrollPositionStore,
   ) {
     nodeStore.addListener(_onNodeStoreChanged);

@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:mycelium/core/either.dart';
 import 'package:mycelium/core/notifications/notification_bus.dart';
-import 'package:mycelium/core/scroll_event_bus.dart';
 import 'package:mycelium/core/stores/api_store.dart';
 import 'package:mycelium/core/stores/collection_store.dart';
 import 'package:mycelium/core/stores/navigation_store.dart';
@@ -48,7 +47,6 @@ class HomeViewModel extends ChangeNotifier {
   final UpdatePriorityUseCase updatePriorityUseCase;
   final RefreshPrioritiesUseCase refreshPrioritiesUseCase;
   final GetOutlineUseCase getOutlineUseCase;
-  final ScrollEventBus scrollEventBus;
   final ScrollPositionStore scrollPositionStore;
 
   bool noMoreReviewsFlag = false;
@@ -71,7 +69,6 @@ class HomeViewModel extends ChangeNotifier {
     this.updatePriorityUseCase,
     this.refreshPrioritiesUseCase,
     this.getOutlineUseCase,
-    this.scrollEventBus,
     this.scrollPositionStore,
   ) {
     reviewStore.addListener(_onReviewChanged);
@@ -180,7 +177,7 @@ class HomeViewModel extends ChangeNotifier {
   }
 
   void scrollToOffset(int offset) {
-    scrollEventBus.requestScroll(offset);
+    scrollPositionStore.update(offset);
   }
 
   // Not reloading the cache on each open — could this be a problem?

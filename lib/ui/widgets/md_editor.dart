@@ -60,26 +60,34 @@ class MdEditorState extends State<MdEditor> {
         });
       }
     };
-    _scrollSub = vm.scrollEventBus.onScrollRequest.listen((offset) {
-        if (!mounted || !scrollController.hasClients) return;
-        final position = offset *
-        scrollController.position.maxScrollExtent /
-        vm.content.length;
-        scrollController.animateTo(
-          position,
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeOut,
-        );
-    });
+
+    bool updatingPosition = false;
 
     scrollController.addListener(() {
         if (!scrollController.hasClients) return;
-        final progress = scrollController.offset / scrollController.position.maxScrollExtent;
+        updatingPosition = true;
+        final progress =
+        scrollController.offset / scrollController.position.maxScrollExtent;
         vm.scrollPositionStore.update((progress * vm.content.length).toInt());
+        updatingPosition = false;
     });
-  }
+    
+    void onScrollPositionChanged() async {
+      if (updatingPosition) return;
+      if (!mounted || !scrollController.hasClients) return;
+      final position =
+      vm.scrollPositionStore.offset *
+      scrollController.position.maxScrollExtent /
+      vm.content.length;
+      scrollController.animateTo(
+        position,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
+    }
 
-  late final StreamSubscription<int> _scrollSub;
+    vm.scrollPositionStore.addListener(onScrollPositionChanged);
+  }
 
   void _onCursorChanged() {
     if (vm.isUpdatingCursor || _isRemovingFocus) return;
@@ -114,7 +122,6 @@ class MdEditorState extends State<MdEditor> {
     markdownController.dispose();
     focusNode.dispose();
     scrollController.dispose();
-    _scrollSub.cancel();
     super.dispose();
   }
 
@@ -133,7 +140,11 @@ class MdEditorState extends State<MdEditor> {
           Expanded(
             child: Center(
               child: ConstrainedBox(
-                constraints: BoxConstraints(maxWidth: Responsive.isDesktop(context) ? MediaQuery.sizeOf(context).width * 0.5 : double.infinity),
+                constraints: BoxConstraints(
+                  maxWidth: Responsive.isDesktop(context)
+                      ? MediaQuery.sizeOf(context).width * 0.5
+                      : double.infinity,
+                ),
                 child: Stack(
                   fit: StackFit.expand,
                   children: [
@@ -189,14 +200,14 @@ class MdEditorState extends State<MdEditor> {
                       right: 8,
                       child: Center(
                         child: ConstrainedBox(
-                          constraints:
-                          BoxConstraints(maxWidth: Device.isDesktop ? 300 : double.infinity),
+                          constraints: BoxConstraints(
+                            maxWidth: Device.isDesktop ? 300 : double.infinity,
+                          ),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: [
                               if (!vm.isCurrentNodeSpore()) ...[
-                                if (!Device.isDesktop) 
-                                HistoryButton(vm: vm),
+                                if (!Device.isDesktop) HistoryButton(vm: vm),
                                 DismissButton(vm: vm),
                                 FragmentButton(
                                   vm: vm,
@@ -206,11 +217,11 @@ class MdEditorState extends State<MdEditor> {
                                   vm: vm,
                                   markdownController: markdownController,
                                 ),
-                                if (!Device.isDesktop) 
-                                KeyboardButton(
-                                  vm: vm,
-                                  removeFocusAndCursor: removeFocusAndCursor,
-                                ),
+                                if (!Device.isDesktop)
+                                  KeyboardButton(
+                                    vm: vm,
+                                    removeFocusAndCursor: removeFocusAndCursor,
+                                  ),
                                 MoreButton(
                                   markdownController: markdownController,
                                 ),
@@ -226,8 +237,11 @@ class MdEditorState extends State<MdEditor> {
             ),
           ),
           ConstrainedBox(
-            constraints:
-            BoxConstraints(maxWidth: Responsive.isDesktop(context) ? MediaQuery.sizeOf(context).width * 0.5 : double.infinity),
+            constraints: BoxConstraints(
+              maxWidth: Responsive.isDesktop(context)
+                  ? MediaQuery.sizeOf(context).width * 0.5
+                  : double.infinity,
+            ),
             child: ReviewActionBar(
               vm: vm,
               focusNode: focusNode,
