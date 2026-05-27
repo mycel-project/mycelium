@@ -6,18 +6,20 @@ import 'package:mycelium/ui/widgets/adaptative_sheet.dart';
 
 // Maybe pass small node views embedding for instance title formatted (true title or content extract as in node tree)
 
-// Used ClaudeAI to quickly build widget 
+// Used ClaudeAI to quickly build widget
 class PrioritySelector extends StatefulWidget {
   final List<Node> nodes;
   final int currentNodeId;
   final void Function(double newPriority) onConfirm;
+  final String title;
 
   const PrioritySelector({
       super.key,
+      String? title,
       required this.nodes,
       required this.currentNodeId,
       required this.onConfirm,
-  });
+  }) : title = title ?? "Reprioritize";
 
   @override
   State<PrioritySelector> createState() => _PrioritySelectorState();
@@ -32,19 +34,18 @@ class _PrioritySelectorState extends State<PrioritySelector> {
   @override
   void initState() {
     super.initState();
-    _sortedPriorities = widget.nodes
-    .map((n) => n.priority)
-    .toSet()
-    .toList()
-    ..sort();
+    _sortedPriorities = widget.nodes.map((n) => n.priority).toSet().toList()
+      ..sort();
 
-    final currentNode = widget.nodes.firstWhere((n) => n.id == widget.currentNodeId);
+    final currentNode = widget.nodes.firstWhere(
+      (n) => n.id == widget.currentNodeId,
+    );
     _selectedPriority = currentNode.priority;
     _textController = TextEditingController(text: _selectedPriority.toString());
 
     _textFocusNode = FocusNode();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-        _textFocusNode.requestFocus();
+      _textFocusNode.requestFocus();
     });
   }
 
@@ -68,16 +69,18 @@ class _PrioritySelectorState extends State<PrioritySelector> {
   double _sliderToPriority(double sliderVal) {
     if (_sortedPriorities.length <= 1) return _sortedPriorities.first;
     final t = (exp(sliderVal * _logIntensity) - 1) / (exp(_logIntensity) - 1);
-    final index = (t * (_sortedPriorities.length - 1)).round()
-    .clamp(0, _sortedPriorities.length - 1);
+    final index = (t * (_sortedPriorities.length - 1)).round().clamp(
+      0,
+      _sortedPriorities.length - 1,
+    );
     return _sortedPriorities[index];
   }
 
   void _onSliderChanged(double val) {
     final priority = _sliderToPriority(val);
     setState(() {
-        _selectedPriority = priority;
-        _textController.text = priority.toString();
+      _selectedPriority = priority;
+      _textController.text = priority.toString();
     });
   }
 
@@ -98,24 +101,34 @@ class _PrioritySelectorState extends State<PrioritySelector> {
       }
     }
     setState(() {
-        _selectedPriority = nearest;
-        _textController.text = nearest.toString();
+      _selectedPriority = nearest;
+      _textController.text = nearest.toString();
     });
   }
 
   Node? get _higherPriorityNeighbor {
-    final candidates = widget.nodes
-    .where((n) => n.id != widget.currentNodeId && n.priority < _selectedPriority)
-    .toList()
-    ..sort((a, b) => b.priority.compareTo(a.priority));
+    final candidates =
+        widget.nodes
+            .where(
+              (n) =>
+                  n.id != widget.currentNodeId &&
+                  n.priority < _selectedPriority,
+            )
+            .toList()
+          ..sort((a, b) => b.priority.compareTo(a.priority));
     return candidates.isNotEmpty ? candidates.first : null;
   }
 
   Node? get _lowerPriorityNeighbor {
-    final candidates = widget.nodes
-    .where((n) => n.id != widget.currentNodeId && n.priority > _selectedPriority)
-    .toList()
-    ..sort((a, b) => a.priority.compareTo(b.priority));
+    final candidates =
+        widget.nodes
+            .where(
+              (n) =>
+                  n.id != widget.currentNodeId &&
+                  n.priority > _selectedPriority,
+            )
+            .toList()
+          ..sort((a, b) => a.priority.compareTo(b.priority));
     return candidates.isNotEmpty ? candidates.first : null;
   }
 
@@ -139,8 +152,10 @@ class _PrioritySelectorState extends State<PrioritySelector> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
-            'Reprioritize',
-            style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+            widget.title,
+            style: theme.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.w600,
+            ),
           ),
           const SizedBox(height: 24),
 
@@ -160,10 +175,15 @@ class _PrioritySelectorState extends State<PrioritySelector> {
                 child: SliderTheme(
                   data: SliderTheme.of(context).copyWith(
                     trackHeight: 3,
-                    thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8),
-                    overlayShape: const RoundSliderOverlayShape(overlayRadius: 16),
+                    thumbShape: const RoundSliderThumbShape(
+                      enabledThumbRadius: 8,
+                    ),
+                    overlayShape: const RoundSliderOverlayShape(
+                      overlayRadius: 16,
+                    ),
                     activeTrackColor: theme.colorScheme.primary,
-                    inactiveTrackColor: theme.colorScheme.surfaceContainerHighest,
+                    inactiveTrackColor:
+                        theme.colorScheme.surfaceContainerHighest,
                     thumbColor: theme.colorScheme.primary,
                   ),
                   child: Slider(
@@ -185,11 +205,17 @@ class _PrioritySelectorState extends State<PrioritySelector> {
                   inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                   decoration: InputDecoration(
                     isDense: true,
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 8,
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
                   ),
                   onSubmitted: _onTextSubmitted,
-                  onEditingComplete: () => _onTextSubmitted(_textController.text),
+                  onEditingComplete: () =>
+                      _onTextSubmitted(_textController.text),
                 ),
               ),
             ],
@@ -214,7 +240,9 @@ class _PrioritySelectorState extends State<PrioritySelector> {
             },
             style: ElevatedButton.styleFrom(
               padding: const EdgeInsets.symmetric(vertical: 14),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
             ),
             child: const Text('Confirm'),
           ),
@@ -232,11 +260,11 @@ class _NeighborCard extends StatelessWidget {
   final bool dimmed;
 
   const _NeighborCard({
-      required this.label,
-      required this.node,
-      required this.excerpt,
-      required this.priority,
-      required this.dimmed,
+    required this.label,
+    required this.node,
+    required this.excerpt,
+    required this.priority,
+    required this.dimmed,
   });
 
   @override
@@ -248,11 +276,11 @@ class _NeighborCard extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
         decoration: BoxDecoration(
-          color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(
-            color: theme.dividerColor.withValues(alpha: 0.3),
+          color: theme.colorScheme.surfaceContainerHighest.withValues(
+            alpha: 0.5,
           ),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: theme.dividerColor.withValues(alpha: 0.3)),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -292,10 +320,11 @@ class _NeighborCard extends StatelessWidget {
 
 Future<void> showPriorityPicker(
   BuildContext context, {
-  required List<Node> nodes,
-  required int currentNodeId,
-  required Future<void> Function() onRefresh,
-  required Future<bool> Function(int nodeId, double priority) onUpdate,
+    String? title,
+    required List<Node> nodes,
+    required int currentNodeId,
+    required Future<void> Function() onRefresh,
+    required Future<bool> Function(int nodeId, double priority) onUpdate,
 }) async {
   if (nodes.length < 500) {
     await onRefresh();
@@ -304,6 +333,7 @@ Future<void> showPriorityPicker(
   showAdaptiveSheet(
     context: context,
     child: PrioritySelector(
+      title: title,
       nodes: nodes,
       currentNodeId: currentNodeId,
       onConfirm: (value) {

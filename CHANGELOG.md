@@ -13,7 +13,6 @@
 - Remove link formatting now applies to the full content when nothing is selected.
 - Added undo action to the end-of-review screen.
 - Canceling a warning dialog on a settings field now properly reverts the slider to its previous value.
-- Functionnality to remove all markdown links formatting from a text selection
 
 ### Fixed
 - Use double rather than int to display priorities

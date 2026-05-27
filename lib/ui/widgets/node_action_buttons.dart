@@ -119,6 +119,7 @@ class FragmentButton extends StatelessWidget {
     if (extract is Node && context.mounted) {
       await showPriorityPicker(
         context,
+        title: "Prioritize created extract",
         nodes: vm.getNodes(),
         currentNodeId: extract.id,
         onRefresh: vm.refreshPriorities,
@@ -172,6 +173,7 @@ class SporeButton extends StatelessWidget {
     if (spore is Node && context.mounted) {
       await showPriorityPicker(
         context,
+        title: "Prioritize created extract",
         nodes: vm.getNodes(),
         currentNodeId: spore.id,
         onRefresh: vm.refreshPriorities,
