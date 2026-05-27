@@ -109,8 +109,8 @@ class FragmentButton extends StatelessWidget {
 
   Future<Node?> _createFragment(BuildContext context) async {
     final extract = await vm.createFragment(markdownController.text);
+    if (!context.mounted || extract is! Node) return null;
     markdownController.selection = const TextSelection.collapsed(offset: -1);
-    if (!context.mounted) return null;
     FocusScope.of(context).unfocus();
     return extract;
   }
@@ -166,11 +166,11 @@ class SporeButton extends StatelessWidget {
   });
 
   Future<Node?> _createSpore(BuildContext context) async {
-    final spore = await vm.createSpore(markdownController.text);
+    final extract = await vm.createSpore(markdownController.text);
+    if (!context.mounted || extract is! Node) return null;
     markdownController.selection = const TextSelection.collapsed(offset: -1);
-    if (!context.mounted) return null;
     FocusScope.of(context).unfocus();
-    return spore;
+    return extract;
   }
 
   Future<void> _onSecondary(BuildContext context) async {
