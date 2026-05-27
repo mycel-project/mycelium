@@ -1,3 +1,5 @@
+import "dart:async";
+
 import "package:flutter/material.dart";
 import "package:mycelium/core/stores/review_store.dart";
 import "package:mycelium/ui/controllers/markdown_controller.dart";
@@ -58,7 +60,20 @@ class MdEditorState extends State<MdEditor> {
         });
       }
     };
+    _scrollSub = vm.scrollEventBus.onScrollRequest.listen((offset) {
+        if (!mounted || !scrollController.hasClients) return;
+        final position = offset *
+        scrollController.position.maxScrollExtent /
+        vm.content.length;
+        scrollController.animateTo(
+          position,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
+    });
   }
+
+  late final StreamSubscription<int> _scrollSub;
 
   void _onCursorChanged() {
     if (vm.isUpdatingCursor || _isRemovingFocus) return;
@@ -93,6 +108,7 @@ class MdEditorState extends State<MdEditor> {
     markdownController.dispose();
     focusNode.dispose();
     scrollController.dispose();
+    _scrollSub.cancel();
     super.dispose();
   }
 
