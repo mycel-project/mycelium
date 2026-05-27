@@ -6,6 +6,7 @@ import 'package:mycelium/core/errors/node_errors.dart';
 import 'package:mycelium/data/api_result.dart';
 import 'package:mycelium/data/models/node.dart';
 import 'package:mycelium/data/models/node_type.dart';
+import 'package:mycelium/data/models/outline_entry.dart';
 import 'package:mycelium/data/services/node_service.dart';
 
 class NodeRepository {
@@ -31,6 +32,17 @@ class NodeRepository {
   void updateCache(int id, Node node) {
     // When used from external access must be used in consequence of a fetch from backend, no direct modification from frontend. For example if review_repo get back a node and we want to store this node in cache, use this method.
     _nodeCache[id] = node;
+  }
+
+  Future<ApiResult<List<OutlineEntry>>> getOutline(int colId, int nodeId) async {
+    final result = await nodeService.getOutline(colId, nodeId);
+    if (result is ApiError) return result;
+    final success = result as ApiSuccess<String>;
+    final json = jsonDecode(success.data);
+    final entries = (json["outline"]["entries"] as List? ?? [])
+    .map((e) => OutlineEntry.fromJson(e))
+    .toList();
+    return ApiSuccess(entries);
   }
 
   Future<ApiResult<Node>> rescheduleNode(

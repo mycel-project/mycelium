@@ -30,6 +30,10 @@ class NodeService {
   Future<ApiResult<String>> deleteNode(int collectionId, int nodeId) async {
     return await api.delete("/collections/$collectionId/nodes/$nodeId");
   }
+
+  Future<ApiResult<String>> getOutline(int collectionId, int nodeId) async {
+    return await api.get("/collections/$collectionId/nodes/$nodeId/outline");
+  }
   
   Future<ApiResult<String>> reprioritiseNode(
     int collectionId,

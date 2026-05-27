@@ -1,6 +1,7 @@
 import 'package:get_it/get_it.dart';
 import 'package:mycelium/core/debug/network_logger.dart';
 import 'package:mycelium/core/notifications/notification_bus.dart';
+import 'package:mycelium/core/scroll_event_bus.dart';
 
 import 'package:mycelium/core/stores/api_store.dart';
 import 'package:mycelium/core/stores/app_store.dart';
@@ -28,6 +29,7 @@ import 'package:mycelium/domain/check_api_compatibility_usecase.dart';
 import 'package:mycelium/domain/check_app_update_usecase.dart';
 import 'package:mycelium/domain/create_extract_usecase.dart';
 import 'package:mycelium/domain/get_calendar_usecase.dart';
+import 'package:mycelium/domain/get_outline_usecase.dart';
 import 'package:mycelium/domain/init_api_usecase.dart';
 import 'package:mycelium/domain/init_collections_usecase.dart';
 import 'package:mycelium/domain/init_data_usecase.dart';
@@ -57,6 +59,7 @@ final sl = GetIt.instance;
 
 Future<void> setup() async {
   sl.registerSingleton(NotificationBus());
+  sl.registerSingleton(ScrollEventBus());
   sl.registerSingleton(NetworkLogger());
   // Infra
   sl.registerSingleton(ApiPreferences());
@@ -89,7 +92,9 @@ Future<void> setup() async {
   sl.registerSingleton(CheckApiUseCase(sl(), sl(), sl()));
   sl.registerSingleton(UpdateApiUrlUseCase(sl(), sl(), sl()));
   sl.registerSingleton(InitCollectionsUseCase(sl(), sl(), sl(), sl()));
-  sl.registerSingleton(InitDataUseCase(sl(), sl(), sl(), sl(), sl(), sl(), sl()));
+  sl.registerSingleton(
+    InitDataUseCase(sl(), sl(), sl(), sl(), sl(), sl(), sl()),
+  );
   sl.registerSingleton(InitApiUseCase(sl(), sl(), sl(), sl()));
   sl.registerSingleton(SelectCollectionUseCase(sl(), sl()));
   sl.registerSingleton(NavigationUseCase(sl(), sl(), sl(), sl()));
@@ -103,11 +108,10 @@ Future<void> setup() async {
   sl.registerSingleton(RemoveLinksUseCase(sl(), sl(), sl()));
   sl.registerSingleton(UpdatePriorityUseCase(sl(), sl(), sl()));
   sl.registerSingleton(RefreshPrioritiesUseCase(sl(), sl(), sl()));
+  sl.registerSingleton(GetOutlineUseCase(sl(), sl()));
   sl.registerSingleton(
     AppCoordinator(sl(), sl(), sl(), sl(), sl(), sl(), sl()),
   );
-  
-  
 
   // Misc
   sl.registerSingleton(ApiHealthMonitor(sl(), sl(), sl()));
@@ -134,12 +138,15 @@ Future<void> setup() async {
       sl(),
       sl(),
       sl(),
+      sl(),
+      sl(),
     ),
   );
   sl.registerFactory(() => ApiViewModel(sl(), sl(), sl(), sl(), sl()));
   //// should reduce dependencies ?
   sl.registerFactory(
     () => MdEditorViewModel(
+      sl(),
       sl(),
       sl(),
       sl(),
