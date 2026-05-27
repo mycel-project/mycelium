@@ -22,9 +22,9 @@ Future<void> showAdaptiveSheet({
     return showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      builder: (_) => SafeArea(
+      builder: (sheetContext) => SafeArea(
         child: Padding(
-          padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+          padding: EdgeInsets.only(bottom: MediaQuery.of(sheetContext).viewInsets.bottom),
           child: child,
         ),
       ),
