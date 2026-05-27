@@ -8,6 +8,7 @@ import 'package:mycelium/core/stores/api_store.dart';
 import 'package:mycelium/core/stores/collection_store.dart';
 import 'package:mycelium/core/stores/node_store.dart';
 import 'package:mycelium/core/stores/review_store.dart';
+import 'package:mycelium/core/stores/scroll_position_store.dart';
 import 'package:mycelium/data/api_result.dart';
 import 'package:mycelium/data/models/node.dart';
 import 'package:mycelium/data/repositories/node_repository.dart';
@@ -43,6 +44,7 @@ class MdEditorViewModel extends ChangeNotifier {
   UpdatePriorityUseCase updatePriorityUseCase;
   RefreshPrioritiesUseCase refreshPrioritiesUseCase;
   ScrollEventBus scrollEventBus;
+  ScrollPositionStore scrollPositionStore;
 
   bool isAnswerVisible = false;
   bool isEditing = false;
@@ -75,6 +77,7 @@ class MdEditorViewModel extends ChangeNotifier {
     this.updatePriorityUseCase,
     this.refreshPrioritiesUseCase,
     this.scrollEventBus,
+    this.scrollPositionStore,
   ) {
     nodeStore.addListener(_onNodeStoreChanged);
     apiStore.addListener(_onApiStoreChanged);

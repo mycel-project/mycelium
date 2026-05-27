@@ -9,6 +9,7 @@ import 'package:mycelium/core/stores/collection_store.dart';
 import 'package:mycelium/core/stores/navigation_store.dart';
 import 'package:mycelium/core/stores/node_store.dart';
 import 'package:mycelium/core/stores/review_store.dart';
+import 'package:mycelium/core/stores/scroll_position_store.dart';
 import 'package:mycelium/core/stores/user_store.dart';
 import 'package:mycelium/data/local/api_preferences.dart';
 import 'package:mycelium/data/local/collection_preferences.dart';
@@ -84,6 +85,7 @@ Future<void> setup() async {
   sl.registerSingleton(ReviewService(sl()));
   sl.registerSingleton(ReviewRepository(sl()));
   sl.registerSingleton(NavigationStore());
+  sl.registerSingleton(ScrollPositionStore());
 
   // Use cases/coords
   sl.registerSingleton(InitUserUseCase(sl(), sl(), sl(), sl()));
@@ -140,12 +142,14 @@ Future<void> setup() async {
       sl(),
       sl(),
       sl(),
+      sl(),
     ),
   );
   sl.registerFactory(() => ApiViewModel(sl(), sl(), sl(), sl(), sl()));
   //// should reduce dependencies ?
   sl.registerFactory(
     () => MdEditorViewModel(
+      sl(),
       sl(),
       sl(),
       sl(),

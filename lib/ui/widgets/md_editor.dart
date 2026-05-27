@@ -71,6 +71,12 @@ class MdEditorState extends State<MdEditor> {
           curve: Curves.easeOut,
         );
     });
+
+    scrollController.addListener(() {
+        if (!scrollController.hasClients) return;
+        final progress = scrollController.offset / scrollController.position.maxScrollExtent;
+        vm.scrollPositionStore.update((progress * vm.content.length).toInt());
+    });
   }
 
   late final StreamSubscription<int> _scrollSub;

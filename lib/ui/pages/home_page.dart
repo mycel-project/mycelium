@@ -108,6 +108,7 @@ class HomePage extends StatelessWidget {
                     context,
                     entries: entries,
                     onTap: vm.scrollToOffset,
+                    currentOffset: vm.scrollPosition
                   );
                 }
                 : null,

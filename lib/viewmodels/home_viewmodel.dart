@@ -10,6 +10,7 @@ import 'package:mycelium/core/stores/navigation_store.dart';
 import 'package:mycelium/core/stores/node_store.dart';
 import 'package:mycelium/core/stores/review_state.dart';
 import 'package:mycelium/core/stores/review_store.dart';
+import 'package:mycelium/core/stores/scroll_position_store.dart';
 import 'package:mycelium/data/api_result.dart';
 import 'package:mycelium/data/models/day_review_overview.dart';
 import 'package:mycelium/data/models/node.dart';
@@ -48,6 +49,7 @@ class HomeViewModel extends ChangeNotifier {
   final RefreshPrioritiesUseCase refreshPrioritiesUseCase;
   final GetOutlineUseCase getOutlineUseCase;
   final ScrollEventBus scrollEventBus;
+  final ScrollPositionStore scrollPositionStore;
 
   bool noMoreReviewsFlag = false;
 
@@ -70,6 +72,7 @@ class HomeViewModel extends ChangeNotifier {
     this.refreshPrioritiesUseCase,
     this.getOutlineUseCase,
     this.scrollEventBus,
+    this.scrollPositionStore,
   ) {
     reviewStore.addListener(_onReviewChanged);
     nodeStore.addListener(_onNodeStoreChange);
@@ -166,6 +169,8 @@ class HomeViewModel extends ChangeNotifier {
   }
 
   bool get hasNode => nodeStore.currentNode != null;
+
+  int get scrollPosition => scrollPositionStore.offset;
 
   Future<List<OutlineEntry>?> getCurrentOutline() async {
     Node? node = nodeStore.currentNode;

@@ -8,6 +8,7 @@ import 'package:mycelium/core/stores/app_store.dart';
 import 'package:mycelium/core/stores/collection_store.dart';
 import 'package:mycelium/core/stores/node_store.dart';
 import 'package:mycelium/core/stores/review_store.dart';
+import 'package:mycelium/core/stores/scroll_position_store.dart';
 import 'package:mycelium/core/stores/user_store.dart';
 import 'package:mycelium/domain/api_status.dart';
 import 'package:mycelium/domain/check_app_update_usecase.dart';
@@ -61,6 +62,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => sl<DeletedNodesViewModel>()),
         ChangeNotifierProvider(create: (_) => sl<AboutViewModel>()),
         ChangeNotifierProvider(create: (_) => sl<AppStore>()),
+        ChangeNotifierProvider(create: (_) => sl<ScrollPositionStore>()),
       ],
       child: MyApp(emptyApi: emptyApi),
     ),
