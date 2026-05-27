@@ -88,7 +88,11 @@ class MdEditorViewModel extends ChangeNotifier {
   bool get showUnsavedChangesDialog => _showUnsavedChangesDialog;
   Node? _pendingNode;
 
+  bool isUpdatingPosition = false;
+
   void Function(String content, int? cursor)? onContentCommand;
+
+  void Function()? goScrollTop;
 
   // To update content from vm
   void _applyContent(String newContent, {int? cursor}) {
@@ -97,6 +101,7 @@ class MdEditorViewModel extends ChangeNotifier {
   }
 
   Future<void> _onNodeStoreChanged() async {
+    goScrollTop?.call();
     if (_showUnsavedChangesDialog) return;
     if (_pendingNode != null) {
       _pendingNode = null;
@@ -109,6 +114,12 @@ class MdEditorViewModel extends ChangeNotifier {
       return;
     }
     loadNode(nodeStore.currentNode);
+  }
+
+  void updateScroll(double progress) {
+    isUpdatingPosition = true;
+    scrollPositionStore.update((progress * content.length).toInt());
+    isUpdatingPosition = false;
   }
 
   void confirmDiscardChanges() {

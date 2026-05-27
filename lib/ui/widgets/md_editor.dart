@@ -61,24 +61,27 @@ class MdEditorState extends State<MdEditor> {
       }
     };
 
-    bool updatingPosition = false;
-
     scrollController.addListener(() {
-        if (!scrollController.hasClients) return;
-        updatingPosition = true;
-        final progress =
-        scrollController.offset / scrollController.position.maxScrollExtent;
-        vm.scrollPositionStore.update((progress * vm.content.length).toInt());
-        updatingPosition = false;
+      if (!scrollController.hasClients) return;
+      final progress =
+          scrollController.offset / scrollController.position.maxScrollExtent;
+      vm.updateScroll(progress);
     });
-    
+
+    vm.goScrollTop = () {
+      if (scrollController.hasClients) {
+        scrollController.jumpTo(0);
+        vm.updateScroll(0);
+      }
+    };
+
     void onScrollPositionChanged() async {
-      if (updatingPosition) return;
+      if (vm.isUpdatingPosition) return;
       if (!mounted || !scrollController.hasClients) return;
       final position =
-      vm.scrollPositionStore.offset *
-      scrollController.position.maxScrollExtent /
-      vm.content.length;
+          vm.scrollPositionStore.offset *
+          scrollController.position.maxScrollExtent /
+          vm.content.length;
       scrollController.animateTo(
         position,
         duration: const Duration(milliseconds: 300),
