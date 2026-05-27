@@ -1,9 +1,5 @@
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:mycelium/data/models/outline_entry.dart';
-import 'package:mycelium/ui/widgets/adaptative_sheet.dart';
-import 'package:url_launcher/url_launcher.dart';
-
 
 // ClaudeAI
 // Can't get auto-scroll to work cleanly.... With a traditional ListView, it doesn't scroll beyond a certain size, so a hacky technique is used by setting a high cacheExtent in ListView.builder.
@@ -11,7 +7,8 @@ class OutlineSheet extends StatefulWidget {
   final List<OutlineEntry>? entries;
   final void Function(int offset) onTap;
   final int? offset;
-  const OutlineSheet({super.key, this.offset, required this.entries, required this.onTap});
+  final Future<List<OutlineEntry>?> Function()? onRefresh;
+  const OutlineSheet({super.key, this.offset, required this.entries, required this.onTap, this.onRefresh});
 
   @override
   State<OutlineSheet> createState() => _OutlineSheetState();
@@ -23,6 +20,8 @@ class _OutlineSheetState extends State<OutlineSheet> {
   var _keys = <GlobalKey>[];
   bool _didInitialScroll = false;
 
+  bool _isProgrammaticScroll = false;
+
   @override
   void initState() {
     super.initState();
@@ -31,6 +30,24 @@ class _OutlineSheetState extends State<OutlineSheet> {
       widget.entries?.length ?? 0,
       (_) => GlobalKey(),
     );
+  }
+
+  @override
+  void didUpdateWidget(covariant OutlineSheet oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    
+    if (widget.entries != oldWidget.entries) {
+      setState(() {
+          _keys = List.generate(
+            widget.entries?.length ?? 0,
+            (_) => GlobalKey(),
+          );
+      });
+    }
+
+    if (widget.offset != oldWidget.offset && !_isProgrammaticScroll) {
+      _scrollToActive();
+    }
   }
 
   @override
@@ -71,12 +88,11 @@ class _OutlineSheetState extends State<OutlineSheet> {
         context,
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeOut,
-        alignment: 0.3,
+        alignment: 0.5
       );
       return;
     }
 
-    // Réessaye au frame suivant
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _tryScroll(index);
     });
@@ -88,7 +104,7 @@ class _OutlineSheetState extends State<OutlineSheet> {
     super.dispose();
   }
 
-  @override
+@override
   Widget build(BuildContext context) {
     final e = widget.entries;
 
@@ -108,98 +124,75 @@ class _OutlineSheetState extends State<OutlineSheet> {
 
     return Stack(
       children: [
-        ListView.builder(
-          controller: _scrollController,
-          padding: const EdgeInsets.only(
-            top: 48, 
-            bottom: 12,
-          ),
-          itemCount: e.length,
-          cacheExtent: 20000, // To allow auto scroll on long lists
-          itemBuilder: (context, i) {
-            final entry = e[i];
-            final isActive = entry == activeEntry;
+        Positioned.fill(
+          child: ListView.builder(
+            controller: _scrollController,
+            clipBehavior: Clip.hardEdge,
+            padding: const EdgeInsets.only(bottom: 12), 
+            itemCount: e.length,
+            cacheExtent: 20000,
+            itemBuilder: (context, i) {
+              final entry = e[i];
+              final isActive = entry == activeEntry;
 
-            return InkWell(
-              key: _keys[i],
-              onTap: () {
-                widget.onTap(entry.offset);
-                Navigator.pop(context);
-              },
-              child: Padding(
-                padding: EdgeInsets.only(
-                  left: 16.0 + (entry.level - 1) * 16.0,
-                  right: 16,
-                  top: 10,
-                  bottom: 10,
-                ),
-                child: Text(
-                  entry.title,
-                  style: TextStyle(
-                    fontSize: 16 - (entry.level - 1) * 1.5,
-                    fontWeight: entry.level == 1
-                        ? FontWeight.bold
-                        : FontWeight.normal,
-                    color: isActive
-                        ? Theme.of(context).colorScheme.primary
-                        : Theme.of(context).textTheme.bodyMedium?.color,
+              return Material(
+                color: Colors.transparent, 
+                clipBehavior: Clip.hardEdge,
+                child: InkWell(
+                key: _keys[i],
+                onTap: () async {
+                  setState(() {
+                    _isProgrammaticScroll = true;
+                  });
+                  widget.onTap(entry.offset);
+                  _tryScroll(i);
+                  await Future.delayed(const Duration(milliseconds: 300));
+                  if (mounted) {
+                    setState(() {
+                      _isProgrammaticScroll = false;
+                    });
+                  }
+                },
+                child: Padding(
+                  padding: EdgeInsets.only(
+                    left: 16.0 + (entry.level - 1) * 16.0,
+                    right: 16,
+                    top: 10,
+                    bottom: 10,
                   ),
-                ),
-              ),
-            );
-          },
-        ),
-        
-        Positioned(
-          top: 8,
-          right: 8,
-          child: IconButton(
-            icon: const Icon(Icons.info_outline), 
-            tooltip: 'Informations',
-            onPressed: () {
-              showDialog(
-                context: context,
-                builder: (context) => AlertDialog(
-                  title: const Text("Information"),
-                  content: Text.rich(
-                    TextSpan(
-                      style: Theme.of(context).textTheme.bodyMedium,
-                      children: [
-                        const TextSpan(
-                          text: "Please note that clicking a heading may result in a slightly imprecise scroll position, and the highlighted heading may also vary slightly.\n\n",
-                        ),
-                        const TextSpan(
-                          text: "See ",
-                        ),
-                        TextSpan(
-                          text: "this GitHub issue", 
-                          style: TextStyle(
-                            color: Theme.of(context).colorScheme.primary, 
-                          ),
-                          recognizer: TapGestureRecognizer()
-                          ..onTap = () {
-                            launchUrl(
-                              Uri.parse(
-                                "https://github.com/mycel-project/mycelium/issues/1", 
-                              ),
-                            );
-                          },
-                        ),
-                        const TextSpan(
-                          text: " for more information about this behavior.",
-                        ),
-                      ],
+                  child: Text(
+                    entry.title,
+                    style: TextStyle(
+                      fontSize: 16 - (entry.level - 1) * 1.5,
+                      fontWeight: entry.level == 1
+                          ? FontWeight.bold
+                          : FontWeight.normal,
+                      color: isActive
+                          ? Theme.of(context).colorScheme.primary
+                          : Theme.of(context).textTheme.bodyMedium?.color,
                     ),
                   ),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(context),
-                      child: const Text("Close"),
-                    ),
-                  ],
-                )
+                ),
+                ),
               );
             },
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              IconButton(
+                icon: const Icon(Icons.refresh), 
+                tooltip: 'Refresh outline',
+                onPressed: () {
+                  if (widget.onRefresh != null) {
+                    widget.onRefresh!();
+                  }
+                },
+              ),
+            ],
           ),
         ),
       ],
@@ -207,23 +200,22 @@ class _OutlineSheetState extends State<OutlineSheet> {
   }
 }
 
-Future<void> showOutlineSheet(
+Widget buildOutlineSheet(
   BuildContext context, {
   required List<OutlineEntry>? entries,
   required void Function(int offset) onTap,
+  Future<List<OutlineEntry>?> Function()? onRefresh,
   int? currentOffset,
-}) async {
-  showAdaptiveSheet(
-    context: context,
-    child: ConstrainedBox(
-      constraints: BoxConstraints(
-        maxHeight: MediaQuery.of(context).size.height / 2,
-      ),
-      child: OutlineSheet(
-        entries: entries,
-        onTap: onTap,
-        offset: currentOffset,
-      ),
+  double height = 400, 
+}) {
+  return SizedBox(
+    width: double.infinity, 
+    height: height,
+    child: OutlineSheet(
+      entries: entries,
+      onTap: onTap,
+      offset: currentOffset,
+      onRefresh: onRefresh,
     ),
   );
 }
