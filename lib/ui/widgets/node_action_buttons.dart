@@ -292,7 +292,6 @@ class MoreBottomSheet extends StatelessWidget {
             },
           ),
           ListTile(
-            enabled: vm.hasCursor,
             leading: Transform.flip(
               flipX: true,
               child: const Icon(Icons.link_off),
