@@ -126,6 +126,20 @@ class MdEditorState extends State<MdEditor> {
     super.dispose();
   }
 
+  int? _previousNodeId;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    final newNodeId = vm.nodeStore.currentNode?.id;
+
+    if (_previousNodeId != newNodeId) {
+      _previousNodeId = newNodeId;
+      focusNode.unfocus();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final vm = context.watch<MdEditorViewModel>();

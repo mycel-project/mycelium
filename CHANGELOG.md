@@ -1,5 +1,8 @@
 ## Unreleased
 
+### Fixed
+- When changing the displayed node, systematically remove focus to avoid keyboard/cursor inconsistencies.
+
 ## v0.1.3
 ### Added
 - Add an outline panel in the right drawer showing the table of contents of the current node. Headings are clickable for quick navigation, the active heading is highlighted and updates as you scroll, and content is cached per node to avoid redundant requests.
