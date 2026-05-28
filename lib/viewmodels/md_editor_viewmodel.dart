@@ -101,7 +101,10 @@ class MdEditorViewModel extends ChangeNotifier {
   }
 
   Future<void> _onNodeStoreChanged() async {
-    goScrollTop?.call();
+    if (nodeStore.previousNode?.id == null ||
+      nodeStore.currentNode?.id != nodeStore.previousNode?.id) {
+      goScrollTop?.call();
+    }
     if (_showUnsavedChangesDialog) return;
     if (_pendingNode != null) {
       _pendingNode = null;
