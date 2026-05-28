@@ -46,25 +46,25 @@ class MdEditorState extends State<MdEditor> {
 
       if (cursor != null && content.isNotEmpty) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (!mounted || !scrollController.hasClients) return;
-          final cursorOffset =
-              cursor *
-              scrollController.position.maxScrollExtent /
-              content.length;
-          scrollController.animateTo(
-            cursorOffset,
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.easeOut,
-          );
+            if (!mounted || !scrollController.hasClients) return;
+            final cursorOffset =
+            cursor *
+            scrollController.position.maxScrollExtent /
+            content.length;
+            scrollController.animateTo(
+              cursorOffset,
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeOut,
+            );
         });
       }
     };
 
     scrollController.addListener(() {
-      if (!scrollController.hasClients) return;
-      final progress =
-          scrollController.offset / scrollController.position.maxScrollExtent;
-      vm.updateScroll(progress);
+        if (!scrollController.hasClients) return;
+        final progress =
+        scrollController.offset / scrollController.position.maxScrollExtent;
+        vm.updateScroll(progress);
     });
 
     vm.goScrollTop = () {
@@ -78,9 +78,9 @@ class MdEditorState extends State<MdEditor> {
       if (vm.isUpdatingPosition) return;
       if (!mounted || !scrollController.hasClients) return;
       final position =
-          vm.scrollPositionStore.offset *
-          scrollController.position.maxScrollExtent /
-          vm.content.length;
+      vm.scrollPositionStore.offset *
+      scrollController.position.maxScrollExtent /
+      vm.content.length;
       scrollController.animateTo(
         position,
         duration: const Duration(milliseconds: 300),
@@ -106,7 +106,7 @@ class MdEditorState extends State<MdEditor> {
     vm.onCursorChanged(null);
     vm.updateSelection(null);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _isRemovingFocus = false;
+        _isRemovingFocus = false;
     });
   }
 
@@ -162,8 +162,8 @@ class MdEditorState extends State<MdEditor> {
     final reviewNodeId = context.watch<ReviewStore>().currentNodeId;
 
     final readOnly = Device.isDesktop
-        ? vm.isLocked()
-        : vm.isLocked() || (!vm.activeKeyboard && !vm.isCurrentNodeSpore());
+    ? vm.isLocked()
+    : vm.isLocked() || (!vm.activeKeyboard && !vm.isCurrentNodeSpore());
 
     return SafeArea(
       child: Column(
@@ -173,40 +173,43 @@ class MdEditorState extends State<MdEditor> {
               child: ConstrainedBox(
                 constraints: BoxConstraints(
                   maxWidth: Responsive.isDesktop(context)
-                      ? MediaQuery.sizeOf(context).width * 0.5
-                      : double.infinity,
+                  ? MediaQuery.sizeOf(context).width * 0.5
+                  : double.infinity,
                 ),
                 child: Stack(
                   fit: StackFit.expand,
                   children: [
                     Positioned.fill(
-                      child: Scrollbar(
-                        thumbVisibility: true,
-                        interactive: true,
-                        controller: scrollController,
-                        child: SingleChildScrollView(
+                      child: Container(
+                        decoration: vm.noClozeField
+                        ? BoxDecoration(
+                          color: Colors.red.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(8))
+                        : vm.dismissState == true
+                        ? BoxDecoration(
+                          color: Colors.grey.withValues(alpha: 0.2),
+                          borderRadius: BorderRadius.circular(8))
+                        : const BoxDecoration(),
+                        child: Scrollbar(
+                          thumbVisibility: true,
+                          interactive: true,
                           controller: scrollController,
-                          padding: const EdgeInsets.only(
-                            left: 16,
-                            right: 16,
-                            bottom: 120,
-                          ),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              border: Border(
-                                bottom: BorderSide(
-                                  color: Colors.grey.withValues(alpha: 0.3),
-                                  width: 0.5,
-                                ),
-                              ),
+                          child: SingleChildScrollView(
+                            controller: scrollController,
+                            padding: const EdgeInsets.only(
+                              left: 16,
+                              right: 16,
+                              bottom: 120,
                             ),
                             child: Container(
-                              decoration: vm.noClozeField
-                              ? BoxDecoration(
-                                color: Colors.red.withValues(alpha: 0.1),
-                                borderRadius: BorderRadius.circular(8),
-                              )
-                              : const BoxDecoration(),
+                              decoration: BoxDecoration(
+                                border: Border(
+                                  bottom: BorderSide(
+                                    color: Colors.grey.withValues(alpha: 0.3),
+                                    width: 0.5,
+                                  ),
+                                ),
+                              ),
                               child: Padding(
                                 padding: const EdgeInsets.only(top: 8, bottom: 8),
                                 child: TextField(
@@ -257,10 +260,10 @@ class MdEditorState extends State<MdEditor> {
                                   markdownController: markdownController,
                                 ),
                                 if (!Device.isDesktop)
-                                  KeyboardButton(
-                                    vm: vm,
-                                    removeFocusAndCursor: removeFocusAndCursor,
-                                  ),
+                                KeyboardButton(
+                                  vm: vm,
+                                  removeFocusAndCursor: removeFocusAndCursor,
+                                ),
                                 MoreButton(
                                   markdownController: markdownController,
                                   scrollController: scrollController,
@@ -282,8 +285,8 @@ class MdEditorState extends State<MdEditor> {
           ConstrainedBox(
             constraints: BoxConstraints(
               maxWidth: Responsive.isDesktop(context)
-                  ? MediaQuery.sizeOf(context).width * 0.5
-                  : double.infinity,
+              ? MediaQuery.sizeOf(context).width * 0.5
+              : double.infinity,
             ),
             child: ReviewActionBar(
               vm: vm,
