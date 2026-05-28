@@ -82,6 +82,8 @@ class MdEditorViewModel extends ChangeNotifier {
     undoController.addListener(_onUndoStateChanged);
   }
 
+  bool _noClozeField = false;
+
   bool? get dismissState => node?.typeData?['dismiss'] as bool?;
 
   bool _showUnsavedChangesDialog = false;
@@ -116,6 +118,7 @@ class MdEditorViewModel extends ChangeNotifier {
       notifyListeners();
       return;
     }
+    setNoClozeField(false);
     loadNode(nodeStore.currentNode);
   }
 
@@ -453,6 +456,15 @@ class MdEditorViewModel extends ChangeNotifier {
     await reviewUseCase.undo(collectionId);
   }
 
+  bool get noClozeField => _noClozeField;
+
+  void setNoClozeField(bool value) {
+    if (_noClozeField != value) {
+      _noClozeField = value;
+      notifyListeners();
+    }
+  }
+
   Future<bool> saveContent() async {
     /// Returns true if the save completed or was not required, false if it failed.
     _debounceTimer?.cancel();
@@ -471,10 +483,18 @@ class MdEditorViewModel extends ChangeNotifier {
         node = result.data;
         // Need to reput node in node store ? to update content...
         if (content == contentAtSaveTime) isDirty = false;
+        setNoClozeField(false);
         notifyListeners();
         return true;
       case ApiError error:
-        notificationBus.showError("Cannot save content", error);
+        if (error.code == "NO_CLOZE_FIELD_ERROR") {
+          if (!noClozeField) {
+            setNoClozeField(true);
+            notificationBus.showError("Please add at least one cloze field.");
+          }
+        } else {
+          notificationBus.showError("Cannot save content", error);
+        }
         return false;
     }
   }

@@ -184,24 +184,32 @@ class MdEditorState extends State<MdEditor> {
                                 ),
                               ),
                             ),
-                            child: Padding(
-                              padding: const EdgeInsets.only(top: 8, bottom: 8),
-                              child: TextField(
-                                key: ValueKey(vm.node?.id),
-                                focusNode: focusNode,
-                                readOnly: readOnly,
-                                showCursor: !vm.isLocked(),
-                                onTap: vm.isLocked() ? null : vm.editMode,
-                                maxLines: null,
-                                expands: false,
-                                keyboardType: TextInputType.multiline,
-                                undoController: vm.undoController,
-                                controller: markdownController,
-                                onChanged: (value) {
-                                  vm.updateContent(value);
-                                },
-                                decoration: const InputDecoration(
-                                  border: InputBorder.none,
+                            child: Container(
+                              decoration: vm.noClozeField
+                              ? BoxDecoration(
+                                color: Colors.red.withValues(alpha: 0.1),
+                                borderRadius: BorderRadius.circular(8),
+                              )
+                              : const BoxDecoration(),
+                              child: Padding(
+                                padding: const EdgeInsets.only(top: 8, bottom: 8),
+                                child: TextField(
+                                  key: ValueKey(vm.node?.id),
+                                  focusNode: focusNode,
+                                  readOnly: readOnly,
+                                  showCursor: !vm.isLocked(),
+                                  onTap: vm.isLocked() ? null : vm.editMode,
+                                  maxLines: null,
+                                  expands: false,
+                                  keyboardType: TextInputType.multiline,
+                                  undoController: vm.undoController,
+                                  controller: markdownController,
+                                  onChanged: (value) {
+                                    vm.updateContent(value);
+                                  },
+                                  decoration: const InputDecoration(
+                                    border: InputBorder.none,
+                                  ),
                                 ),
                               ),
                             ),
