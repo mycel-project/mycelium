@@ -239,6 +239,10 @@ class MdEditorState extends State<MdEditor> {
                                   ),
                                 MoreButton(
                                   markdownController: markdownController,
+                                  scrollController: scrollController,
+                                  removeFocusAndCursor: () {
+                                    removeFocusAndCursor();
+                                  },
                                 ),
                               ],
                             ],

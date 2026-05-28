@@ -240,7 +240,15 @@ class KeyboardButton extends StatelessWidget {
 
 class MoreButton extends StatelessWidget {
   final TextEditingController markdownController;
-  const MoreButton({super.key, required this.markdownController});
+  final Function removeFocusAndCursor;
+  final ScrollController scrollController;
+
+  const MoreButton({
+    super.key,
+    required this.markdownController,
+    required this.removeFocusAndCursor,
+    required this.scrollController,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -250,7 +258,11 @@ class MoreButton extends StatelessWidget {
       onPressed: () {
         showAdaptiveSheet(
           context: context,
-          child: MoreBottomSheet(markdownController: markdownController),
+          child: MoreBottomSheet(
+            markdownController: markdownController,
+            removeFocusAndCursor: removeFocusAndCursor,
+            scrollController: scrollController,
+          ),
         );
       },
     );
@@ -259,7 +271,14 @@ class MoreButton extends StatelessWidget {
 
 class MoreBottomSheet extends StatelessWidget {
   final TextEditingController markdownController;
-  const MoreBottomSheet({super.key, required this.markdownController});
+  final Function removeFocusAndCursor;
+  final ScrollController scrollController;
+  const MoreBottomSheet({
+    super.key,
+    required this.markdownController,
+    required this.removeFocusAndCursor,
+    required this.scrollController,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -299,11 +318,16 @@ class MoreBottomSheet extends StatelessWidget {
             title: vm.hasSelection
                 ? const Text('Remove link formatting in selection')
                 : const Text('Remove all link formatting'),
-            onTap: () async {
-              await vm.removeLinks(markdownController.text);
-              if (!context.mounted) return;
-              Navigator.pop(context);
-            },
+                onTap: () async {
+                  final double ratio = scrollController.offset / scrollController.position.maxScrollExtent;
+                  await vm.removeLinks(markdownController.text);
+                  if (!context.mounted) return;
+                  Navigator.pop(context);
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                      scrollController.jumpTo(ratio * scrollController.position.maxScrollExtent);
+                  });
+                  removeFocusAndCursor();
+                },
           ),
           ListTile(
             leading: const Icon(Icons.delete),
