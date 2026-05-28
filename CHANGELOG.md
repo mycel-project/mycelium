@@ -6,7 +6,7 @@
 ### Fixed
 - When changing the displayed node, systematically remove focus to avoid keyboard/cursor inconsistencies.
 - The “Remove links” option is still enabled right after hiding the keyboard.
-
+- Scroll animation is now correctly playing in outline section
 
 ## v0.1.3
 ### Added
