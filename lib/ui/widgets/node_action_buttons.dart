@@ -311,10 +311,7 @@ class MoreBottomSheet extends StatelessWidget {
             },
           ),
           ListTile(
-            leading: Transform.flip(
-              flipX: true,
-              child: const Icon(Icons.link_off),
-            ),
+            leading: const Icon(Icons.link_off),
             title: vm.hasSelection
                 ? const Text('Remove link formatting in selection')
                 : const Text('Remove all link formatting'),
