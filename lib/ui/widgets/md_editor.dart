@@ -1,6 +1,7 @@
 import "package:flutter/material.dart";
 import "package:mycelium/core/stores/review_store.dart";
 import "package:mycelium/ui/controllers/markdown_controller.dart";
+import "package:mycelium/ui/widgets/confirmation_dialog.dart";
 import "package:mycelium/ui/widgets/node_action_buttons.dart";
 import "package:mycelium/ui/widgets/review_action_bar.dart";
 import "package:mycelium/utils/device.dart";
@@ -128,6 +129,7 @@ class MdEditorState extends State<MdEditor> {
 
   int? _previousNodeId;
 
+  bool _isShowingDialog = false;
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -137,6 +139,20 @@ class MdEditorState extends State<MdEditor> {
     if (_previousNodeId != newNodeId) {
       _previousNodeId = newNodeId;
       focusNode.unfocus();
+    }
+
+    if (vm.showUnsavedChangesDialog && !_isShowingDialog) {
+      _isShowingDialog = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+          final result = await ConfirmationDialog.show(
+            context,
+            title: "Discard Changes?",
+            text: "Your changes couldn't be saved. Switching to another node will discard them.",
+            destructive: true,
+          );
+          _isShowingDialog = false;
+          result.confirmed ? vm.confirmDiscardChanges() : vm.cancelNodeChange();
+      });
     }
   }
 

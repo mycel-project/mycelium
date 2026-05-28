@@ -103,10 +103,6 @@ class MdEditorViewModel extends ChangeNotifier {
   }
 
   Future<void> _onNodeStoreChanged() async {
-    if (nodeStore.previousNode?.id == null ||
-      nodeStore.currentNode?.id != nodeStore.previousNode?.id) {
-      goScrollTop?.call();
-    }
     if (_showUnsavedChangesDialog) return;
     if (_pendingNode != null) {
       _pendingNode = null;
@@ -117,6 +113,10 @@ class MdEditorViewModel extends ChangeNotifier {
       _showUnsavedChangesDialog = true;
       notifyListeners();
       return;
+    }
+    if (nodeStore.previousNode?.id == null ||
+      nodeStore.currentNode?.id != nodeStore.previousNode?.id) {
+      goScrollTop?.call();
     }
     setNoClozeField(false);
     loadNode(nodeStore.currentNode);
@@ -130,14 +130,17 @@ class MdEditorViewModel extends ChangeNotifier {
 
   void confirmDiscardChanges() {
     _showUnsavedChangesDialog = false;
-    loadNode(nodeStore.currentNode);
     _pendingNode = null;
+    isDirty = false;
+    goScrollTop?.call();
+    setNoClozeField(false);
+    loadNode(nodeStore.currentNode);
     notifyListeners();
   }
 
   void cancelNodeChange() {
     _showUnsavedChangesDialog = false;
-    nodeStore.selectNode(_pendingNode);
+    nodeStore.selectNode(_pendingNode); // Now that store previousNode in nodeStore, could use that instead.
     navigationUseCase.undoLastNavigation();
     notifyListeners();
   }
