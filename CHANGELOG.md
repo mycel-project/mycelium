@@ -4,6 +4,7 @@
 - When removing links, remove cursor and restore scroll position.
 - Enhance highlighting of the selected heading in the outline
 - Close button (x) added to top-right of desktop dialogs
+- Left panel closes automatically on desktop when navigating to a spore under review to avoid spoiling the answer
 
 ### Fixed
 - When changing the displayed node, systematically remove focus to avoid keyboard/cursor inconsistencies.

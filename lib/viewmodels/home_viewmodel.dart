@@ -86,6 +86,7 @@ class HomeViewModel extends ChangeNotifier {
   void _onNodeStoreChange() {
     dismissNoMoreReviews();
     _checkHasParent();
+    closeLeftPanelIfReviewingSpore();
     refreshCurrentNode(); // Mainly used to avoid the priority drift due to other nodes changes, but we refetch the whole node while we're at it.
   }
 
@@ -93,10 +94,19 @@ class HomeViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  void closeLeftPanelIfReviewingSpore() {
+    if (reviewStore.currentNodeId != null &&
+        nodeStore.currentNode?.id == reviewStore.currentNodeId &&
+        nodeStore.currentNode?.type == 2) {
+      closeLeftPanel();
+    }
+  }
+
   void _onReviewChanged() {
     if (reviewStore.state is NoMoreReviews) {
       noMoreReviewsFlag = true;
     }
+    closeLeftPanelIfReviewingSpore();
     notifyListeners();
   }
 
@@ -169,13 +179,19 @@ class HomeViewModel extends ChangeNotifier {
 
   int get scrollPosition => scrollPositionStore.offset;
 
-  Future<List<OutlineEntry>?> getCurrentOutline({bool forceRefresh = false}) async {
+  Future<List<OutlineEntry>?> getCurrentOutline({
+    bool forceRefresh = false,
+  }) async {
     Node? node = nodeStore.currentNode;
     final colId = collectionStore.currentCollection?.id;
     if (colId == null || node == null) return null;
-    return await getOutlineUseCase.execute(colId, node.id, forceRefresh: forceRefresh);
+    return await getOutlineUseCase.execute(
+      colId,
+      node.id,
+      forceRefresh: forceRefresh,
+    );
   }
-  
+
   void scrollToOffset(int offset) {
     scrollPositionStore.update(offset);
   }
@@ -238,6 +254,13 @@ class HomeViewModel extends ChangeNotifier {
   void toggleLeftPanel() {
     _isLeftPanelOpen = !_isLeftPanelOpen;
     notifyListeners();
+  }
+
+  void closeLeftPanel() {
+    if (_isLeftPanelOpen == true) {
+      _isLeftPanelOpen = false;
+      WidgetsBinding.instance.addPostFrameCallback((_) => notifyListeners());
+    }
   }
 
   Future<void> deleteNode(int nodeId) async {
