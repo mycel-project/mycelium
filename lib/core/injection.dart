@@ -105,7 +105,7 @@ Future<void> setup() async {
   sl.registerSingleton(RescheduleNodeUseCase(sl(), sl(), sl()));
   sl.registerSingleton(ReviewNodeUseCase(sl(), sl()));
   sl.registerSingleton(RemoveLinksUseCase(sl(), sl(), sl()));
-  sl.registerSingleton(UpdatePriorityUseCase(sl(), sl(), sl()));
+  sl.registerSingleton(UpdatePriorityUseCase(sl(), sl()));
   sl.registerSingleton(RefreshPrioritiesUseCase(sl(), sl(), sl()));
   sl.registerSingleton(GetOutlineUseCase(sl(), sl()));
   sl.registerSingleton(
