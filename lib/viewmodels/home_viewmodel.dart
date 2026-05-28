@@ -23,6 +23,7 @@ import 'package:mycelium/domain/get_calendar_usecase.dart';
 import 'package:mycelium/domain/get_outline_usecase.dart';
 import 'package:mycelium/domain/navigation_usecase.dart';
 import 'package:mycelium/domain/node_usecase.dart';
+import 'package:mycelium/domain/refresh_current_node_usecase.dart';
 import 'package:mycelium/domain/refresh_priorities_usecase.dart';
 import 'package:mycelium/domain/reschedule_node_usecase.dart';
 import 'package:mycelium/domain/review_usecase.dart';
@@ -48,6 +49,7 @@ class HomeViewModel extends ChangeNotifier {
   final RefreshPrioritiesUseCase refreshPrioritiesUseCase;
   final GetOutlineUseCase getOutlineUseCase;
   final ScrollPositionStore scrollPositionStore;
+  final RefreshCurrentNodeUseCase refreshCurrentNodeUseCase;
 
   bool noMoreReviewsFlag = false;
 
@@ -70,6 +72,7 @@ class HomeViewModel extends ChangeNotifier {
     this.refreshPrioritiesUseCase,
     this.getOutlineUseCase,
     this.scrollPositionStore,
+    this.refreshCurrentNodeUseCase,
   ) {
     reviewStore.addListener(_onReviewChanged);
     nodeStore.addListener(_onNodeStoreChange);
@@ -88,6 +91,11 @@ class HomeViewModel extends ChangeNotifier {
     _checkHasParent();
     closeLeftPanelIfReviewingSpore();
     refreshCurrentNode(); // Mainly used to avoid the priority drift due to other nodes changes, but we refetch the whole node while we're at it.
+  }
+
+  void refreshCurrentNode() async {
+    final result = await refreshCurrentNodeUseCase.execute();
+    if (result is Node) notifyListeners();
   }
 
   void refreshNodes() {
@@ -199,22 +207,6 @@ class HomeViewModel extends ChangeNotifier {
   // Not reloading the cache on each open — could this be a problem?
   List<Node> getNodes() => nodeRepository.nodeCache.values.toList();
   int get nodeCount => nodeRepository.nodeCache.length;
-
-  // Should this method live in a node store monitor/observer?
-  Future<bool> refreshCurrentNode() async {
-    final colId = collectionStore.currentCollection?.id;
-    Node? node = nodeStore.currentNode;
-    if (colId == null || node == null) return false;
-    final result = await nodeRepository.loadNode(colId, node.id);
-    switch (result) {
-      case ApiSuccess():
-        notifyListeners();
-        return true;
-      case ApiError error:
-        notificationBus.showError("Cannot refresh node", error);
-        return false;
-    }
-  }
 
   Future<bool> refreshPriorities() async {
     final result = await refreshPrioritiesUseCase.execute();

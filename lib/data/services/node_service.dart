@@ -34,7 +34,20 @@ class NodeService {
   Future<ApiResult<String>> getOutline(int collectionId, int nodeId) async {
     return await api.get("/collections/$collectionId/nodes/$nodeId/outline");
   }
-  
+
+  Future<ApiResult<String>> splitNode(
+    int collectionId,
+    int nodeId,
+    int level,
+    int tzOffset,
+  ) async {
+    return await api.post(
+      "/collections/$collectionId/nodes/$nodeId/split",
+      {},
+      queryParams: {"level": level.toString(), "tz_offset": tzOffset.toString()},
+    );
+  }
+
   Future<ApiResult<String>> reprioritiseNode(
     int collectionId,
     int nodeId,
@@ -54,21 +67,20 @@ class NodeService {
   ) async {
     return await api.post(
       "/collections/$collectionId/nodes/$nodeId/reschedule",
-      {
-        "date": dateIso,
-        "tz_offset": tzOffset,
-      },
+      {"date": dateIso, "tz_offset": tzOffset},
     );
   }
 
-  Future<ApiResult<String>> restoreNode(int collectionId, int nodeId, bool restoreAncestors, bool restoreDescendants) async {
-    return await api.post(
-      "/collections/$collectionId/nodes/$nodeId/restore",
-      {
-        "restore_ancestors":restoreAncestors,
-        "restore_descendants":restoreDescendants,
-      },
-    );
+  Future<ApiResult<String>> restoreNode(
+    int collectionId,
+    int nodeId,
+    bool restoreAncestors,
+    bool restoreDescendants,
+  ) async {
+    return await api.post("/collections/$collectionId/nodes/$nodeId/restore", {
+      "restore_ancestors": restoreAncestors,
+      "restore_descendants": restoreDescendants,
+    });
   }
 
   Future<ApiResult<String>> fetchRessourceFromUrl(
@@ -76,13 +88,11 @@ class NodeService {
     String url,
     int tzOffset,
   ) async {
-    return await api.post("/collections/$collectionId/nodes", {
-      "type": "url",
-      "url": url,
-    },
-    queryParams: {
-      "tz_offset": tzOffset.toString()
-    });
+    return await api.post(
+      "/collections/$collectionId/nodes",
+      {"type": "url", "url": url},
+      queryParams: {"tz_offset": tzOffset.toString()},
+    );
   }
 
   Future<ApiResult<String>> updateNode(
@@ -131,12 +141,15 @@ class NodeService {
     int startIndex,
     int endIndex,
   ) async {
-    return await api.post("/collections/$collectionId/nodes/$nodeId/remove-links", {
+    return await api.post(
+      "/collections/$collectionId/nodes/$nodeId/remove-links",
+      {
         "text": text,
         "field": field,
         "start_index": startIndex,
         "end_index": endIndex,
-    });
+      },
+    );
   }
 
   Future<ApiResult<String>> saveNodeContent(

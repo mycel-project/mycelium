@@ -5,15 +5,17 @@ import 'package:mycelium/data/models/outline_entry.dart';
 // Can't get auto-scroll to work cleanly.... With a traditional ListView, it doesn't scroll beyond a certain size, so a hacky technique is used by setting a high cacheExtent in ListView.builder.
 class OutlineSheet extends StatefulWidget {
   final List<OutlineEntry>? entries;
-  final void Function(int offset) onTap;
+  final void Function(int offset)? onTap;
   final int? offset;
   final void Function()? onRefresh;
+  final int? level;
   const OutlineSheet({
       super.key,
       this.offset,
       required this.entries,
-      required this.onTap,
+      this.onTap,
       this.onRefresh,
+      this.level,
   });
 
   @override
@@ -66,17 +68,19 @@ class _OutlineSheetState extends State<OutlineSheet> {
     final e = widget.entries;
     if (e == null || e.isEmpty) return;
 
-    final activeEntry = e.lastWhere(
-      (entry) => entry.offset <= (widget.offset ?? 0),
-      orElse: () => e.first,
-    );
+    final activeEntry = e
+    .where(
+      (entry) => entry.offset <= (widget.offset ?? double.negativeInfinity),
+    )
+    .fold<OutlineEntry?>(null, (prev, curr) => curr);
 
-    final activeIndex = e.indexOf(activeEntry);
+    final activeIndex = activeEntry != null ? e.indexOf(activeEntry) : null;
 
     _tryScroll(activeIndex);
   }
 
-  void _tryScroll(int index) {
+  void _tryScroll(int? index) {
+    if (index == null) return;
     if (!mounted) return;
 
     if (index >= _keys.length) return;
@@ -87,7 +91,7 @@ class _OutlineSheetState extends State<OutlineSheet> {
         context,
         duration: _didInitialScroll
         ? const Duration(milliseconds: 200)
-        : Duration.zero ,
+        : Duration.zero,
         curve: Curves.easeOut,
         alignment: 0.5,
       );
@@ -108,27 +112,33 @@ class _OutlineSheetState extends State<OutlineSheet> {
   @override
   Widget build(BuildContext context) {
     final e = widget.entries;
+    final visibleEntries = e == null ? [] 
+    : widget.level != null 
+    ? e.where((entry) => entry.level <= widget.level!).toList()
+    : e;
 
-    if (e == null || e.isEmpty) {
+    if (visibleEntries.isEmpty) {
       return const Padding(
         padding: EdgeInsets.all(24),
         child: Center(child: Text("No headings")),
       );
     }
 
-    final activeEntry = e.lastWhere(
-      (entry) => entry.offset <= (widget.offset ?? 0),
-      orElse: () => e.first,
-    );
+    
+    final activeEntry = visibleEntries
+    .where(
+      (entry) => entry.offset <= (widget.offset ?? double.negativeInfinity),
+    )
+    .fold<OutlineEntry?>(null, (prev, curr) => curr);
 
     return ListView.builder(
       controller: _scrollController,
       clipBehavior: Clip.hardEdge,
       padding: const EdgeInsets.only(bottom: 12),
-      itemCount: e.length,
+      itemCount: visibleEntries.length,
       cacheExtent: 20000,
       itemBuilder: (context, i) {
-        final entry = e[i];
+        final entry = visibleEntries[i];
         final isActive = entry == activeEntry;
 
         return Material(
@@ -140,7 +150,7 @@ class _OutlineSheetState extends State<OutlineSheet> {
               setState(() {
                   _isProgrammaticScroll = true;
               });
-              widget.onTap(entry.offset);
+              widget.onTap?.call(entry.offset);
               _tryScroll(i);
               await Future.delayed(const Duration(milliseconds: 200));
               if (mounted) {
@@ -154,7 +164,9 @@ class _OutlineSheetState extends State<OutlineSheet> {
               children: [
                 Container(
                   color: isActive
-                  ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.1)
+                  ? Theme.of(
+                    context,
+                  ).colorScheme.primary.withValues(alpha: 0.1)
                   : null,
                   child: Padding(
                     padding: EdgeInsets.only(
@@ -175,9 +187,7 @@ class _OutlineSheetState extends State<OutlineSheet> {
                           decoration: BoxDecoration(
                             color: entry.level == 1
                             ? Theme.of(context).colorScheme.primary
-                            : Theme.of(context)
-                            .colorScheme
-                            .primary
+                            : Theme.of(context).colorScheme.primary
                             .withValues(alpha: 0.4),
                             borderRadius: BorderRadius.circular(2),
                           ),
@@ -200,10 +210,7 @@ class _OutlineSheetState extends State<OutlineSheet> {
                           child: Text(
                             entry.title,
                             style: TextStyle(
-                              fontSize: (15 - (entry.level - 1) * 0.8).clamp(
-                                12.0,
-                                15.0,
-                              ),
+                              fontSize: (15.0 - (entry.level - 1) * 0.8).clamp(12.0, 15.0),
                               fontWeight: entry.level == 1
                               ? FontWeight.w600
                               : FontWeight.normal,
@@ -240,11 +247,11 @@ class _OutlineSheetState extends State<OutlineSheet> {
 
 Widget buildOutlineSheet(
   BuildContext context, {
-    required List<OutlineEntry>? entries,
-    required void Function(int offset) onTap,
-    void Function()? onRefresh,
-    int? currentOffset,
-    double height = 400,
+  required List<OutlineEntry>? entries,
+  required void Function(int offset) onTap,
+  void Function()? onRefresh,
+  int? currentOffset,
+  double height = 400,
 }) {
   return SizedBox(
     width: double.infinity,

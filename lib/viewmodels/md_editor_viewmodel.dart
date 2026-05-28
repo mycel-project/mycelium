@@ -10,18 +10,22 @@ import 'package:mycelium/core/stores/review_store.dart';
 import 'package:mycelium/core/stores/scroll_position_store.dart';
 import 'package:mycelium/data/api_result.dart';
 import 'package:mycelium/data/models/node.dart';
+import 'package:mycelium/data/models/outline_entry.dart';
 import 'package:mycelium/data/repositories/node_repository.dart';
 import 'package:mycelium/data/repositories/review_repository.dart';
 import 'package:mycelium/data/services/node_service.dart';
 import 'package:mycelium/domain/api_status.dart';
 import 'package:mycelium/domain/cloze_mode.dart';
 import 'package:mycelium/domain/create_extract_usecase.dart';
+import 'package:mycelium/domain/get_outline_usecase.dart';
 import 'package:mycelium/domain/navigation_usecase.dart';
 import 'package:mycelium/domain/node_usecase.dart';
+import 'package:mycelium/domain/refresh_current_node_usecase.dart';
 import 'package:mycelium/domain/refresh_priorities_usecase.dart';
 import 'package:mycelium/domain/remove_links_usecase.dart';
 import 'package:mycelium/domain/review_node_usecase.dart';
 import 'package:mycelium/domain/review_usecase.dart';
+import 'package:mycelium/domain/split_node_usecase.dart';
 import 'package:mycelium/domain/update_priority_usecase.dart';
 
 enum ActionMode { undo, redo }
@@ -43,6 +47,9 @@ class MdEditorViewModel extends ChangeNotifier {
   UpdatePriorityUseCase updatePriorityUseCase;
   RefreshPrioritiesUseCase refreshPrioritiesUseCase;
   ScrollPositionStore scrollPositionStore;
+  GetOutlineUseCase getOutlineUseCase;
+  SplitNodeUseCase splitNodeUseCase;
+  RefreshCurrentNodeUseCase refreshCurrentNodeUseCase;
 
   bool isAnswerVisible = false;
   bool isEditing = false;
@@ -75,6 +82,9 @@ class MdEditorViewModel extends ChangeNotifier {
     this.updatePriorityUseCase,
     this.refreshPrioritiesUseCase,
     this.scrollPositionStore,
+    this.getOutlineUseCase,
+    this.splitNodeUseCase,
+    this.refreshCurrentNodeUseCase,
   ) {
     nodeStore.addListener(_onNodeStoreChanged);
     apiStore.addListener(_onApiStoreChanged);
@@ -115,7 +125,7 @@ class MdEditorViewModel extends ChangeNotifier {
       return;
     }
     if (nodeStore.previousNode?.id == null ||
-      nodeStore.currentNode?.id != nodeStore.previousNode?.id) {
+        nodeStore.currentNode?.id != nodeStore.previousNode?.id) {
       goScrollTop?.call();
     }
     setNoClozeField(false);
@@ -123,6 +133,7 @@ class MdEditorViewModel extends ChangeNotifier {
   }
 
   void updateScroll(double progress) {
+    if (progress.isNaN || progress.isInfinite) return;
     isUpdatingPosition = true;
     scrollPositionStore.update((progress * content.length).toInt());
     isUpdatingPosition = false;
@@ -140,7 +151,9 @@ class MdEditorViewModel extends ChangeNotifier {
 
   void cancelNodeChange() {
     _showUnsavedChangesDialog = false;
-    nodeStore.selectNode(_pendingNode); // Now that store previousNode in nodeStore, could use that instead.
+    nodeStore.selectNode(
+      _pendingNode,
+    ); // Now that store previousNode in nodeStore, could use that instead.
     navigationUseCase.undoLastNavigation();
     notifyListeners();
   }
@@ -381,6 +394,11 @@ class MdEditorViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  void reloadCurrentNode() {
+    Node? node = nodeStore.currentNode;
+    nodeStore.selectNode(node);
+  }
+
   void loadNode(Node? node, {bool forceReload = false}) {
     isAnswerVisible = false;
     if (node != null) {
@@ -519,5 +537,27 @@ class MdEditorViewModel extends ChangeNotifier {
     final result = await refreshPrioritiesUseCase.execute();
     if (result) notifyListeners();
     return result;
+  }
+
+  Future<List<OutlineEntry>?> getCurrentOutline() async {
+    Node? node = nodeStore.currentNode;
+    final colId = collectionStore.currentCollection?.id;
+    if (colId == null || node == null) return null;
+    return await getOutlineUseCase.execute(colId, node.id, forceRefresh: true);
+  }
+
+  Future<bool> splitNode(int level) async {
+    Node? node = nodeStore.currentNode;
+    final colId = collectionStore.currentCollection?.id;
+    if (colId == null || node == null) return false;
+    final result = await splitNodeUseCase.execute(colId, node.id, level);
+    return result != null;
+  }
+
+  Future<void> refreshCurrentNode() async {
+    final result = await refreshCurrentNodeUseCase.execute();
+    if (result is Node) {
+      nodeStore.selectNode(result);
+    }
   }
 }

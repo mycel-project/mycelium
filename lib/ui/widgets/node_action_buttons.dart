@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mycelium/data/models/node.dart';
+import 'package:mycelium/data/models/outline_entry.dart';
 import 'package:mycelium/ui/widgets/adaptative_sheet.dart';
 import 'package:mycelium/ui/widgets/confirmation_dialog.dart';
+import 'package:mycelium/ui/widgets/heading_splitter.dart';
 import 'package:mycelium/ui/widgets/priority_selector.dart';
 import 'package:mycelium/utils/device.dart';
 import 'package:mycelium/viewmodels/md_editor_viewmodel.dart';
@@ -133,19 +135,23 @@ class FragmentButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Tooltip(
       message: Device.isDesktop
-      ? 'Create fragment (right-click for direct priorization)'
-      : 'Create fragment (hold for direct priorization)',
+          ? 'Create fragment (right-click for direct priorization)'
+          : 'Create fragment (hold for direct priorization)',
       child: GestureDetector(
-        onSecondaryTap: Device.isDesktop && vm.hasSelection ? () async => await _onSecondary(context) : null,
+        onSecondaryTap: Device.isDesktop && vm.hasSelection
+            ? () async => await _onSecondary(context)
+            : null,
         onLongPress: !Device.isDesktop && vm.hasSelection
-        ? () async {
-          HapticFeedback.mediumImpact();
-          await _onSecondary(context);
-        }
-        : null,
+            ? () async {
+                HapticFeedback.mediumImpact();
+                await _onSecondary(context);
+              }
+            : null,
         child: FloatingActionButton(
           heroTag: "fab_fragment",
-          onPressed: vm.hasSelection ? () async => await _createFragment(context) : null,
+          onPressed: vm.hasSelection
+              ? () async => await _createFragment(context)
+              : null,
           child: Opacity(
             opacity: vm.hasSelection ? 1.0 : 0.4,
             child: const Icon(Icons.content_cut),
@@ -160,9 +166,9 @@ class SporeButton extends StatelessWidget {
   final MdEditorViewModel vm;
   final TextEditingController markdownController;
   const SporeButton({
-      super.key,
-      required this.vm,
-      required this.markdownController,
+    super.key,
+    required this.vm,
+    required this.markdownController,
   });
 
   Future<Node?> _createSpore(BuildContext context) async {
@@ -191,19 +197,23 @@ class SporeButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Tooltip(
       message: Device.isDesktop
-      ? 'Create spore (right-click for direct priorization)'
-      : 'Create spore (hold for direct priorization)',
+          ? 'Create spore (right-click for direct priorization)'
+          : 'Create spore (hold for direct priorization)',
       child: GestureDetector(
-        onSecondaryTap: Device.isDesktop && vm.hasSelection ? () async => await _onSecondary(context) : null,
+        onSecondaryTap: Device.isDesktop && vm.hasSelection
+            ? () async => await _onSecondary(context)
+            : null,
         onLongPress: !Device.isDesktop && vm.hasSelection
-        ? () async {
-          HapticFeedback.mediumImpact();
-          await _onSecondary(context);
-        }
-        : null,
+            ? () async {
+                HapticFeedback.mediumImpact();
+                await _onSecondary(context);
+              }
+            : null,
         child: FloatingActionButton(
           heroTag: "fab_spore",
-          onPressed: vm.hasSelection ? () async => await _createSpore(context) : null,
+          onPressed: vm.hasSelection
+              ? () async => await _createSpore(context)
+              : null,
           child: Opacity(
             opacity: vm.hasSelection ? 1.0 : 0.4,
             child: const Icon(Icons.quiz),
@@ -315,16 +325,42 @@ class MoreBottomSheet extends StatelessWidget {
             title: vm.hasSelection
                 ? const Text('Remove link formatting in selection')
                 : const Text('Remove all link formatting'),
-                onTap: () async {
-                  final double ratio = scrollController.offset / scrollController.position.maxScrollExtent;
-                  await vm.removeLinks(markdownController.text);
-                  if (!context.mounted) return;
-                  Navigator.pop(context);
-                  WidgetsBinding.instance.addPostFrameCallback((_) {
-                      scrollController.jumpTo(ratio * scrollController.position.maxScrollExtent);
-                  });
-                  removeFocusAndCursor();
+            onTap: () async {
+              final double ratio =
+                  scrollController.offset /
+                  scrollController.position.maxScrollExtent;
+              await vm.removeLinks(markdownController.text);
+              if (!context.mounted) return;
+              Navigator.pop(context);
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                scrollController.jumpTo(
+                  ratio * scrollController.position.maxScrollExtent,
+                );
+              });
+              removeFocusAndCursor();
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.splitscreen),
+            title: const Text('Split fragment'),
+            onTap: () async {
+              List<OutlineEntry>? outline = await vm.getCurrentOutline();
+              if (!context.mounted) return;
+              await showHeadingSplitter(
+                context,
+                outline: outline,
+                onConfirm: (int level) async {
+                  final result = await vm.splitNode(level);
+                  if (result == true) {
+                    await vm.refreshCurrentNode();
+                    if (!context.mounted) return;
+                    Navigator.pop(context);
+                  }
                 },
+              );
+              if (!context.mounted) return;
+              Navigator.pop(context);
+            },
           ),
           ListTile(
             leading: const Icon(Icons.delete),

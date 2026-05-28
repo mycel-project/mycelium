@@ -155,6 +155,21 @@ class NodeRepository {
     return ApiSuccess(node);
   }
 
+  Future<ApiResult<List<Node>>> splitNode(
+    int collectionId,
+    int nodeId,
+    int level,
+    int tzOffset,
+  ) async {
+    final result = await nodeService.splitNode(collectionId, nodeId, level, tzOffset);
+    if (result is ApiError) return result;
+    final nodes = _parseNodes(result as ApiSuccess<String>);
+    for (final node in nodes) {
+      _nodeCache[node.id] = node;
+    }
+    return ApiSuccess(nodes);
+  }
+
   Future<ApiResult<void>> getPriorities(int colId) async {
     final result = await nodeService.getPriorities(colId);
     if (result is ApiError) return result;

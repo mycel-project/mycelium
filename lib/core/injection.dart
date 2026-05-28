@@ -36,6 +36,7 @@ import 'package:mycelium/domain/init_user_usecase.dart';
 import 'package:mycelium/domain/navigation_usecase.dart';
 import 'package:mycelium/domain/node_usecase.dart';
 import 'package:mycelium/domain/check_api_usecase.dart';
+import 'package:mycelium/domain/refresh_current_node_usecase.dart';
 import 'package:mycelium/domain/refresh_priorities_usecase.dart';
 import 'package:mycelium/domain/remove_links_usecase.dart';
 import 'package:mycelium/domain/reschedule_node_usecase.dart';
@@ -43,6 +44,7 @@ import 'package:mycelium/domain/review_node_usecase.dart';
 import 'package:mycelium/domain/review_usecase.dart';
 import 'package:mycelium/domain/select_collection_usecase.dart';
 import 'package:mycelium/domain/select_user_usecase.dart';
+import 'package:mycelium/domain/split_node_usecase.dart';
 import 'package:mycelium/domain/update_api_usecase.dart';
 import 'package:mycelium/domain/update_priority_usecase.dart';
 import 'package:mycelium/viewmodels/about_viewmodel.dart';
@@ -108,6 +110,8 @@ Future<void> setup() async {
   sl.registerSingleton(UpdatePriorityUseCase(sl(), sl()));
   sl.registerSingleton(RefreshPrioritiesUseCase(sl(), sl(), sl()));
   sl.registerSingleton(GetOutlineUseCase(sl(), sl()));
+  sl.registerSingleton(SplitNodeUseCase(sl(), sl()));
+  sl.registerSingleton(RefreshCurrentNodeUseCase(sl(), sl(), sl()));
   sl.registerSingleton(
     AppCoordinator(sl(), sl(), sl(), sl(), sl(), sl(), sl()),
   );
@@ -139,12 +143,16 @@ Future<void> setup() async {
       sl(),
       sl(),
       sl(),
+      sl(),
     ),
   );
   sl.registerFactory(() => ApiViewModel(sl(), sl(), sl(), sl(), sl()));
   //// should reduce dependencies ?
   sl.registerFactory(
     () => MdEditorViewModel(
+      sl(),
+      sl(),
+      sl(),
       sl(),
       sl(),
       sl(),
