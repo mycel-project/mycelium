@@ -11,9 +11,21 @@ Future<void> showAdaptiveSheet({
       builder: (_) => Dialog(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 800),
-          child: Padding(
-            padding: const EdgeInsets.all(24),
-            child: child,
+          child: Stack(
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(top: 32),
+                child: child,
+              ),
+              Positioned(
+                top: 8,
+                right: 8,
+                child: IconButton(
+                  icon: const Icon(Icons.close),
+                  onPressed: () => Navigator.pop(context),
+                ),
+              ),
+            ],
           ),
         ),
       ),

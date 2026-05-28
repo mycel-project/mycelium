@@ -3,6 +3,7 @@
 ### Added
 - When removing links, remove cursor and restore scroll position.
 - Enhance highlighting of the selected heading in the outline
+- Close button (x) added to top-right of desktop dialogs
 
 ### Fixed
 - When changing the displayed node, systematically remove focus to avoid keyboard/cursor inconsistencies.
