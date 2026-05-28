@@ -2,6 +2,7 @@
 
 ### Added
 - When removing links, remove cursor and restore scroll position.
+- Enhance highlighting of the selected heading in the outline
 
 ### Fixed
 - When changing the displayed node, systematically remove focus to avoid keyboard/cursor inconsistencies.
