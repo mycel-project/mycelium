@@ -8,7 +8,7 @@ class ReviewService {
   ReviewService(this.api);
 
   Future<ApiResult<String?>> getClozeRegex() async {
-    final result = await api.get("/config/cloze-regex");
+    final result = await api.get("/constants/cloze-regex");
 
     if (result is ApiError) return result;
 

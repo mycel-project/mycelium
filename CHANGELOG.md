@@ -15,6 +15,7 @@
 
 ### Refactor
 - Hardcode NodeType as node-types route in Mycel API is removed
+- Change route for: cloze_regex
 
 ## v0.1.3
 ### Added
