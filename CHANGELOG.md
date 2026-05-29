@@ -13,6 +13,9 @@
 - Scroll animation is now correctly playing in outline section
 - Restored unsaved changes confirmation dialog when switching nodes with pending changes, accidentally removed in a previous refactor.
 
+### Refactor
+- Hardcode NodeType as node-types route in Mycel API is removed
+
 ## v0.1.3
 ### Added
 - Add an outline panel in the right drawer showing the table of contents of the current node. Headings are clickable for quick navigation, the active heading is highlighted and updates as you scroll, and content is cached per node to avoid redundant requests.

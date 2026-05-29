@@ -5,6 +5,7 @@ import 'package:mycelium/core/stores/node_store.dart';
 import 'package:mycelium/core/stores/user_store.dart';
 import 'package:mycelium/data/api_result.dart';
 import 'package:mycelium/data/models/node.dart';
+import 'package:mycelium/data/models/node_type.dart';
 import 'package:mycelium/data/repositories/node_repository.dart';
 import 'package:mycelium/domain/navigation_usecase.dart';
 import 'package:mycelium/utils/time_utils.dart';
@@ -37,14 +38,7 @@ class CreateExtractUseCase {
 
     bool? addNav = userStore.conf?.get("add_extract_to_nav");
 
-    final nodeType = nodeRepository.getNodeTypeByLabelSync(extractType);
-    if (nodeType == null) {
-      notificationBus.show(
-        "Cannot extract: unknown node type: $extractType",
-        NotificationType.error,
-      );
-      return null;
-    }
+    final nodeType = NodeType.fromString(extractType);
 
     final result = await nodeRepository.createExtract(
       node.collectionId,

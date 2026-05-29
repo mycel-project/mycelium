@@ -29,7 +29,6 @@ class InitDataUseCase {
     // Cleaning in case of another Mycel verison with different data/types, ...
     userRepository.clearConfigSchemaCache();
     nodeRepository.clearCache();
-    nodeRepository.clearTypesCache();
     nodeRepository.clearOutlineCache();
     nodeStore.selectNode(null);
     collectionStore.clearCollection();
@@ -38,7 +37,6 @@ class InitDataUseCase {
     await userRepository.getUserConfigSchema();
     await initUserUseCase.execute();
     await initCollectionsUseCase.execute();
-    await nodeRepository.getNodeTypes();
     await reviewRepository.getClozeRegex();
   }
 }

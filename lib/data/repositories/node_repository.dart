@@ -13,24 +13,18 @@ class NodeRepository {
   // diff between load and get is that load always refetch (in theory, not strictly implemented like that yet)
   final NodeService nodeService;
 
-  Map<int, NodeType>? _typesCache;
   final Map<int, Node> _nodeCache = {};
   (int, List<OutlineEntry>)? _outlineCache; // keeping only one node outline at a time to be sure to refresh when changin node. But is this necessary? a map could be an other way.
 
   NodeRepository(this.nodeService);
 
   Map<int, Node> get nodeCache => Map.unmodifiable(_nodeCache);
-  Map<int, NodeType> get nodeTypesCache => Map.unmodifiable(_typesCache ?? {});
 
   List<OutlineEntry>? getOutlineCache(int nodeId) =>
     _outlineCache?.$1 == nodeId ? _outlineCache?.$2 : null;
 
   void clearCache() {
     _nodeCache.clear();
-  }
-
-  void clearTypesCache() {
-    _typesCache = null;
   }
 
   void clearOutlineCache() {
@@ -337,30 +331,4 @@ class NodeRepository {
     _nodeCache[node.id] = node;
     return ApiSuccess(node);
   }
-
-  Future<Either<NodeError, Map<int, NodeType>>> getNodeTypes() async {
-    if (_typesCache != null) return Right(_typesCache!);
-    final result = await nodeService.getNodeTypes();
-    if (result is ApiError) {
-      return Left(UnknownNodeError());
-    }
-    final success = result as ApiSuccess<List<NodeType>>;
-    _typesCache = {for (var type in success.data) type.key: type};
-    return Right(_typesCache!);
-  }
-
-  Future<Either<NodeError, NodeType>> getNodeType(int key) async {
-    final result = await getNodeTypes();
-    return result.fold(
-      (err) => Left(err),
-      (types) => types.containsKey(key)
-          ? Right(types[key]!)
-          : Left(NodeNotFoundError("NodeType $key not found")),
-    );
-  }
-
-  NodeType? getNodeTypeSync(int key) => _typesCache?[key];
-
-  NodeType? getNodeTypeByLabelSync(String label) =>
-      _typesCache?.values.firstWhereOrNull((t) => t.label == label);
 }

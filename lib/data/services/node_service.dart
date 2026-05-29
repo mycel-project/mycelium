@@ -1,6 +1,4 @@
-import 'dart:convert';
 import 'package:mycelium/data/api_result.dart';
-import 'package:mycelium/data/models/node_type.dart';
 import 'package:mycelium/data/services/api_service.dart';
 
 class NodeService {
@@ -147,18 +145,5 @@ class NodeService {
     return api.patch("/collections/$collectionId/nodes/$nodeId", {
       "content": content,
     });
-  }
-
-  Future<ApiResult<List<NodeType>>> getNodeTypes() async {
-    final result = await api.get("/config/node-types");
-
-    if (result is ApiError) return result;
-
-    final success = result as ApiSuccess<String>;
-    final json = jsonDecode(success.data);
-
-    return ApiSuccess<List<NodeType>>(
-      (json["types"] as List).map((e) => NodeType.fromJson(e)).toList(),
-    );
   }
 }

@@ -10,6 +10,7 @@ import 'package:mycelium/core/stores/review_store.dart';
 import 'package:mycelium/core/stores/scroll_position_store.dart';
 import 'package:mycelium/data/api_result.dart';
 import 'package:mycelium/data/models/node.dart';
+import 'package:mycelium/data/models/node_type.dart';
 import 'package:mycelium/data/repositories/node_repository.dart';
 import 'package:mycelium/data/repositories/review_repository.dart';
 import 'package:mycelium/data/services/node_service.dart';
@@ -115,7 +116,7 @@ class MdEditorViewModel extends ChangeNotifier {
       return;
     }
     if (nodeStore.previousNode?.id == null ||
-      nodeStore.currentNode?.id != nodeStore.previousNode?.id) {
+        nodeStore.currentNode?.id != nodeStore.previousNode?.id) {
       goScrollTop?.call();
     }
     setNoClozeField(false);
@@ -140,7 +141,9 @@ class MdEditorViewModel extends ChangeNotifier {
 
   void cancelNodeChange() {
     _showUnsavedChangesDialog = false;
-    nodeStore.selectNode(_pendingNode); // Now that store previousNode in nodeStore, could use that instead.
+    nodeStore.selectNode(
+      _pendingNode,
+    ); // Now that store previousNode in nodeStore, could use that instead.
     navigationUseCase.undoLastNavigation();
     notifyListeners();
   }
@@ -215,7 +218,7 @@ class MdEditorViewModel extends ChangeNotifier {
   Future<void> handleSporeReview(int rating) async => _handleReview(
     "spore",
     rating: rating,
-  ); // maybe that hardocing node type is better to use NodeType.spore as in backend...
+  ); 
 
   Future<void> handleFragmentReview() async => _handleReview("fragment");
 
@@ -356,8 +359,7 @@ class MdEditorViewModel extends ChangeNotifier {
 
   bool isCurrentNodeSpore() {
     if (node != null) {
-      final type = nodeRepository.getNodeTypeSync(node!.type);
-      return type?.label == "SPORE";
+      return node?.type == NodeType.spore.key;
     } else {
       return false;
     }

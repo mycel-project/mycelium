@@ -20,11 +20,7 @@ class DeletedNodesViewModel extends ChangeNotifier {
     this.notificationBus,
     this.userStore,
   );
-
-  String getNodeTypeName(int typeKey) {
-    return nodeRepository.nodeTypesCache[typeKey]?.label ?? "Type $typeKey";
-  }
-
+  
   Future<void> getDeletedNodes() async {
     final collectionId = collectionStore.currentCollection?.id;
     if (collectionId == null) return;

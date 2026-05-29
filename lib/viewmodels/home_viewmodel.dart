@@ -97,7 +97,7 @@ class HomeViewModel extends ChangeNotifier {
   void closeLeftPanelIfReviewingSpore() {
     if (reviewStore.currentNodeId != null &&
         nodeStore.currentNode?.id == reviewStore.currentNodeId &&
-        nodeStore.currentNode?.type == 2) {
+        nodeStore.currentNode?.type == NodeType.spore.key) {
       closeLeftPanel();
     }
   }
@@ -221,9 +221,6 @@ class HomeViewModel extends ChangeNotifier {
     if (result) notifyListeners();
     return result;
   }
-
-  List<NodeType> getNodeTypes() =>
-      nodeRepository.nodeTypesCache.values.toList();
 
   // Navigate without pushing in history
   Future<void> _loadNode(int id) async {
