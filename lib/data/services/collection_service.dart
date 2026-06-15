@@ -13,11 +13,11 @@ class CollectionService {
     return await api.post("/collections", {"name": name});
   }
 
-  Future<ApiResult<void>> deleteCollection(int id) async {
+  Future<ApiResult<void>> deleteCollection(String id) async {
     return await api.delete("/collections/$id");
   }
 
-  Future<ApiResult<void>> renameCollection(int id, String newName) async {
+  Future<ApiResult<void>> renameCollection(String id, String newName) async {
     return await api.patch("/collections/$id", {"newName": newName});
   }
 }

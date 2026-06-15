@@ -8,7 +8,7 @@ class User {
     required this.conf,
   });
 
-  final int id;
+  final String id;
   final String name;
   final int createdAt;
   final UserConf conf;

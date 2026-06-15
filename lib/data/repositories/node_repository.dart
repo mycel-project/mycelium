@@ -13,14 +13,14 @@ class NodeRepository {
   // diff between load and get is that load always refetch (in theory, not strictly implemented like that yet)
   final NodeService nodeService;
 
-  final Map<int, Node> _nodeCache = {};
-  (int, List<OutlineEntry>)? _outlineCache; // keeping only one node outline at a time to be sure to refresh when changin node. But is this necessary? a map could be an other way.
+  final Map<String, Node> _nodeCache = {};
+  (String, List<OutlineEntry>)? _outlineCache; // keeping only one node outline at a time to be sure to refresh when changin node. But is this necessary? a map could be an other way.
 
   NodeRepository(this.nodeService);
 
-  Map<int, Node> get nodeCache => Map.unmodifiable(_nodeCache);
+  Map<String, Node> get nodeCache => Map.unmodifiable(_nodeCache);
 
-  List<OutlineEntry>? getOutlineCache(int nodeId) =>
+  List<OutlineEntry>? getOutlineCache(String nodeId) =>
     _outlineCache?.$1 == nodeId ? _outlineCache?.$2 : null;
 
   void clearCache() {
@@ -31,18 +31,18 @@ class NodeRepository {
     _outlineCache = null;
   }
 
-  void updateCache(int id, Node node) {
+  void updateCache(String id, Node node) {
     // When used from external access must be used in consequence of a fetch from backend, no direct modification from frontend. For example if review_repo get back a node and we want to store this node in cache, use this method.
     _nodeCache[id] = node;
   }
 
-  Future<ApiResult<List<OutlineEntry>>> getOutline(int colId, int nodeId) async {
+  Future<ApiResult<List<OutlineEntry>>> getOutline(String colId, String nodeId) async {
     final cached = getOutlineCache(nodeId);
     if (cached != null) return ApiSuccess(cached);
     return _loadOutline(colId, nodeId);
   }
 
-  Future<ApiResult<List<OutlineEntry>>> _loadOutline(int colId, int nodeId) async {
+  Future<ApiResult<List<OutlineEntry>>> _loadOutline(String colId, String nodeId) async {
     final result = await nodeService.getOutline(colId, nodeId);
     if (result is ApiError) return result;
     final success = result as ApiSuccess<String>;
@@ -55,8 +55,8 @@ class NodeRepository {
   }
 
   Future<ApiResult<Node>> rescheduleNode(
-    int colId,
-    int nodeId,
+    String colId,
+    String nodeId,
     String dateIso,
     int tzOffset,
   ) async {
@@ -76,7 +76,7 @@ class NodeRepository {
   }
 
   Future<ApiResult<Node>> fetchRessourceFromUrl(
-    int colId,
+    String colId,
     String url,
     int tzOffset,
   ) async {
@@ -95,8 +95,8 @@ class NodeRepository {
   }
 
   Future<ApiResult<List<Node>>> createExtract(
-    int colId,
-    int nodeId,
+    String colId,
+    String nodeId,
     String text,
     String field,
     int startIndex,
@@ -124,13 +124,13 @@ class NodeRepository {
     return ApiSuccess([extractNode, sourceNode]);
   }
 
-  Future<ApiResult<List<int>>> deleteNode(int colId, int nodeId) async {
+  Future<ApiResult<List<String>>> deleteNode(String colId, String nodeId) async {
     final result = await nodeService.deleteNode(colId, nodeId);
 
     if (result is ApiError) return result;
     final success = result as ApiSuccess<String>;
     final json = jsonDecode(success.data);
-    final deletedIds = (json["deleted_ids"] as List).cast<int>();
+    final deletedIds = (json["deleted_ids"] as List).cast<String>();
     for (final id in deletedIds) {
       _nodeCache.remove(id);
     }
@@ -138,8 +138,8 @@ class NodeRepository {
   }
 
   Future<ApiResult<Node>> reprioritiseNode(
-    int colId,
-    int nodeId,
+    String colId,
+    String nodeId,
     double priority,
   ) async {
     final result = await nodeService.reprioritiseNode(colId, nodeId, priority);
@@ -149,13 +149,13 @@ class NodeRepository {
     return ApiSuccess(node);
   }
 
-  Future<ApiResult<void>> getPriorities(int colId) async {
+  Future<ApiResult<void>> getPriorities(String colId) async {
     final result = await nodeService.getPriorities(colId);
     if (result is ApiError) return result;
     final json = jsonDecode((result as ApiSuccess<String>).data);
     final priorities = json["priorities"] as Map<String, dynamic>;
     for (final entry in priorities.entries) {
-      final id = int.parse(entry.key);
+      final id = entry.key;
       final node = _nodeCache[id];
       if (node != null) {
         _nodeCache[id] = node.copyWith(
@@ -167,8 +167,8 @@ class NodeRepository {
   }
 
   Future<ApiResult<List<Node>>> restoreNode(
-    int colId,
-    int nodeId,
+    String colId,
+    String nodeId,
     bool restoreAncestors,
     bool restoreDescendants,
   ) async {
@@ -196,7 +196,7 @@ class NodeRepository {
     return (json["nodes"] as List).map((e) => Node.fromJson(e)).toList();
   }
 
-  Future<ApiResult<List<Node>>> loadNodes(int colId) async {
+  Future<ApiResult<List<Node>>> loadNodes(String colId) async {
     final result = await nodeService.getNodes(colId);
     if (result is ApiError) return result;
     final nodes = _parseNodes(result as ApiSuccess<String>);
@@ -206,7 +206,7 @@ class NodeRepository {
     return ApiSuccess(nodes);
   }
 
-  Future<ApiResult<Node>> loadNode(int colId, int nodeId) async {
+  Future<ApiResult<Node>> loadNode(String colId, String nodeId) async {
     final result = await nodeService.getNode(colId, nodeId);
     if (result is ApiError) return result;
     final node = _parseNode(result as ApiSuccess<String>);
@@ -214,7 +214,7 @@ class NodeRepository {
     return ApiSuccess(node);
   }
 
-  Future<ApiResult<List<Node>>> loadDeletedNodes(int colId) async {
+  Future<ApiResult<List<Node>>> loadDeletedNodes(String colId) async {
     // No caching for deletedNodes at the moment
     final result = await nodeService.getDeletedNodes(colId);
     if (result is ApiError) return result;
@@ -223,8 +223,8 @@ class NodeRepository {
   }
 
   Future<Either<NodeError, Node>> _fetchNode(
-    int colId,
-    int nodeId,
+    String colId,
+    String nodeId,
     Future<ApiResult<String>> Function() call,
   ) async {
     if (_nodeCache.containsKey(nodeId)) {
@@ -245,13 +245,13 @@ class NodeRepository {
     return Right(node);
   }
 
-  Future<Either<NodeError, Node>> getNode(int colId, int nodeId) =>
+  Future<Either<NodeError, Node>> getNode(String colId, String nodeId) =>
       _fetchNode(colId, nodeId, () => nodeService.getNode(colId, nodeId));
 
-  Future<Either<NodeError, Node>> fetchRoot(int colId, int nodeId) =>
+  Future<Either<NodeError, Node>> fetchRoot(String colId, String nodeId) =>
       _fetchNode(colId, nodeId, () => nodeService.getRootNode(colId, nodeId));
 
-  Future<Either<NodeError, Node>> getRootNode(int colId, int nodeId) async {
+  Future<Either<NodeError, Node>> getRootNode(String colId, String nodeId) async {
     var currentId = nodeId;
     while (_nodeCache.containsKey(currentId)) {
       // Traverse the cache upwards to check whether the root node already exists
@@ -264,7 +264,7 @@ class NodeRepository {
 
   Future<ApiResult<Node>> _handleUpdateResult(
     ApiResult result,
-    int nodeId,
+    String nodeId,
   ) async {
     if (result is ApiError) return result;
     final success = result as ApiSuccess<String>;
@@ -275,8 +275,8 @@ class NodeRepository {
   }
 
   Future<ApiResult<Node>> updateNodeContent(
-    int collectionId,
-    int nodeId,
+    String collectionId,
+    String nodeId,
     String content,
   ) async {
     final result = await nodeService.saveNodeContent(
@@ -288,8 +288,8 @@ class NodeRepository {
   }
 
   Future<ApiResult<Node>> updateNodeDismiss(
-    int collectionId,
-    int nodeId,
+    String collectionId,
+    String nodeId,
     bool dismiss,
   ) async {
     final result = await nodeService.updateNodeDismiss(
@@ -301,8 +301,8 @@ class NodeRepository {
   }
 
   Future<ApiResult<Node>> updateNode(
-    int collectionId,
-    int nodeId,
+    String collectionId,
+    String nodeId,
     Map<String, dynamic> data,
   ) async {
     final result = await nodeService.updateNode(collectionId, nodeId, data);
@@ -310,8 +310,8 @@ class NodeRepository {
   }
 
   Future<ApiResult<Node>> removeLinks(
-    int colId,
-    int nodeId,
+    String colId,
+    String nodeId,
     String text,
     String field,
     int startIndex,

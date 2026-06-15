@@ -9,11 +9,11 @@ import 'package:mycelium/data/services/collection_service.dart';
 class CollectionRepository {
   final CollectionService collectionService;
 
-  final Map<int, Collection> _collectionCache = {};
+  final Map<String, Collection> _collectionCache = {};
 
   CollectionRepository(this.collectionService);
 
-  Map<int, Collection> get collectionCache =>
+  Map<String, Collection> get collectionCache =>
       Map.unmodifiable(_collectionCache);
 
   void clearCache() {
@@ -32,7 +32,7 @@ class CollectionRepository {
     return ApiSuccess(collection);
   }
 
-  Future<ApiResult<Collection>> renameCollection(int id, String newName) async {
+  Future<ApiResult<Collection>> renameCollection(String id, String newName) async {
     final result = await collectionService.renameCollection(id, newName);
     if (result is ApiError) return result;
     final cached = _collectionCache[id];
@@ -44,7 +44,7 @@ class CollectionRepository {
     return ApiSuccess(updated);
   }
 
-  Future<Either<CollectionError, int>> deleteCollection(int id) async {
+  Future<Either<CollectionError, String>> deleteCollection(String id) async {
     final result = await collectionService.deleteCollection(id);
 
     if (result is ApiError) {
@@ -67,7 +67,7 @@ class CollectionRepository {
 
     final success = result as ApiSuccess<String>;
     final json = jsonDecode(success.data);
-    final collections = (json["collections"] as List)
+    final collections = (json["data"] as List)
         .map((e) => Collection.fromJson(e))
         .toList();
     _collectionCache.clear();

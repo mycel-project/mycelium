@@ -59,12 +59,12 @@ class NodeUseCase {
     }
   }
 
-  bool hasChildren(int nodeId) {
+  bool hasChildren(String nodeId) {
     // Only looking in cache because we suppose that if we have access to a node we have fetched its subtree
     return nodeRepository.nodeCache.values.any((n) => n.parentId == nodeId);
   }
 
-  Future<String?> getNodeTitle(int colId, int nodeId) async {
+  Future<String?> getNodeTitle(String colId, String nodeId) async {
     final result = await nodeRepository.getNode(colId, nodeId);
     return result.fold(
       (error) {
@@ -78,7 +78,7 @@ class NodeUseCase {
     );
   }
 
-  Future<bool> deleteNode(int colId, int nodeId) async {
+  Future<bool> deleteNode(String colId, String nodeId) async {
     /// return false if error during delete
     final result = await nodeRepository.deleteNode(colId, nodeId);
 
@@ -96,7 +96,7 @@ class NodeUseCase {
     return false;
   }
 
-  Future<Node?> updateNodeTitle(int colId, int nodeId, String title) async {
+  Future<Node?> updateNodeTitle(String colId, String nodeId, String title) async {
     final data = NodeUpdate(
       data: NodeData(title: title == "" ? null : title),
     ).toJson();

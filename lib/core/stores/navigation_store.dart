@@ -2,15 +2,15 @@ import 'package:flutter/material.dart';
 
 /// ClaudeAI
 class NavigationStore extends ChangeNotifier {
-  final List<int> _history = [];
+  final List<String> _history = [];
   int _cursor = -1;
 
-  List<int> get history => List.unmodifiable(_history);
-  int? get current => _cursor >= 0 ? _history[_cursor] : null;
+  List<String> get history => List.unmodifiable(_history);
+  String? get current => _cursor >= 0 ? _history[_cursor] : null;
   int get cursorIndex => _cursor;
   int get historyLength => _history.length;
 
-  void push(int nodeId) {
+  void push(String nodeId) {
     if (_cursor < _history.length - 1) {
       _history.removeRange(_cursor + 1, _history.length);
     }
@@ -24,7 +24,7 @@ class NavigationStore extends ChangeNotifier {
     notifyListeners();
   }
 
-  int? idAtIndex(int index) {
+  String? idAtIndex(int index) {
     if (index < 0 || index >= _history.length) return null;
     return _history[index];
   }
@@ -48,7 +48,7 @@ class NavigationStore extends ChangeNotifier {
     notifyListeners();
   }
 
-  void insertAt(int index, int nodeId) {
+  void insertAt(int index, String nodeId) {
     final clampedIndex = index.clamp(0, _history.length);
     _history.insert(clampedIndex, nodeId);
     if (clampedIndex <= _cursor) {

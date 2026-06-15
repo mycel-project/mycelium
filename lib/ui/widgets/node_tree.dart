@@ -9,8 +9,8 @@ import 'package:flutter_svg/flutter_svg.dart';
 /// Based on ClaudAI to handle tree building and layouting, is a bit hacky, especially for guide line when expanding element, maybe my manual modifications make it even more hacky ?
 class NodeTree extends StatefulWidget {
   final List<Node> nodes;
-  final void Function(int id)? clickCallback;
-  final Future<void> Function(int id, Offset offset)?
+  final void Function(String id)? clickCallback;
+  final Future<void> Function(String id, Offset offset)?
   secondaryAction;
   final bool Function(Node node)? isSpore;
   final String Function(String content) formatSpore;
@@ -69,7 +69,7 @@ class _NodeTreeState extends State<NodeTree> {
   int _getDepth(TreeSliverNode node) {
     int depth = 0;
     final typedNode = node.content as Node;
-    int? parentId = typedNode.parentId;
+    String? parentId = typedNode.parentId;
     while (parentId != null) {
       final parent = widget.nodes.firstWhereOrNull((n) => n.id == parentId);
       if (parent == null) break; // To display nodes whose parent is absent from the list at the tree root
@@ -292,7 +292,7 @@ List<TreeSliverNode<Node>> buildTree(
     Node? selectedNode,
     bool Function(Node node)? isSpore,
 }) {
-  final Map<int?, List<Node>> grouped = {};
+  final Map<String?, List<Node>> grouped = {};
   for (final node in nodes) {
     grouped.putIfAbsent(node.parentId, () => []).add(node);
   }
@@ -305,7 +305,7 @@ List<TreeSliverNode<Node>> buildTree(
       });
     }
   }
-  final Set<int> ancestorIds = {};
+  final Set<String> ancestorIds = {};
   if (selectedNode != null) {
     Node? current = nodes.firstWhereOrNull((n) => n.id == selectedNode.id);
     while (current?.parentId != null) {

@@ -18,7 +18,7 @@ class ReviewService {
     return ApiSuccess<String?>(json["regex"] as String?);
   }
 
-  Future<ApiResult<String>> getNextReview(int colId, int tzOffset) async {
+  Future<ApiResult<String>> getNextReview(String colId, int tzOffset) async {
     return await api.get(
       "/collections/$colId/reviews/next",
       queryParams: {
@@ -27,7 +27,7 @@ class ReviewService {
     );
   }
 
-  Future<ApiResult<String>> getCalendar(int colId, int tzOffset) async {
+  Future<ApiResult<String>> getCalendar(String colId, int tzOffset) async {
     return await api.get(
       "/collections/$colId/reviews/calendar",
       queryParams: {
@@ -36,13 +36,13 @@ class ReviewService {
     );
   }
 
-  Future<ApiResult<String>> undoReview(int colId) async {
+  Future<ApiResult<String>> undoReview(String colId) async {
     return await api.post("/collections/$colId/reviews/undo", {});
   }
 
   Future<ApiResult<String>> completeFragmentReview(
-    int colId,
-    int nodeId,
+    String colId,
+    String nodeId,
     int duration,
     int tzOffset
   ) async {
@@ -54,8 +54,8 @@ class ReviewService {
   }
 
   Future<ApiResult<String>> completeSporeReview(
-    int colId,
-    int nodeId,
+    String colId,
+    String nodeId,
     int duration,
     int rating,
     int tzOffset

@@ -13,11 +13,11 @@ class Node {
     this.data,
     this.deletedAt,
   });
-  final int id;
+  final String id;
   final int type;
-  final int collectionId;
+  final String collectionId;
   final double priority;
-  final int? parentId;
+  final String? parentId;
   final Map? content;
   final Map? typeData;
   final NodeData? data;
@@ -43,11 +43,11 @@ class Node {
   }
 
   Node copyWith({
-    int? id,
+    String? id,
     int? type,
-    int? collectionId,
+    String? collectionId,
     double? priority,
-    int? parentId,
+    String? parentId,
     int? due,
     Map? content,
     Map? typeData,

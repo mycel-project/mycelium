@@ -17,7 +17,7 @@ class RescheduleNodeUseCase {
     this.reviewStore,
   );
 
-  Future<Node?> execute(int colId, int nodeId, String dateIso) async {
+  Future<Node?> execute(String colId, String nodeId, String dateIso) async {
     final result = await nodeRepository.rescheduleNode(
       colId,
       nodeId,

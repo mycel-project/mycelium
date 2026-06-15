@@ -12,7 +12,7 @@ class NodeUpdate {
     this.typeData,
   }) : assert(type == null || type >= 0, 'type must be positive');
 
-  final int? parentId;
+  final String? parentId;
   final Map<String, dynamic>? content;
   final NodeData? data;
   final int? type;

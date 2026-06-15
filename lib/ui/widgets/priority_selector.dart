@@ -9,7 +9,7 @@ import 'package:mycelium/ui/widgets/adaptative_sheet.dart';
 // Used ClaudeAI to quickly build widget
 class PrioritySelector extends StatefulWidget {
   final List<Node> nodes;
-  final int currentNodeId;
+  final String currentNodeId;
   final void Function(double newPriority) onConfirm;
   final String title;
 
@@ -322,9 +322,9 @@ Future<void> showPriorityPicker(
   BuildContext context, {
     String? title,
     required List<Node> nodes,
-    required int currentNodeId,
+    required String currentNodeId,
     required Future<void> Function() onRefresh,
-    required Future<bool> Function(int nodeId, double priority) onUpdate,
+    required Future<bool> Function(String nodeId, double priority) onUpdate,
 }) async {
   if (nodes.length < 500) {
     await onRefresh();

@@ -7,7 +7,7 @@ class ReviewStore extends ChangeNotifier {
 
   ReviewState get state => _state;
 
-  void setReview(int nodeId) {
+  void setReview(String nodeId) {
     _state = Reviewing(nodeId);
     notifyListeners();
   }
@@ -29,7 +29,7 @@ class ReviewStore extends ChangeNotifier {
     notifyListeners();
   }
 
-  int? get currentNodeId {
+  String? get currentNodeId {
     final s = _state;
     return s is Reviewing ? s.nodeId : null;
   }

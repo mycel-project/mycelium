@@ -48,7 +48,7 @@ class ReviewUseCase {
     }
   }
 
-  Future<bool> undo(int collectionId) async {
+  Future<bool> undo(String collectionId) async {
     final result = await reviewRepository.undoReview(collectionId);
     switch (result) {
       case ApiSuccess(:final data):

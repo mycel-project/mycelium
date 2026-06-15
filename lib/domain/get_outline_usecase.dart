@@ -10,8 +10,8 @@ class GetOutlineUseCase {
   GetOutlineUseCase(this.nodeRepository, this.notificationBus);
 
   Future<List<OutlineEntry>?> execute(
-    int colId,
-    int nodeId, {
+    String colId,
+    String nodeId, {
     bool forceRefresh = false,
   }) async {
     if (forceRefresh) nodeRepository.clearOutlineCache();

@@ -64,7 +64,7 @@ class RightDrawer extends StatelessWidget {
 
 class _Outline extends StatefulWidget {
   final HomeViewModel vm;
-  final int? currentNodeId;
+  final String? currentNodeId;
   const _Outline({required this.vm, required this.currentNodeId});
 
   @override
@@ -219,7 +219,7 @@ class _PriorityTile extends StatelessWidget {
   final Node node;
   final List<Node> nodes;
   final Future<void> Function() refreshPriorities;
-  final Future<bool> Function(int nodeId, double priority) updatePriority;
+  final Future<bool> Function(String nodeId, double priority) updatePriority;
 
   const _PriorityTile({
     required this.node,

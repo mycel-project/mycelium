@@ -10,7 +10,7 @@ class UserRepository {
   final UserService userService;
 
   Map<String, ConfigField> configSchemaCache = {};
-  final Map<int, User> _userCache = {};
+  final Map<String, User> _userCache = {};
 
   UserRepository(this.userService);
 

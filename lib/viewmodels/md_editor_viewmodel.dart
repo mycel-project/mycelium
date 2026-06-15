@@ -504,7 +504,7 @@ class MdEditorViewModel extends ChangeNotifier {
     return false;
   }
 
-  Future<bool> updatePriority(int nodeId, double priority) async {
+  Future<bool> updatePriority(String nodeId, double priority) async {
     final colId = collectionStore.currentCollection?.id;
     if (colId == null) return false;
     final result = await updatePriorityUseCase.execute(colId, nodeId, priority);

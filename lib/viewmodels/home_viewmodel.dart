@@ -130,13 +130,13 @@ class HomeViewModel extends ChangeNotifier {
     if (id != null) _loadNode(id);
   }
 
-  Future<String?> getNodeTitle(int nodeId) async {
+  Future<String?> getNodeTitle(String nodeId) async {
     final colId = collectionStore.currentCollection?.id;
     if (colId == null) return "";
     return await nodeUseCase.getNodeTitle(colId, nodeId);
   }
 
-  Future<bool> updateNodeTitle(int nodeId, String title) async {
+  Future<bool> updateNodeTitle(String nodeId, String title) async {
     final colId = collectionStore.currentCollection?.id;
     if (colId == null) return false;
     final result = await nodeUseCase.updateNodeTitle(colId, nodeId, title);
@@ -152,7 +152,7 @@ class HomeViewModel extends ChangeNotifier {
     if (id != null) _loadNode(id);
   }
 
-  void navigateTo(int nodeId) async {
+  void navigateTo(String nodeId) async {
     if (nodeId != nodeStore.currentNode?.id) {
       navigationUseCase.navigateTo(nodeId);
     }
@@ -223,7 +223,7 @@ class HomeViewModel extends ChangeNotifier {
   }
 
   // Navigate without pushing in history
-  Future<void> _loadNode(int id) async {
+  Future<void> _loadNode(String id) async {
     final colId = collectionStore.currentCollection?.id;
     if (colId == null) return;
     final result = await nodeRepository.getNode(colId, id);
@@ -260,7 +260,7 @@ class HomeViewModel extends ChangeNotifier {
     }
   }
 
-  Future<void> deleteNode(int nodeId) async {
+  Future<void> deleteNode(String nodeId) async {
     final colId = collectionStore.currentCollection?.id;
     if (colId == null) return;
     await nodeUseCase.deleteNode(colId, nodeId);
@@ -286,7 +286,7 @@ class HomeViewModel extends ChangeNotifier {
     return collectionStore.currentCollection?.name;
   }
 
-  Future<bool> updatePriority(int nodeId, double priority) async {
+  Future<bool> updatePriority(String nodeId, double priority) async {
     final colId = collectionStore.currentCollection?.id;
     if (colId == null) return false;
     final result = await updatePriorityUseCase.execute(colId, nodeId, priority);
@@ -298,7 +298,7 @@ class HomeViewModel extends ChangeNotifier {
     return false;
   }
 
-  Future<bool> rescheduleNode(int nodeId, String dateIso) async {
+  Future<bool> rescheduleNode(String nodeId, String dateIso) async {
     final colId = collectionStore.currentCollection?.id;
     if (colId == null) return false;
     final result = await rescheduleNodeUseCase.execute(colId, nodeId, dateIso);

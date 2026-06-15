@@ -35,7 +35,7 @@ class DeletedNodesViewModel extends ChangeNotifier {
   }
 
   Future<void> restoreNode(
-    int nodeId, {
+    String nodeId, {
     bool restoreAncestors = false,
     bool restoreDescendants = false,
   }) async {

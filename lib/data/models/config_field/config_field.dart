@@ -44,7 +44,7 @@ abstract class ConfigField {
         step: json["step"] ?? 1,
         warning: json["warning"] ?? null,
       );
-      case "string":
+      case "String":
       return StringConfigField(
         key: common['key'] as String,
         title: common['title'] as String,

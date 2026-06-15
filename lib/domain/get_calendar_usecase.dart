@@ -10,7 +10,7 @@ class GetCalendarUseCase {
 
   GetCalendarUseCase(this.reviewRepository, this.notificationBus);
 
-  Future<Map<DateTime, DayReviewOverview>?> execute(int colId) async {
+  Future<Map<DateTime, DayReviewOverview>?> execute(String colId) async {
     final result = await reviewRepository.getCalendar(colId, tzOffsetMinutes);
     switch (result) {
       case ApiSuccess(:final data):

@@ -12,14 +12,14 @@ class ReviewRepository {
 
   String? _clozeRegex;
 
-  Future<ApiResult<Node?>> undoReview(int colId) async {
+  Future<ApiResult<Node?>> undoReview(String colId) async {
     final result = await reviewService.undoReview(colId);
     return parsedReviewData(result);
   }
 
   Future<ApiResult<Node?>> reviewFragment(
-    int colId,
-    int nodeId,
+    String colId,
+    String nodeId,
     int duration,
     int tzOffset,
   ) async {
@@ -28,8 +28,8 @@ class ReviewRepository {
   }
 
   Future<ApiResult<Node?>> reviewSpore(
-    int colId,
-    int nodeId,
+    String colId,
+    String nodeId,
     int duration,
     int rating,
     int tzOffset,
@@ -45,7 +45,7 @@ class ReviewRepository {
   }
 
   Future<ApiResult<Map<DateTime, DayReviewOverview>>> getCalendar(
-    int colId,
+    String colId,
     int tzOffset
   ) async {
     final result = await reviewService.getCalendar(colId, tzOffset);
@@ -74,7 +74,7 @@ class ReviewRepository {
   }
 
   Future<ApiResult<Node?>> getNextReview(
-    int colId,
+    String colId,
     int tzOffset
   ) async {
     final result = await reviewService.getNextReview(colId, tzOffset);

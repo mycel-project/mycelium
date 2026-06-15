@@ -40,7 +40,7 @@ class NavigationUseCase extends ChangeNotifier {
     this._collectionStore,
   );
 
-  bool _isValidDestination(int id) =>
+  bool _isValidDestination(String id) =>
       _nodeRepository.nodeCache.containsKey(id) &&
       id != _navigationStore.current;
 
@@ -68,14 +68,14 @@ class NavigationUseCase extends ChangeNotifier {
     }
   }
 
-  void pushToHistory(int nodeId, {int offset = 0}) {
+  void pushToHistory(String nodeId, {int offset = 0}) {
     /// To push a node in history without navigating to it, when extracting for instance. Not impacted by undo
     final insertIndex = _navigationStore.cursorIndex + offset;
     _navigationStore.insertAt(insertIndex, nodeId);
     _updateCanNavigate();
   }
 
-  Future<void> navigateTo(int nodeId) async {
+  Future<void> navigateTo(String nodeId) async {
     final colId = _collectionStore.currentCollection?.id;
     if (colId == null) return;
     _cursorBeforeNavigation = _navigationStore.cursorIndex;
@@ -89,11 +89,11 @@ class NavigationUseCase extends ChangeNotifier {
     });
   }
 
-  void onNodesDeleted(List<int> deletedIds) {
+  void onNodesDeleted(List<String> deletedIds) {
     _updateCanNavigate();
   }
 
-  Future<int?> back() async {
+  Future<String?> back() async {
     final colId = _collectionStore.currentCollection?.id;
     if (colId == null) return null;
     _cursorBeforeNavigation = _navigationStore.cursorIndex;
@@ -116,7 +116,7 @@ class NavigationUseCase extends ChangeNotifier {
     return null;
   }
 
-  Future<int?> forward() async {
+  Future<String?> forward() async {
     final colId = _collectionStore.currentCollection?.id;
     if (colId == null) return null;
     _cursorBeforeNavigation = _navigationStore.cursorIndex;

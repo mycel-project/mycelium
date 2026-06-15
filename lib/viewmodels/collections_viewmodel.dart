@@ -58,7 +58,7 @@ class CollectionsViewModel extends ChangeNotifier {
     return false;
   }
 
-  Future<void> deleteCollection(int id) async {
+  Future<void> deleteCollection(String id) async {
     await collectionRepository.deleteCollection(id);
     if (collectionStore.currentCollection?.id == id) {
       collectionStore.clearCollection();
@@ -66,7 +66,7 @@ class CollectionsViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<bool> renameCollection(int id, String? newName) async {
+  Future<bool> renameCollection(String id, String? newName) async {
     if (newName == null || newName.isEmpty) {
       notificationBus.showWarning("Empty name");
       return false;
@@ -83,7 +83,7 @@ class CollectionsViewModel extends ChangeNotifier {
     return false;
   }
 
-  Future<void> setCollection(int id) async {
+  Future<void> setCollection(String id) async {
     final candidates = collections.where((c) => c.id == id);
     if (candidates.isNotEmpty && currentCollection?.id != id) {
       await selectCollectionUseCase.execute(candidates.first);
