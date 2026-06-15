@@ -50,14 +50,12 @@ class UserRepository {
     if (result is ApiError) return result;
 
     final decoded = jsonDecode((result as ApiSuccess<String>).data);
-    final properties = decoded["schema"]["properties"] as Map<String, dynamic>;
+    final properties =
+        decoded["data"]["properties"] as Map<String, dynamic>;
 
     configSchemaCache = Map.fromEntries(
       properties.entries.map(
-        (e) => MapEntry(
-          e.key,
-          ConfigField.fromJson(e.key, e.value),
-        ),
+        (e) => MapEntry(e.key, ConfigField.fromJson(e.key, e.value)),
       ),
     );
 

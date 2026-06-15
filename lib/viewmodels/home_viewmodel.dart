@@ -16,7 +16,7 @@ import 'package:mycelium/data/models/node.dart';
 import 'package:mycelium/data/models/node_type.dart';
 import 'package:mycelium/data/models/outline_entry.dart';
 import 'package:mycelium/data/repositories/node_repository.dart';
-import 'package:mycelium/data/services/api_service.dart';
+import 'package:mycelium/data/network/api_client.dart';
 import 'package:mycelium/domain/check_api_usecase.dart';
 import 'package:mycelium/domain/cloze_mode.dart';
 import 'package:mycelium/domain/get_calendar_usecase.dart';
@@ -30,7 +30,7 @@ import 'package:mycelium/domain/update_priority_usecase.dart';
 import 'package:mycelium/utils/time_utils.dart';
 
 class HomeViewModel extends ChangeNotifier {
-  final ApiService apiService;
+  final ApiClient apiService;
   final ReviewStore reviewStore;
   final NodeUseCase nodeUseCase;
   final NodeStore nodeStore;
@@ -210,10 +210,10 @@ class HomeViewModel extends ChangeNotifier {
       case ApiSuccess():
         notifyListeners();
         return true;
-      case ApiError error:
+      case DomainError error:
         notificationBus.showError("Cannot refresh node", error);
-        return false;
     }
+    return false;
   }
 
   Future<bool> refreshPriorities() async {
@@ -277,7 +277,7 @@ class HomeViewModel extends ChangeNotifier {
 
   Future<void> handleNextReview() async {
     final result = await reviewUseCase.handleNextReview();
-    if (result case ApiError error) {
+    if (result case DomainError error) {
       notificationBus.showError("Cannot get review", error);
     }
   }
@@ -328,10 +328,10 @@ class HomeViewModel extends ChangeNotifier {
         await navigationUseCase.navigateTo(node.id);
         notifyListeners();
         return true;
-      case ApiError error:
+      case DomainError error:
         notificationBus.showError("Cannot import ressource", error);
-        return false;
     }
+    return false;
   }
 
   Map<DateTime, ({int spores, int fragments})> repsData = {

@@ -33,7 +33,7 @@ class SettingViewModel extends ChangeNotifier {
     final result = await userRepository.updateUserConfig(update);
     if (result is ApiSuccess<User>) {
       userStore.selectUser(result.data);
-    } else if (result is ApiError) {
+    } else if (result is DomainError) {
       notificationBus.showError("Cannot save settings", result);
       notifyListeners();
     }

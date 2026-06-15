@@ -32,9 +32,9 @@ class RescheduleNodeUseCase {
           reviewStore.stopReview();
         }
         return data;
-      case ApiError error:
+      case DomainError error:
         notificationBus.showError("Cannot reschedule node", error);
-        return null;
     }
+    return null;
   }
 }

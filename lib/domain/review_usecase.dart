@@ -58,7 +58,7 @@ class ReviewUseCase {
         }
         setReview(node);
         return true;
-      case ApiError error:
+      case DomainError error:
         switch (error.code) {
           case "NO_REVIEW_TO_UNDO":
             notificationBus.showInfo("No review to undo");
@@ -71,8 +71,8 @@ class ReviewUseCase {
           default:
             notificationBus.showError("Cannot undo review", error);
         }
-        return false;
     }
+    return false;
   }
 
   String transformClozeContent(

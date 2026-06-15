@@ -36,7 +36,7 @@ class CollectionsViewModel extends ChangeNotifier {
     switch (result) {
       case ApiSuccess():
         notifyListeners();
-      case ApiError error:
+      case DomainError error:
         notificationBus.showError("Cannot load collections", error);
     }
   }
@@ -52,10 +52,10 @@ class CollectionsViewModel extends ChangeNotifier {
       case ApiSuccess():
         notifyListeners();
         return true;
-      case ApiError error:
+      case DomainError error:
         notificationBus.showError("Cannot create collection", error);
-        return false;
     }
+    return false;
   }
 
   Future<void> deleteCollection(int id) async {
@@ -77,10 +77,10 @@ class CollectionsViewModel extends ChangeNotifier {
       case ApiSuccess():
         notifyListeners();
         return true;
-      case ApiError error:
+      case DomainError error:
         notificationBus.showError("Cannot rename collection", error);
-        return false;
     }
+    return false;
   }
 
   Future<void> setCollection(int id) async {

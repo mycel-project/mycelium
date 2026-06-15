@@ -17,23 +17,31 @@ class ApiService {
     this.timeout = const Duration(seconds: 5),
   });
 
-  Uri _uri(String path, {Map<String, String>? queryParams}) => Uri.parse("${apiStore.baseUrl}$path").replace(queryParameters: queryParams);
+  Uri _uri(String path, {Map<String, String>? queryParams}) => Uri.parse(
+    "${apiStore.baseUrl}$path",
+  ).replace(queryParameters: queryParams);
 
-  Future<ApiResult<String>> get(String path, {Map<String, String>? queryParams}) {
+  Future<ApiResult<String>> get(
+    String path, {
+    Map<String, String>? queryParams,
+  }) {
     return _request(
-      () async => http.get(_uri(path, queryParams: queryParams)).timeout(timeout),
+      () async =>
+          http.get(_uri(path, queryParams: queryParams)).timeout(timeout),
       method: "GET",
       url: path,
     );
   }
 
-  Future<ApiResult<String>> post(String path, Map<String, dynamic> body, {Map<String, String>? queryParams}) {
+  Future<ApiResult<String>> post(
+    String path,
+    Map<String, dynamic> body, {
+    Map<String, String>? queryParams,
+  }) {
     return _request(
       () async => http
           .post(
-            _uri(
-              path, queryParams: queryParams
-            ),
+            _uri(path, queryParams: queryParams),
             headers: {"Content-Type": "application/json"},
             body: jsonEncode(body),
           )
@@ -70,35 +78,10 @@ class ApiService {
     required String method,
     required String url,
   }) async {
+    http.Response response;
     try {
-      final response = await call();
+      response = await call();
       apiStore.setReachable();
-
-      final isError = response.statusCode < 200 || response.statusCode >= 300;
-      networkLogger.add(
-        NetworkLog(
-          method: method,
-          url: url,
-          statusCode: response.statusCode,
-          isError: isError,
-        ),
-      );
-
-      if (!isError) return ApiSuccess(response.body);
-
-      dynamic body;
-      try {
-        body = jsonDecode(response.body);
-      } catch (_) {
-        body = null;
-      }
-      final code = body is Map && body["code"] != null
-          ? body["code"]
-          : "http_error";
-      final reason = body is Map
-          ? body["message"] ?? response.body
-          : response.body;
-      return ApiError(code, statusCode: response.statusCode, message: reason);
     } on TimeoutException {
       apiStore.setUnreachable();
       networkLogger.add(
@@ -110,7 +93,7 @@ class ApiService {
           errorMessage: "Timeout",
         ),
       );
-      return ApiError("timeout", statusCode: 408);
+      return ApiError("timeout", statusCode: 408, type: "network");
     } on SocketException {
       apiStore.setUnreachable();
       networkLogger.add(
@@ -122,7 +105,7 @@ class ApiService {
           errorMessage: "No connection",
         ),
       );
-      return ApiError("no_connection", statusCode: 503);
+      return ApiError("no_connection", statusCode: 503, type: "network");
     } catch (e) {
       networkLogger.add(
         NetworkLog(
@@ -132,8 +115,48 @@ class ApiService {
           errorMessage: e.toString(),
         ),
       );
-      return ApiError("unknown", message: e.toString());
+      return ApiError("unknown", message: e.toString(), type: "network");
     }
+
+    final isError = response.statusCode < 200 || response.statusCode >= 300;
+    networkLogger.add(
+      NetworkLog(
+        method: method,
+        url: url,
+        statusCode: response.statusCode,
+        isError: isError,
+      ),
+    );
+
+    if (!isError) return ApiSuccess(response.body);
+    String? errorType;
+    String? errorCode;
+    String? errorMessage;
+    try {
+      final body = jsonDecode(response.body);
+      final detail = body["detail"];
+      errorType = detail["type"];
+      errorCode = detail["code"];
+      errorMessage = detail["message"];
+    } catch (_) {
+      errorCode = "http_error";
+      errorMessage = response.body;
+    }
+    
+    if (errorType == "domain") {
+      return DomainError(
+        errorCode ?? "unknown_domain_error",
+        statusCode: response.statusCode,
+        message: errorMessage,
+      );
+    }
+
+    return ApiError(
+      errorCode ?? "http_error",
+      statusCode: response.statusCode,
+      message: errorMessage,
+      type: errorType,
+    );
   }
 
   Future<bool> checkReachability() async {

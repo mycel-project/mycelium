@@ -29,11 +29,9 @@ class CreateExtractUseCase {
     Node node,
     String extractType,
     String content,
-    TextSelection selection,
-    {
-      VoidCallback? onMismatch,
-    }
-  ) async {
+    TextSelection selection, {
+    VoidCallback? onMismatch,
+  }) async {
     /// Return created extract if extract has been created
 
     bool? addNav = userStore.conf?.get("add_extract_to_nav");
@@ -53,23 +51,23 @@ class CreateExtractUseCase {
 
     switch (result) {
       case ApiSuccess(:final data):
-      final updatedNode = data.firstWhere((n) => n.id == node.id);
-      final extract = data.firstWhere((n) => n.id != node.id);
-      
-      nodeStore.selectNode(updatedNode);
-      
-      if (addNav == true) {
-        navigationUseCase.pushToHistory(extract.id, offset: 0);
-      }
-      return extract;
-      case ApiError error:
-      if (error.code == "EXTRACT_MISMATCH") {
-        notificationBus.showError("Retry - report if this persists", error);
-        onMismatch?.call();
-        return null;
-      }
-      notificationBus.showError("Can't create extract", error);
-      return null;
+        final updatedNode = data.firstWhere((n) => n.id == node.id);
+        final extract = data.firstWhere((n) => n.id != node.id);
+
+        nodeStore.selectNode(updatedNode);
+
+        if (addNav == true) {
+          navigationUseCase.pushToHistory(extract.id, offset: 0);
+        }
+        return extract;
+      case DomainError error:
+        if (error.code == "EXTRACT_MISMATCH") {
+          notificationBus.showError("Retry - report if this persists", error);
+          onMismatch?.call();
+          return null;
+        }
+        notificationBus.showError("Can't create extract", error);
     }
+    return null;
   }
 }

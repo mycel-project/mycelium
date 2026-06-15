@@ -17,9 +17,9 @@ class RefreshPrioritiesUseCase {
     switch (result) {
       case ApiSuccess():
         return true;
-      case ApiError error:
+      case DomainError error:
         notificationBus.showError("Cannot refresh priorities", error);
-        return false;
     }
+    return false;
   }
 }

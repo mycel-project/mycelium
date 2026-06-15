@@ -32,9 +32,10 @@ class InitCollectionsUseCase {
           print("No collection retrieved");
         }
         return collections;
-      case ApiError error:
+      case DomainError error:
         notificationBus.showError("Cannot load collections", error);
         return [];
     }
+    return [];
   }
 }

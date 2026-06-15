@@ -29,7 +29,7 @@ class DeletedNodesViewModel extends ChangeNotifier {
       case ApiSuccess():
         deletedNodes = result.data;
         notifyListeners();
-      case ApiError error:
+      case DomainError error:
         notificationBus.showError("Cannot get deleted nodes", error);
     }
   }
@@ -51,7 +51,7 @@ class DeletedNodesViewModel extends ChangeNotifier {
       case ApiSuccess():
         await getDeletedNodes();
         notifyListeners();
-      case ApiError error:
+      case DomainError error:
         notificationBus.showError("Cannot restore nodes", error);
     }
   }

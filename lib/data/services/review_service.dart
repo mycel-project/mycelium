@@ -1,9 +1,9 @@
 import 'dart:convert';
 import 'package:mycelium/data/api_result.dart';
-import 'package:mycelium/data/services/api_service.dart';
+import 'package:mycelium/data/network/api_client.dart';
 
 class ReviewService {
-  final ApiService api;
+  final ApiClient api;
 
   ReviewService(this.api);
 

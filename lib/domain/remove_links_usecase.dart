@@ -40,9 +40,9 @@ class RemoveLinksUseCase {
         final node = data;
         nodeStore.selectNode(node);
         return true;
-      case ApiError error:
+      case DomainError error:
         notificationBus.showError("Can't remove links", error);
-        return false;
     }
+    return false;
   }
 }

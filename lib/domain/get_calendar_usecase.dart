@@ -16,9 +16,9 @@ class GetCalendarUseCase {
       case ApiSuccess(:final data):
         final calendar = data;
         return calendar;
-      case ApiError error:
+      case DomainError error:
         notificationBus.showError("Cannot load calendar data", error);
-        return null;
     }
+    return null;
   }
 }

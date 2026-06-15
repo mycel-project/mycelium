@@ -16,7 +16,8 @@ import 'package:mycelium/data/repositories/collection_repository.dart';
 import 'package:mycelium/data/repositories/node_repository.dart';
 import 'package:mycelium/data/repositories/review_repository.dart';
 import 'package:mycelium/data/repositories/user_repository.dart';
-import 'package:mycelium/data/services/api_service.dart';
+import 'package:mycelium/data/network/api_service.dart';
+import 'package:mycelium/data/network/api_client.dart';
 import 'package:mycelium/data/services/app_service.dart';
 import 'package:mycelium/data/services/collection_service.dart';
 import 'package:mycelium/data/services/node_service.dart';
@@ -64,6 +65,7 @@ Future<void> setup() async {
   sl.registerSingleton(ApiStore());
   sl.registerSingleton(AppStore());
   sl.registerSingleton(ApiService(sl(), sl()));
+  sl.registerSingleton(ApiClient(sl(), sl()));
   sl.registerSingleton(AppService());
 
   // Data

@@ -1,4 +1,4 @@
-sealed class ApiResult<T> {}
+class ApiResult<T> {}
 
 class ApiSuccess<T> extends ApiResult<T> {
   final T data;
@@ -9,6 +9,11 @@ class ApiError extends ApiResult<Never> {
   final String code;
   final int? statusCode;
   final String? message;
+  final String? type;
 
-  ApiError(this.code, {this.statusCode, this.message});
+  ApiError(this.code, {this.statusCode, this.message, this.type});
+}
+
+class DomainError extends ApiError {
+  DomainError(super.code, {super.statusCode, super.message}) : super(type: "domain");
 }

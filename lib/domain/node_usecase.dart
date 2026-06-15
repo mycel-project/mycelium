@@ -92,8 +92,8 @@ class NodeUseCase {
         return true;
       case ApiError error:
         notificationBus.showError("Can't delete node", error);
-        return false;
     }
+    return false;
   }
 
   Future<Node?> updateNodeTitle(int colId, int nodeId, String title) async {
@@ -105,9 +105,9 @@ class NodeUseCase {
     switch (result) {
       case ApiSuccess(:final data):
         return data;
-      case ApiError error:
+      case DomainError error:
         notificationBus.showError("Can't update node title", error);
-        return null;
     }
+    return null;
   }
 }

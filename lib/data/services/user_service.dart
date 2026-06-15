@@ -1,22 +1,22 @@
 import 'package:mycelium/data/api_result.dart';
 import 'package:mycelium/data/models/user_conf_update.dart';
-import 'package:mycelium/data/services/api_service.dart';
+import 'package:mycelium/data/network/api_client.dart';
 
 class UserService {
-  final ApiService api;
+  final ApiClient api;
   UserService(this.api);
 
   Future<ApiResult<String>> getCurrentUser() async {
-    return await api.get("/users/me");
+    return await api.get("/users");
   }
 
   Future<ApiResult<String>> updateUserConfig(
     UserConfUpdate data,
   ) async {
-    return await api.patch("/users/me/settings", data.toJson());
+    return await api.patch("/users", data.toJson());
   }
 
   Future<ApiResult<String>> getUserConfigSchema() async {
-    return await api.get("/users/settings/schema");
+    return await api.get("/schemas/user-settings");
   }
 }

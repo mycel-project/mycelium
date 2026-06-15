@@ -21,9 +21,9 @@ class UpdatePriorityUseCase {
     switch (result) {
       case ApiSuccess(:final data):
         return data;
-      case ApiError error:
+      case DomainError error:
         notificationBus.showError("Cannot update priority", error);
-        return null;
     }
+    return null;
   }
 }

@@ -1,8 +1,8 @@
 import 'package:mycelium/data/api_result.dart';
-import 'package:mycelium/data/services/api_service.dart';
+import 'package:mycelium/data/network/api_client.dart';
 
 class NodeService {
-  final ApiService api;
+  final ApiClient api;
   NodeService(this.api);
 
   Future<ApiResult<String>> getNodes(int collectionId) async {

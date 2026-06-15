@@ -224,7 +224,7 @@ class MdEditorViewModel extends ChangeNotifier {
 
   Future<bool> nextReview() async {
     final result = await reviewUseCase.handleNextReview();
-    if (result case ApiError error) {
+    if (result case DomainError error) {
       notificationBus.showError("Cannot get review", error);
       return false;
     }
@@ -352,7 +352,7 @@ class MdEditorViewModel extends ChangeNotifier {
         // need to change in node store ?
         node = data;
         notifyListeners();
-      case ApiError error:
+      case DomainError error:
         notificationBus.showError("Can't toggle dismiss", error);
     }
   }
@@ -491,7 +491,7 @@ class MdEditorViewModel extends ChangeNotifier {
         setNoClozeField(false);
         notifyListeners();
         return true;
-      case ApiError error:
+      case DomainError error:
         if (error.code == "NO_CLOZE_FIELD_ERROR") {
           if (!noClozeField) {
             setNoClozeField(true);
@@ -500,8 +500,8 @@ class MdEditorViewModel extends ChangeNotifier {
         } else {
           notificationBus.showError("Cannot save content", error);
         }
-        return false;
     }
+    return false;
   }
 
   Future<bool> updatePriority(int nodeId, double priority) async {
