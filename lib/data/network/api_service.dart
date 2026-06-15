@@ -13,7 +13,8 @@ class ApiService {
 
   ApiService(
     this.apiStore,
-    this.networkLogger, {
+    this.networkLogger,
+    {
     this.timeout = const Duration(seconds: 5),
   });
 
@@ -21,13 +22,18 @@ class ApiService {
     "${apiStore.baseUrl}$path",
   ).replace(queryParameters: queryParams);
 
+  Map<String, String> _buildHeader() {
+    return {"authorization": "Bearer ${apiStore.token}"};
+  }
+
   Future<ApiResult<String>> get(
     String path, {
     Map<String, String>? queryParams,
   }) {
     return _request(
-      () async =>
-          http.get(_uri(path, queryParams: queryParams)).timeout(timeout),
+      () async => http
+          .get(_uri(path, queryParams: queryParams), headers: _buildHeader())
+          .timeout(timeout),
       method: "GET",
       url: path,
     );
@@ -42,7 +48,7 @@ class ApiService {
       () async => http
           .post(
             _uri(path, queryParams: queryParams),
-            headers: {"Content-Type": "application/json"},
+            headers: {..._buildHeader(), "Content-Type": "application/json"},
             body: jsonEncode(body),
           )
           .timeout(timeout),
@@ -56,7 +62,7 @@ class ApiService {
       () async => http
           .patch(
             _uri(path),
-            headers: {"Content-Type": "application/json"},
+            headers: {..._buildHeader(), "Content-Type": "application/json"},
             body: jsonEncode(body),
           )
           .timeout(timeout),
@@ -67,7 +73,8 @@ class ApiService {
 
   Future<ApiResult<String>> delete(String path) {
     return _request(
-      () async => http.delete(_uri(path)).timeout(timeout),
+      () async =>
+          http.delete(_uri(path), headers: _buildHeader()).timeout(timeout),
       method: "DELETE",
       url: path,
     );
@@ -142,7 +149,7 @@ class ApiService {
       errorCode = "http_error";
       errorMessage = response.body;
     }
-    
+
     if (errorType == "domain") {
       return DomainError(
         errorCode ?? "unknown_domain_error",
