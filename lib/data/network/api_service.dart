@@ -13,8 +13,7 @@ class ApiService {
 
   ApiService(
     this.apiStore,
-    this.networkLogger,
-    {
+    this.networkLogger, {
     this.timeout = const Duration(seconds: 5),
   });
 
@@ -139,7 +138,7 @@ class ApiService {
       ),
     );
 
-    if (!isError) return ApiSuccess(response.body);
+    if (!isError) return ApiSuccess(response.body);        
     String? errorType;
     String? errorCode;
     String? errorMessage;
@@ -148,7 +147,7 @@ class ApiService {
       final detail = body["detail"];
       errorType = detail["type"];
       errorCode = detail["code"];
-      errorMessage = detail["message"];
+      errorMessage = detail["message"] ?? "";
     } catch (_) {
       errorCode = "http_error";
       errorMessage = response.body;

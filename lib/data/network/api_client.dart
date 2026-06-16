@@ -34,7 +34,7 @@ class ApiClient {
               message =
                   "MycelCloud is temporarily unavailable. Please try again in a few moments.";
           }
-          _notificationBus.showError(message, result);
+          _notificationBus.showError(message);
         case "version":
           _notificationBus.showError(
             result.message ?? "Incompatible version",
@@ -46,7 +46,6 @@ class ApiClient {
             result,
           );
         default:
-          print(result.message);
           _notificationBus.showError(
             "Unknown error, report it at https://github.com/mycel-project/mycel.",
             result,

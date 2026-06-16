@@ -69,7 +69,7 @@ class _ApiConfigPageState extends State<ApiConfigPage> {
                             ),
                             TextSpan(
                               text:
-                                  ".\n\nPlease enter your API endpoint below to connect Mycelium to an active Mycel instance (MycelCloud or self-hosted).",
+                              ".\n\nPlease enter your API address below to connect Mycelium to an active Mycel instance (MycelCloud through 'https://api.mycelcloud.com' or self-hosted through your server address)."
                             ),
                           ],
                         ),
