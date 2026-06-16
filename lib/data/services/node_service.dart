@@ -78,11 +78,9 @@ class NodeService {
     int tzOffset,
   ) async {
     return await api.post("/collections/$collectionId/nodes", {
-      "type": "url",
-      "url": url,
-    },
-    queryParams: {
-      "tz_offset": tzOffset.toString()
+        "type": "url",
+        "url": url,
+        "tz_offset": tzOffset
     });
   }
 
