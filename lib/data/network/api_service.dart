@@ -23,7 +23,11 @@ class ApiService {
   ).replace(queryParameters: queryParams);
 
   Map<String, String> _buildHeader() {
-    return {"authorization": "Bearer ${apiStore.token}"};
+    final token = apiStore.token;
+    if (token == "" || token.isEmpty) {
+      return {};
+    }
+    return {"authorization": "Bearer $token"};
   }
 
   Future<ApiResult<String>> get(
