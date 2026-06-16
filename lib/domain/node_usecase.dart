@@ -1,7 +1,6 @@
 import 'package:mycelium/core/notifications/notification_bus.dart';
 import 'package:mycelium/core/stores/node_store.dart';
 import 'package:mycelium/data/api_result.dart';
-import 'package:mycelium/data/models/node_data.dart';
 import 'package:mycelium/data/models/node_update.dart';
 import 'package:mycelium/data/repositories/node_repository.dart';
 import 'package:mycelium/data/services/node_service.dart';
@@ -72,7 +71,7 @@ class NodeUseCase {
         return null;
       },
       (node) {
-        final title = node.data?.title;
+        final title = node.data?["title"];
         return title;
       },
     );

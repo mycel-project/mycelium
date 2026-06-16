@@ -37,10 +37,11 @@ class NodeService {
     String collectionId,
     String nodeId,
     double priority,
+    int slot,
   ) async {
-    return await api.post(
+    return await api.patch(
       "/collections/$collectionId/nodes/$nodeId/reprioritise",
-      {"priority": priority},
+      {"priority": priority, "slot": slot},
     );
   }
 
@@ -49,12 +50,14 @@ class NodeService {
     String nodeId,
     String dateIso,
     int tzOffset,
+    int slot,
   ) async {
     return await api.post(
       "/collections/$collectionId/nodes/$nodeId/reschedule",
       {
         "date": dateIso,
         "tz_offset": tzOffset,
+        "slot": slot,
       },
     );
   }
@@ -108,7 +111,7 @@ class NodeService {
     String field,
     int startIndex,
     int endIndex,
-    int extractType,
+    String extractType,
     int tzOffset,
   ) async {
     return await api.post("/collections/$collectionId/nodes/$nodeId/extracts", {
@@ -117,7 +120,7 @@ class NodeService {
       "start_index": startIndex,
       "end_index": endIndex,
       "extract_type": extractType,
-      "tz_offset": tzOffset.toString(),
+      "tz_offset": tzOffset,
     });
   }
 

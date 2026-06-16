@@ -1,5 +1,3 @@
-import 'package:mycelium/data/models/node_data.dart';
-
 class NodeUpdate {
   const NodeUpdate({
     this.parentId,
@@ -14,7 +12,7 @@ class NodeUpdate {
 
   final String? parentId;
   final Map<String, dynamic>? content;
-  final NodeData? data;
+  final Map<String, dynamic>? data;
   final int? type;
   final int? due;
   final String? priority;
@@ -24,7 +22,7 @@ class NodeUpdate {
   Map<String, dynamic> toJson() => {
     if (parentId != null) 'parent_id': parentId,
     if (content != null) 'content': content,
-    if (data != null) 'data': data!.toJson(),
+    if (data != null) 'data': data,
     if (type != null) 'type': type,
     if (due != null) 'due': due,
     if (priority != null) 'priority': priority,

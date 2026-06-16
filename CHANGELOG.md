@@ -6,6 +6,7 @@
 - Close button (x) added to top-right of desktop dialogs
 - Left panel closes automatically on desktop when navigating to a spore under review to avoid spoiling the answer
 - Spore editor now highlights in red when no cloze field is detected. Error toasts once and the highlight persists until corrected. Invalid states are rejected by the backend and the last valid state is preserved.
+- Add tests (for services)
 
 ### Fixed
 - When changing the displayed node, systematically remove focus to avoid keyboard/cursor inconsistencies.
@@ -13,7 +14,8 @@
 - Scroll animation is now correctly playing in outline section
 - Restored unsaved changes confirmation dialog when switching nodes with pending changes, accidentally removed in a previous refactor.
 
-### Refactor
+### Refacto
+- **Adapt API contract to follow mycel v0.2.0**
 - Hardcode NodeType as node-types route in Mycel API is removed
 - Change route for: cloze_regex
 
