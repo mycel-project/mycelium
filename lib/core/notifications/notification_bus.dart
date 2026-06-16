@@ -5,8 +5,8 @@ import 'package:mycelium/data/api_result.dart';
 class NotificationBus extends ChangeNotifier {
   MyceliumNotification? current;
 
-  void show(String title, NotificationType type, {String? details}) {
-    current = MyceliumNotification(title, type, details: details);
+  void show(String description, NotificationType type, {String? title}) {
+    current = MyceliumNotification(description, type, title: title);
     notifyListeners();
   }
 
