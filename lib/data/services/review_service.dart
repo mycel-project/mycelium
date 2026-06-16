@@ -37,19 +37,21 @@ class ReviewService {
   }
 
   Future<ApiResult<String>> undoReview(String colId) async {
-    return await api.post("/collections/$colId/reviews/undo", {});
+    return await api.post("/collections/$colId/reviews/undo", null);
   }
 
   Future<ApiResult<String>> completeFragmentReview(
     String colId,
     String nodeId,
     int duration,
-    int tzOffset
+    int tzOffset,
+    int slot,
   ) async {
-    return await api.post("/collections/$colId/nodes/$nodeId/fragment-review", {
+    return await api.post("/collections/$colId/nodes/$nodeId/review", {
       "duration": duration,
-      "type_review_data": {},
-      "tz_offset": tzOffset.toString(),
+      "type_review_data": {"type": "fragment"},
+      "tz_offset": tzOffset,
+      "slot": slot,
     });
   }
 
@@ -58,12 +60,14 @@ class ReviewService {
     String nodeId,
     int duration,
     int rating,
-    int tzOffset
+    int tzOffset,
+    int slot,
   ) async {
-    return await api.post("/collections/$colId/nodes/$nodeId/spore-review", {
+    return await api.post("/collections/$colId/nodes/$nodeId/review", {
       "duration": duration,
-      "type_review_data": {"rating": rating},
-      "tz_offset": tzOffset.toString(),
+      "type_review_data": {"type": "spore", "rating": rating},
+      "tz_offset": tzOffset,
+      "slot": slot,
     });
   }
 }

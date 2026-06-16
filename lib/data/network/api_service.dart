@@ -44,7 +44,7 @@ class ApiService {
 
   Future<ApiResult<String>> post(
     String path,
-    Map<String, dynamic> body, {
+    Map<String, dynamic>? body, {
     Map<String, String>? queryParams,
   }) {
     return _request(
@@ -52,7 +52,7 @@ class ApiService {
           .post(
             _uri(path, queryParams: queryParams),
             headers: {..._buildHeader(), "Content-Type": "application/json"},
-            body: jsonEncode(body),
+            body: body != null ? jsonEncode(body) : null,
           )
           .timeout(timeout),
       method: "POST",

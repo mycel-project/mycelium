@@ -62,7 +62,7 @@ class ApiClient {
 
   Future<ApiResult<String>> post(
     String path,
-    Map<String, dynamic> body, {
+    Map<String, dynamic>? body, {
     Map<String, String>? queryParams,
   }) => _guard(_api.post(path, body, queryParams: queryParams));
 
