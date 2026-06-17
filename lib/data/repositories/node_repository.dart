@@ -52,7 +52,7 @@ class NodeRepository {
     if (result is ApiError) return result;
     final success = result as ApiSuccess<String>;
     final json = jsonDecode(success.data);
-    final entries = (json["outline"]["entries"] as List? ?? [])
+    final entries = (json["data"]["entries"] as List? ?? [])
         .map((e) => OutlineEntry.fromJson(e))
         .toList();
     _outlineCache = (nodeId, entries);
@@ -123,7 +123,7 @@ class NodeRepository {
     );
     if (result is ApiError) return result;
     final success = result as ApiSuccess<String>;
-    final json = jsonDecode(success.data);
+    final json = jsonDecode(success.data)["data"];
     final extractNode = Node.fromJson(json["extract_node"]);
     final sourceNode = Node.fromJson(json["source_node"]);
     _nodeCache[extractNode.id] = extractNode;
@@ -139,7 +139,7 @@ class NodeRepository {
 
     if (result is ApiError) return result;
     final success = result as ApiSuccess<String>;
-    final json = jsonDecode(success.data);
+    final json = jsonDecode(success.data)["data"];
     final deletedIds = (json["deleted_ids"] as List).cast<String>();
     for (final id in deletedIds) {
       _nodeCache.remove(id);
@@ -211,13 +211,13 @@ class NodeRepository {
   }
 
   Node _parseNode(ApiSuccess<String> success) {
-    final json = jsonDecode(success.data);
-    return Node.fromJson(json["node"]);
+    final json = jsonDecode(success.data)["data"];
+    return Node.fromJson(json);
   }
 
   List<Node> _parseNodes(ApiSuccess<String> success) {
-    final json = jsonDecode(success.data);
-    return (json["nodes"] as List).map((e) => Node.fromJson(e)).toList();
+    final json = jsonDecode(success.data)["data"];
+    return (json as List).map((e) => Node.fromJson(e)).toList();
   }
 
   Future<ApiResult<List<Node>>> loadNodes(String colId) async {
@@ -263,8 +263,8 @@ class NodeRepository {
       }
     }
     final success = result as ApiSuccess<String>;
-    final json = jsonDecode(success.data);
-    final node = Node.fromJson(json["node"]);
+    final json = jsonDecode(success.data)["data"];
+    final node = Node.fromJson(json);
     _nodeCache[nodeId] = node;
     return Right(node);
   }
@@ -295,8 +295,8 @@ class NodeRepository {
   ) async {
     if (result is ApiError) return result;
     final success = result as ApiSuccess<String>;
-    final json = jsonDecode(success.data);
-    final node = Node.fromJson(json["node"]);
+    final json = jsonDecode(success.data)["data"];
+    final node = Node.fromJson(json);
     _nodeCache[nodeId] = node;
     return ApiSuccess(node);
   }
