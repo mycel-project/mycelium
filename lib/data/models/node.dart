@@ -1,3 +1,6 @@
+// BaseLearningUnit and LearningUnit are separate to avoid verbose 'super' constructor boilerplate in subclasses (Fragment/Spore). 
+// Using composition instead of a full merge keeps child models lean and clean (and closer from mycel's code)
+
 // Base class from which Spore and Fragment inherit
 class BaseLearningUnit {
   final String id;
@@ -46,9 +49,21 @@ class BaseLearningUnit {
   }
 }
 
-// High level class gathering Spore and Fragment, used for typing inside Node model
+// High level class gathering Spore and Fragment, used for typing inside Node model and quick access through getter
 sealed class LearningUnit {
   LearningUnit();
+
+  BaseLearningUnit get _base => switch (this) {
+    Fragment f => f.unit,
+    Spore s => s.unit,
+  };
+
+  String get id => _base.id;
+  String get nodeId => _base.nodeId;
+  double get priority => _base.priority;
+  int get due => _base.due;
+  int? get lastReview => _base.lastReview;
+  int get slot => _base.slot;
 
   factory LearningUnit.fromJson(Map<String, dynamic> json) {
     return switch (json['type']) {
@@ -194,7 +209,7 @@ class Node {
   final List<double> priorities;
   final String? parentId;
   final int? deletedAt;
-  final String? contentPreview;
+  final String contentPreview;
   final Map<String, String>? fields;
   final List<LearningUnit>? learningUnits;
   final Map<String, dynamic>? data;
@@ -262,4 +277,31 @@ class Node {
       data: data ?? this.data,
     );
   }
+
+  LearningUnit getUnit([int slot = 0]) {
+    if (learningUnits == null || learningUnits!.isEmpty) {
+      throw StateError('Node $id has no learning units.');
+    }
+
+    for (final u in learningUnits!) {
+      final currentSlot = switch (u) {
+        Fragment f => f.unit.slot,
+        Spore s => s.unit.slot,
+      };
+      if (currentSlot == slot) return u;
+    }
+    throw StateError('No learning unit found for slot $slot on node $id');
+  }
+
+  Fragment? getFragment([int slot = 0]) {
+    final unit = getUnit(slot);
+    return unit is Fragment ? unit : null;
+  }
+
+  Spore? getSpore([int slot = 0]) {
+    final unit = getUnit(slot);
+    return unit is Spore ? unit : null;
+  }
+
+  String get firstFieldValue => fields?.values.firstOrNull ?? "";
 }

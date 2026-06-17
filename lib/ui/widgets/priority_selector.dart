@@ -34,13 +34,13 @@ class _PrioritySelectorState extends State<PrioritySelector> {
   @override
   void initState() {
     super.initState();
-    _sortedPriorities = widget.nodes.map((n) => n.priority).toSet().toList()
+    _sortedPriorities = widget.nodes.map((n) => n.getUnit().priority).toSet().toList()
       ..sort();
 
     final currentNode = widget.nodes.firstWhere(
       (n) => n.id == widget.currentNodeId,
     );
-    _selectedPriority = currentNode.priority;
+    _selectedPriority = currentNode.getUnit().priority;
     _textController = TextEditingController(text: _selectedPriority.toString());
 
     _textFocusNode = FocusNode();
@@ -112,10 +112,10 @@ class _PrioritySelectorState extends State<PrioritySelector> {
             .where(
               (n) =>
                   n.id != widget.currentNodeId &&
-                  n.priority < _selectedPriority,
+                  n.getUnit().priority < _selectedPriority,
             )
             .toList()
-          ..sort((a, b) => b.priority.compareTo(a.priority));
+          ..sort((a, b) => b.getUnit().priority.compareTo(a.getUnit().priority));
     return candidates.isNotEmpty ? candidates.first : null;
   }
 
@@ -125,17 +125,11 @@ class _PrioritySelectorState extends State<PrioritySelector> {
             .where(
               (n) =>
                   n.id != widget.currentNodeId &&
-                  n.priority > _selectedPriority,
+                  n.getUnit().priority > _selectedPriority,
             )
             .toList()
-          ..sort((a, b) => a.priority.compareTo(b.priority));
+          ..sort((a, b) => a.getUnit().priority.compareTo(b.getUnit().priority));
     return candidates.isNotEmpty ? candidates.first : null;
-  }
-
-  String _excerpt(Node node) {
-    final raw = node.content?['0'].trim() as String?;
-    if (raw == null || raw.isEmpty) return '(no content)';
-    return raw.length > 100 ? "${raw.substring(0, 100)}…" : raw;
   }
 
   @override
@@ -162,8 +156,8 @@ class _PrioritySelectorState extends State<PrioritySelector> {
           _NeighborCard(
             label: 'More prioritized',
             node: higher,
-            excerpt: higher != null ? _excerpt(higher) : null,
-            priority: higher?.priority,
+            excerpt:  higher?.contentPreview,
+            priority: higher?.getUnit().priority,
             dimmed: higher == null,
           ),
 
@@ -226,8 +220,8 @@ class _PrioritySelectorState extends State<PrioritySelector> {
           _NeighborCard(
             label: 'Less prioritized',
             node: lower,
-            excerpt: lower != null ? _excerpt(lower) : null,
-            priority: lower?.priority,
+            excerpt: lower?.contentPreview,
+            priority: lower?.getUnit().priority,
             dimmed: lower == null,
           ),
 

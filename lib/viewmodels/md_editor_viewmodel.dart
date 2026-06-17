@@ -84,7 +84,7 @@ class MdEditorViewModel extends ChangeNotifier {
 
   bool _noClozeField = false;
 
-  bool? get dismissState => node?.typeData?['dismiss'] as bool?;
+  bool? get dismissState => node?.getFragment()?.dismiss;
 
   bool _showUnsavedChangesDialog = false;
   bool get showUnsavedChangesDialog => _showUnsavedChangesDialog;
@@ -367,7 +367,7 @@ class MdEditorViewModel extends ChangeNotifier {
   void editMode() {
     if (isCurrentNodeSpore() && !isEditing) {
       isEditing = true;
-      _applyContent(node?.content?["0"] ?? "");
+      _applyContent(node?.fields?["0"] ?? "");
       notifyListeners();
     }
   }
@@ -375,7 +375,7 @@ class MdEditorViewModel extends ChangeNotifier {
   void showAnswer() {
     isAnswerVisible = true;
     final newContent = reviewUseCase.transformClozeContent(
-      node?.content?["0"] ?? "",
+      node?.firstFieldValue ?? "",
       mode: ClozeMode.show,
     );
     _applyContent(newContent);
@@ -393,14 +393,14 @@ class MdEditorViewModel extends ChangeNotifier {
       if (isCurrentNodeSpore()) {
         if (reviewStore.currentNodeId == node.id) {
           newContent = reviewUseCase.transformClozeContent(
-            node.content?["0"] ?? "",
+            node.firstFieldValue,
             mode: ClozeMode.hide,
           );
         } else {
-          newContent = node.content?["0"] ?? "";
+          newContent = node.firstFieldValue;
         }
       } else {
-        newContent = node.content?["0"] ?? "";
+        newContent = node.firstFieldValue;
       }
 
       _applyContent(newContent);

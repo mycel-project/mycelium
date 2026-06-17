@@ -198,17 +198,13 @@ class _DueTile extends StatelessWidget {
     return ListTile(
       leading: const Icon(Icons.schedule),
       title: const Text("Due"),
-      trailing: node.due != null
-      ? Chip(
-        label: Text("${_daysDiff(node.due!)}d",
+      trailing: Chip(
+        label: Text("${_daysDiff(node.getUnit().due)}d",
         ),
-      )
-      : const SizedBox(),
+      ),
       onTap: () => showRescheduleWidget(
         context,
-        initialDate: node.due != null
-        ? DateTime.fromMillisecondsSinceEpoch(node.due!)
-        : null,
+        initialDate: DateTime.fromMillisecondsSinceEpoch(node.getUnit().due),
         onConfirm: (dateIso) => vm.rescheduleNode(node.id, dateIso),
       )
     );
@@ -233,7 +229,7 @@ class _PriorityTile extends StatelessWidget {
     return ListTile(
       leading: const Icon(Icons.star_outline),
       title: const Text("Priority"),
-      trailing: Chip(label: Text("${node.priority}")),
+      trailing: Chip(label: Text("${node.getUnit().priority}")),
       onTap: () => showPriorityPicker(
         context,
         nodes: nodes,

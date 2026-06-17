@@ -165,7 +165,7 @@ class _NodeTreeState extends State<NodeTree> {
                           width: 12,
                           height: 12,
                           colorFilter:
-                          typedNode.typeData?["dismiss"] == true
+                          typedNode.getFragment()?.dismiss == true
                           ? ColorFilter.mode(
                             Colors.grey.withValues(
                               alpha: 0.8,
@@ -217,15 +217,15 @@ class _NodeTreeState extends State<NodeTree> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      formatNodeTitle(
-                                        typedNode.data?.title ?? (isSporeNode ? widget.formatSpore(typedNode.content?['0']) : typedNode.content?['0'])
-                                      ),
+                                      isSporeNode
+                                      ? widget.formatSpore(typedNode.firstFieldValue) 
+                                      : typedNode.contentPreview,
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
                                       style: TextStyle(
                                         color: isSporeNode == true
                                         ? Theme.of(context).colorScheme.primary
-                                        : (typedNode.typeData?["dismiss"] as bool?) == true
+                                        : (typedNode.getFragment()?.dismiss) == true
                                         ? Colors.grey.withValues(alpha: 0.5)
                                         : Theme.of(context).textTheme.bodyMedium?.color,
                                       ),
@@ -262,7 +262,7 @@ class _NodeTreeState extends State<NodeTree> {
 bool hasUndismissedFragment(TreeSliverNode node, bool Function(Node)? isSpore) {
   final typedNode = node.content as Node;
   
-  if (isSpore?.call(typedNode) == false && typedNode.typeData?["dismiss"] != true) {
+  if (isSpore?.call(typedNode) == false && typedNode.getFragment()?.dismiss != true) {
     return true;
   }
   
@@ -276,15 +276,10 @@ bool isSubtreeDismissed(TreeSliverNode node, bool Function(Node)? isSpore) {
 
   if (fragmentChildren.isEmpty) {
     final hasOnlySpores = node.children.isNotEmpty;
-    return hasOnlySpores || (node.content as Node).typeData?["dismiss"] == true;
+    return hasOnlySpores || (node.content as Node).getFragment()?.dismiss == true;
   }
 
   return !fragmentChildren.any((c) => hasUndismissedFragment(c, isSpore));
-}
-
-String formatNodeTitle(String? raw) {
-  if (raw == null) return '';
-  return raw.replaceAll(RegExp(r'^>+\s*', multiLine: true), '').trim();
 }
 
 List<TreeSliverNode<Node>> buildTree(

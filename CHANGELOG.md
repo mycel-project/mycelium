@@ -14,8 +14,8 @@
 - Scroll animation is now correctly playing in outline section
 - Restored unsaved changes confirmation dialog when switching nodes with pending changes, accidentally removed in a previous refactor.
 
-### Refacto
-- **Adapt API contract to follow mycel v0.2.0**
+### Refactor
+- **Adapt API contract to follow mycel v0.2.0 (changed models, use slots, use contentPreview built by Mycel, etc.)**
 - Removed NodeType class: Mycel now uses raw strings ("fragment", "spore") instead of integers for types.
 - Change route for: cloze_regex
 
