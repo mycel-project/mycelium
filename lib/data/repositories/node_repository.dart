@@ -14,14 +14,15 @@ class NodeRepository {
   final NodeService nodeService;
 
   final Map<String, Node> _nodeCache = {};
-  (String, List<OutlineEntry>)? _outlineCache; // keeping only one node outline at a time to be sure to refresh when changin node. But is this necessary? a map could be an other way.
+  (String, List<OutlineEntry>)?
+  _outlineCache; // keeping only one node outline at a time to be sure to refresh when changin node. But is this necessary? a map could be an other way.
 
   NodeRepository(this.nodeService);
 
   Map<String, Node> get nodeCache => Map.unmodifiable(_nodeCache);
 
   List<OutlineEntry>? getOutlineCache(String nodeId) =>
-    _outlineCache?.$1 == nodeId ? _outlineCache?.$2 : null;
+      _outlineCache?.$1 == nodeId ? _outlineCache?.$2 : null;
 
   void clearCache() {
     _nodeCache.clear();
@@ -36,20 +37,26 @@ class NodeRepository {
     _nodeCache[id] = node;
   }
 
-  Future<ApiResult<List<OutlineEntry>>> getOutline(String colId, String nodeId) async {
+  Future<ApiResult<List<OutlineEntry>>> getOutline(
+    String colId,
+    String nodeId,
+  ) async {
     final cached = getOutlineCache(nodeId);
     if (cached != null) return ApiSuccess(cached);
     return _loadOutline(colId, nodeId);
   }
 
-  Future<ApiResult<List<OutlineEntry>>> _loadOutline(String colId, String nodeId) async {
+  Future<ApiResult<List<OutlineEntry>>> _loadOutline(
+    String colId,
+    String nodeId,
+  ) async {
     final result = await nodeService.getOutline(colId, nodeId);
     if (result is ApiError) return result;
     final success = result as ApiSuccess<String>;
     final json = jsonDecode(success.data);
     final entries = (json["outline"]["entries"] as List? ?? [])
-    .map((e) => OutlineEntry.fromJson(e))
-    .toList();
+        .map((e) => OutlineEntry.fromJson(e))
+        .toList();
     _outlineCache = (nodeId, entries);
     return ApiSuccess(entries);
   }
@@ -124,7 +131,10 @@ class NodeRepository {
     return ApiSuccess([extractNode, sourceNode]);
   }
 
-  Future<ApiResult<List<String>>> deleteNode(String colId, String nodeId) async {
+  Future<ApiResult<List<String>>> deleteNode(
+    String colId,
+    String nodeId,
+  ) async {
     final result = await nodeService.deleteNode(colId, nodeId);
 
     if (result is ApiError) return result;
@@ -152,15 +162,28 @@ class NodeRepository {
   Future<ApiResult<void>> getPriorities(String colId) async {
     final result = await nodeService.getPriorities(colId);
     if (result is ApiError) return result;
+
     final json = jsonDecode((result as ApiSuccess<String>).data);
-    final priorities = json["priorities"] as Map<String, dynamic>;
-    for (final entry in priorities.entries) {
-      final id = entry.key;
-      final node = _nodeCache[id];
-      if (node != null) {
-        _nodeCache[id] = node.copyWith(
-          priority: double.parse((entry.value as double).toStringAsFixed(3)),
-        );
+    
+    for (final entry in json["data"] as List) {
+      final node = _nodeCache[entry["node_id"]];
+      if (node == null) continue;
+
+      final slot = entry["slot"] as int;
+      final priority = (entry["priority"] as num).toDouble();
+
+      // Assumes that slot counts are zero-indexed and sequential (+1).
+      // If this changes, do not use [slot] directly; look up the actual index 
+      // of the slot within the node's list instead.
+      if (slot < node.priorities.length) {
+        node.priorities[slot] = priority;
+      }
+
+      if (node.learningUnits != null && slot < node.learningUnits!.length) {
+        node.learningUnits![slot] = switch (node.learningUnits![slot]) {
+          Fragment f => f.copyWith(unit: f.unit.copyWith(priority: priority)),
+          Spore s => s.copyWith(unit: s.unit.copyWith(priority: priority)),
+        };
       }
     }
     return ApiSuccess(null);
@@ -251,7 +274,10 @@ class NodeRepository {
   Future<Either<NodeError, Node>> fetchRoot(String colId, String nodeId) =>
       _fetchNode(colId, nodeId, () => nodeService.getRootNode(colId, nodeId));
 
-  Future<Either<NodeError, Node>> getRootNode(String colId, String nodeId) async {
+  Future<Either<NodeError, Node>> getRootNode(
+    String colId,
+    String nodeId,
+  ) async {
     var currentId = nodeId;
     while (_nodeCache.containsKey(currentId)) {
       // Traverse the cache upwards to check whether the root node already exists

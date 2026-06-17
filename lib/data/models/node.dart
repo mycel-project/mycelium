@@ -26,6 +26,24 @@ class BaseLearningUnit {
       slot: json['slot'],
     );
   }
+
+  BaseLearningUnit copyWith({
+      String? id,
+      String? nodeId,
+      double? priority,
+      int? due,
+      int? lastReview,
+      int? slot,
+  }) {
+    return BaseLearningUnit(
+      id: id ?? this.id,
+      nodeId: nodeId ?? this.nodeId,
+      priority: priority ?? this.priority,
+      due: due ?? this.due,
+      lastReview: lastReview ?? this.lastReview,
+      slot: slot ?? this.slot,
+    );
+  }
 }
 
 // High level class gathering Spore and Fragment, used for typing inside Node model
@@ -66,6 +84,18 @@ class Fragment extends LearningUnit {
       unit: BaseLearningUnit.fromJson(json),
       dismiss: json['dismiss'] ?? false,
       ref: json['ref'] != null ? FragmentRef.fromJson(json['ref']) : null,
+    );
+  }
+
+  Fragment copyWith({
+      BaseLearningUnit? unit,
+      bool? dismiss,
+      FragmentRef? ref,
+  }) {
+    return Fragment(
+      unit: unit ?? this.unit,
+      dismiss: dismiss ?? this.dismiss,
+      ref: ref ?? this.ref,
     );
   }
 }
@@ -118,6 +148,16 @@ class Spore extends LearningUnit {
     return Spore(
       unit: BaseLearningUnit.fromJson(json),
       learningData: LearningData.fromJson(json['learning_data']),
+    );
+  }
+
+  Spore copyWith({
+      BaseLearningUnit? unit,
+      LearningData? learningData,
+  }) {
+    return Spore(
+      unit: unit ?? this.unit,
+      learningData: learningData ?? this.learningData,
     );
   }
 }
