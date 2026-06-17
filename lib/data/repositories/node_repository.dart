@@ -173,15 +173,8 @@ class NodeRepository {
       final slot = entry["slot"] as int;
       final priority = (entry["priority"] as num).toDouble();
 
-      // Assumes that slot counts are zero-indexed and sequential (+1).
-      // If this changes, do not use [slot] directly; look up the actual index 
-      // of the slot within the node's list instead.
-      if (slot < node.priorities.length) {
-        node.priorities[slot] = priority;
-      }
-
-      if (node.learningUnits != null && slot < node.learningUnits!.length) {
-        node.learningUnits![slot] = switch (node.learningUnits![slot]) {
+      if (slot < node.learningUnits.length) {
+        node.learningUnits[slot] = switch (node.learningUnits[slot]) {
           Fragment f => f.copyWith(unit: f.unit.copyWith(priority: priority)),
           Spore s => s.copyWith(unit: s.unit.copyWith(priority: priority)),
         };

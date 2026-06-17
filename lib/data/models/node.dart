@@ -188,13 +188,11 @@ class Node {
     required this.status,
     required this.updatedAt,
     required this.createdAt,
-    required this.dues,
-    required this.priorities,
     required this.contentPreview,
+    required this.learningUnits,
     this.parentId,
     this.deletedAt,
     this.fields,
-    this.learningUnits,
     this.data,
   });
 
@@ -205,13 +203,11 @@ class Node {
   final String status;
   final int updatedAt;
   final int createdAt;
-  final List<int> dues;
-  final List<double> priorities;
   final String? parentId;
   final int? deletedAt;
   final String contentPreview;
   final Map<String, String>? fields;
-  final List<LearningUnit>? learningUnits;
+  final List<LearningUnit> learningUnits;
   final Map<String, dynamic>? data;
 
   factory Node.fromJson(Map<String, dynamic> json) {
@@ -223,21 +219,15 @@ class Node {
       status: json['status'],
       updatedAt: json['updated_at'],
       createdAt: json['created_at'],
-      dues: List<int>.from(json['dues']),
-      priorities: List<double>.from(
-        json['priorities'].map((x) => double.parse(x.toStringAsFixed(3))),
-      ),
       parentId: json['parent_id'],
       deletedAt: json['deleted_at'],
       contentPreview: json['content_preview'],
       fields: json['fields'] != null
           ? Map<String, String>.from(json['fields'])
           : null,
-      learningUnits: json['learning_units'] != null
-          ? (json['learning_units'] as List)
+      learningUnits: (json['learning_units'] as List)
                 .map((x) => LearningUnit.fromJson(x as Map<String, dynamic>))
-                .toList()
-          : null,
+                .toList(),
       data: json['data'] as Map<String, dynamic>?,
     );
   }
@@ -250,8 +240,6 @@ class Node {
     String? status,
     int? updatedAt,
     int? createdAt,
-    List<int>? dues,
-    List<double>? priorities,
     String? parentId,
     int? deletedAt,
     String? contentPreview,
@@ -267,8 +255,6 @@ class Node {
       status: status ?? this.status,
       updatedAt: updatedAt ?? this.updatedAt,
       createdAt: createdAt ?? this.createdAt,
-      dues: dues ?? this.dues,
-      priorities: priorities ?? this.priorities,
       parentId: parentId ?? this.parentId,
       deletedAt: deletedAt ?? this.deletedAt,
       contentPreview: contentPreview ?? this.contentPreview,
@@ -279,11 +265,7 @@ class Node {
   }
 
   LearningUnit getUnit([int slot = 0]) {
-    if (learningUnits == null || learningUnits!.isEmpty) {
-      throw StateError('Node $id has no learning units.');
-    }
-
-    for (final u in learningUnits!) {
+    for (final u in learningUnits) {
       final currentSlot = switch (u) {
         Fragment f => f.unit.slot,
         Spore s => s.unit.slot,
