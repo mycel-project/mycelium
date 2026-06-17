@@ -3,7 +3,6 @@
 import 'package:flutter/material.dart';
 import 'package:mycelium/core/stores/collection_store.dart';
 import 'package:mycelium/core/stores/node_store.dart';
-import 'package:mycelium/data/models/node_type.dart';
 import 'package:mycelium/ui/widgets/confirmation_dialog.dart';
 import 'package:mycelium/ui/widgets/input_dialog.dart';
 import 'package:mycelium/ui/widgets/node_tree.dart';
@@ -29,7 +28,7 @@ class LeftDrawer extends StatelessWidget {
                 selectedNode: context.watch<NodeStore>().currentNode,
                 formatSpore: (content) => vm.hideSpore(content),
                 nodes: vm.getNodes(),
-                isSpore: (node) => node.type == NodeType.spore.key,
+                isSpore: (node) => node.type == "spore",
                 popOnClick: !Device.isDesktop ? true : false,
                 clickCallback: (String value) => vm.navigateTo(value),
                 secondaryAction: (String nodeId, Offset position) async {

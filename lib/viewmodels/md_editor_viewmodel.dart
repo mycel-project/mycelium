@@ -10,7 +10,6 @@ import 'package:mycelium/core/stores/review_store.dart';
 import 'package:mycelium/core/stores/scroll_position_store.dart';
 import 'package:mycelium/data/api_result.dart';
 import 'package:mycelium/data/models/node.dart';
-import 'package:mycelium/data/models/node_type.dart';
 import 'package:mycelium/data/repositories/node_repository.dart';
 import 'package:mycelium/data/repositories/review_repository.dart';
 import 'package:mycelium/data/services/node_service.dart';
@@ -359,7 +358,7 @@ class MdEditorViewModel extends ChangeNotifier {
 
   bool isCurrentNodeSpore() {
     if (node != null) {
-      return node?.type == NodeType.spore.key;
+      return node?.type == "spore";
     } else {
       return false;
     }

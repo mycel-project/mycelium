@@ -16,7 +16,7 @@
 
 ### Refacto
 - **Adapt API contract to follow mycel v0.2.0**
-- Hardcode NodeType as node-types route in Mycel API is removed
+- Removed NodeType class: Mycel now uses raw strings ("fragment", "spore") instead of integers for types.
 - Change route for: cloze_regex
 
 ## v0.1.3

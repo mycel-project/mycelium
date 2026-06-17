@@ -13,7 +13,6 @@ import 'package:mycelium/core/stores/scroll_position_store.dart';
 import 'package:mycelium/data/api_result.dart';
 import 'package:mycelium/data/models/day_review_overview.dart';
 import 'package:mycelium/data/models/node.dart';
-import 'package:mycelium/data/models/node_type.dart';
 import 'package:mycelium/data/models/outline_entry.dart';
 import 'package:mycelium/data/repositories/node_repository.dart';
 import 'package:mycelium/data/network/api_client.dart';
@@ -97,7 +96,7 @@ class HomeViewModel extends ChangeNotifier {
   void closeLeftPanelIfReviewingSpore() {
     if (reviewStore.currentNodeId != null &&
         nodeStore.currentNode?.id == reviewStore.currentNodeId &&
-        nodeStore.currentNode?.type == NodeType.spore.key) {
+        nodeStore.currentNode?.type == "spore") {
       closeLeftPanel();
     }
   }
