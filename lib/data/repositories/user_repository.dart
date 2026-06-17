@@ -23,7 +23,7 @@ class UserRepository {
   }
 
   User _parseUser(ApiSuccess<String> result) {
-    final json = jsonDecode(result.data);
+    final json = jsonDecode(result.data)["data"];
     final user = User.fromJson(json["user"]);
     _userCache[user.id] = user;
     return user;

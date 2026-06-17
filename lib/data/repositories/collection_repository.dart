@@ -27,7 +27,7 @@ class CollectionRepository {
 
     final success = result as ApiSuccess<String>;
     final json = jsonDecode(success.data);
-    final collection = Collection.fromJson(json["collection"]);
+    final collection = Collection.fromJson(json["data"]);
     _collectionCache[collection.id] = collection;
     return ApiSuccess(collection);
   }

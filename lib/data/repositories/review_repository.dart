@@ -54,7 +54,7 @@ class ReviewRepository {
     final result = await reviewService.getCalendar(colId, tzOffset);
     if (result is ApiError) return result;
 
-    final json = jsonDecode((result as ApiSuccess<String>).data);
+    final json = jsonDecode((result as ApiSuccess<String>).data)["data"];
     final calendar = json["calendar"] as List;
 
     final list = calendar
@@ -70,7 +70,7 @@ class ReviewRepository {
 
   ApiResult<Node?> parsedReviewData(ApiResult<String> result) {
     if (result is ApiError) return result;
-    final json = jsonDecode((result as ApiSuccess<String>).data);
+    final json = jsonDecode((result as ApiSuccess<String>).data)["data"];
     final nodeJson = json["node"];
     if (nodeJson == null) return ApiSuccess(null);
     return ApiSuccess(Node.fromJson(nodeJson));
