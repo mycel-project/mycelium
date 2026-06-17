@@ -141,10 +141,10 @@ class NodeService {
   Future<ApiResult<String>> saveNodeContent(
     String collectionId,
     String nodeId,
-    String content,
+    Map fields,
   ) async {
     return api.patch("/collections/$collectionId/nodes/$nodeId", {
-      "content": content,
+      "fields": fields,
     });
   }
 }

@@ -244,7 +244,7 @@ class NodeRepository {
     String nodeId,
     Future<ApiResult<String>> Function() call,
   ) async {
-    if (_nodeCache.containsKey(nodeId)) {
+    if (_nodeCache.containsKey(nodeId) && _nodeCache[nodeId]!.fields != null) {
       return Right(_nodeCache[nodeId]!);
     }
     final result = await call();
@@ -297,7 +297,7 @@ class NodeRepository {
   Future<ApiResult<Node>> updateNodeContent(
     String collectionId,
     String nodeId,
-    String content,
+    Map content,
   ) async {
     final result = await nodeService.saveNodeContent(
       collectionId,

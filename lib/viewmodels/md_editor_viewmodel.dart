@@ -214,10 +214,8 @@ class MdEditorViewModel extends ChangeNotifier {
     }
   }
 
-  Future<void> handleSporeReview(int rating) async => _handleReview(
-    "spore",
-    rating: rating,
-  ); 
+  Future<void> handleSporeReview(int rating) async =>
+      _handleReview("spore", rating: rating);
 
   Future<void> handleFragmentReview() async => _handleReview("fragment");
 
@@ -367,7 +365,7 @@ class MdEditorViewModel extends ChangeNotifier {
   void editMode() {
     if (isCurrentNodeSpore() && !isEditing) {
       isEditing = true;
-      _applyContent(node?.fields?["0"] ?? "");
+      _applyContent(node?.firstFieldValue ?? "");
       notifyListeners();
     }
   }
@@ -480,7 +478,7 @@ class MdEditorViewModel extends ChangeNotifier {
     final result = await nodeRepository.updateNodeContent(
       collectionId,
       nodeId,
-      content,
+      {node?.firstFieldKey: content},
     );
     switch (result) {
       case ApiSuccess():

@@ -22,7 +22,7 @@ class NavigationUseCase extends ChangeNotifier {
     _updateCanNavigate();
     return _canGoBack;
   }
-  
+
   bool get canGoForward {
     _updateCanNavigate();
     return _canGoForward;
@@ -98,7 +98,7 @@ class NavigationUseCase extends ChangeNotifier {
     if (colId == null) return null;
     _cursorBeforeNavigation = _navigationStore.cursorIndex;
     _didPushHistory = false;
-    
+
     for (int i = _navigationStore.cursorIndex - 1; i >= 0; i--) {
       final id = _navigationStore.idAtIndex(i);
       if (id == null || !_isValidDestination(id)) continue;
@@ -121,7 +121,7 @@ class NavigationUseCase extends ChangeNotifier {
     if (colId == null) return null;
     _cursorBeforeNavigation = _navigationStore.cursorIndex;
     _didPushHistory = false;
-    
+
     for (
       int i = _navigationStore.cursorIndex + 1;
       i < _navigationStore.historyLength;

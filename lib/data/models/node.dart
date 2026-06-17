@@ -1,4 +1,4 @@
-// BaseLearningUnit and LearningUnit are separate to avoid verbose 'super' constructor boilerplate in subclasses (Fragment/Spore). 
+// BaseLearningUnit and LearningUnit are separate to avoid verbose 'super' constructor boilerplate in subclasses (Fragment/Spore).
 // Using composition instead of a full merge keeps child models lean and clean (and closer from mycel's code)
 
 // Base class from which Spore and Fragment inherit
@@ -31,12 +31,12 @@ class BaseLearningUnit {
   }
 
   BaseLearningUnit copyWith({
-      String? id,
-      String? nodeId,
-      double? priority,
-      int? due,
-      int? lastReview,
-      int? slot,
+    String? id,
+    String? nodeId,
+    double? priority,
+    int? due,
+    int? lastReview,
+    int? slot,
   }) {
     return BaseLearningUnit(
       id: id ?? this.id,
@@ -81,7 +81,7 @@ sealed class FragmentRef {
   FragmentRef(this.type);
 
   static FragmentRef? fromJson(Map<String, dynamic> json) {
-    return null; 
+    return null;
   }
 }
 
@@ -102,11 +102,7 @@ class Fragment extends LearningUnit {
     );
   }
 
-  Fragment copyWith({
-      BaseLearningUnit? unit,
-      bool? dismiss,
-      FragmentRef? ref,
-  }) {
+  Fragment copyWith({BaseLearningUnit? unit, bool? dismiss, FragmentRef? ref}) {
     return Fragment(
       unit: unit ?? this.unit,
       dismiss: dismiss ?? this.dismiss,
@@ -166,10 +162,7 @@ class Spore extends LearningUnit {
     );
   }
 
-  Spore copyWith({
-      BaseLearningUnit? unit,
-      LearningData? learningData,
-  }) {
+  Spore copyWith({BaseLearningUnit? unit, LearningData? learningData}) {
     return Spore(
       unit: unit ?? this.unit,
       learningData: learningData ?? this.learningData,
@@ -223,11 +216,11 @@ class Node {
       deletedAt: json['deleted_at'],
       contentPreview: json['content_preview'],
       fields: json['fields'] != null
-          ? Map<String, String>.from(json['fields'])
+          ? Map<String, String>.from(json['fields'] as Map)
           : null,
       learningUnits: (json['learning_units'] as List)
-                .map((x) => LearningUnit.fromJson(x as Map<String, dynamic>))
-                .toList(),
+          .map((x) => LearningUnit.fromJson(x as Map<String, dynamic>))
+          .toList(),
       data: json['data'] as Map<String, dynamic>,
     );
   }
@@ -286,4 +279,5 @@ class Node {
   }
 
   String get firstFieldValue => fields?.values.firstOrNull ?? "";
+  String get firstFieldKey => fields?.keys.firstOrNull ?? "";
 }
