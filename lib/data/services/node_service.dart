@@ -33,7 +33,7 @@ class NodeService {
     return await api.get("/collections/$collectionId/nodes/$nodeId/outline");
   }
   
-  Future<ApiResult<String>> reprioritiseNode(
+  Future<ApiResult<String>> reprioritise(
     String collectionId,
     String nodeId,
     double priority,
@@ -45,7 +45,7 @@ class NodeService {
     );
   }
 
-  Future<ApiResult<String>> rescheduleNode(
+  Future<ApiResult<String>> reschedule(
     String collectionId,
     String nodeId,
     String dateIso,
@@ -93,12 +93,13 @@ class NodeService {
 
   Future<ApiResult<String>> updateNodeDismiss(
     String collectionId,
-    String nodeId,
-    bool dismiss,
-  ) async {
-    return await api.patch("/collections/$collectionId/nodes/$nodeId", {
-      "type_data": {"dismiss": dismiss},
-    });
+    String nodeId, {
+      bool? value,
+  }) async {
+    return await api.patch(
+      "/collections/$collectionId/nodes/$nodeId/slot/0/dismiss",
+      value != null ? {"value": value} : {},
+    );
   }
 
   Future<ApiResult<String>> createExtract(

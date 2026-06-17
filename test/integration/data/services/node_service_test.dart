@@ -82,12 +82,12 @@ void main() {
   });
 
   test('reprioritiseNode', () async {
-    final result = await service.reprioritiseNode("test", "test", 7, 0);
+    final result = await service.reprioritise("test", "test", 7, 0);
     testNodeDetailView(result);
   });
 
   test('rescheduleNode', () async {
-    final result = await service.rescheduleNode(
+    final result = await service.reschedule(
       "test",
       "test",
       "2099-10-19",
@@ -109,6 +109,11 @@ void main() {
 
   test('updateNode', () async {
     final result = await service.updateNode("test", "test", {});
+    testNodeDetailView(result);
+  });
+
+  test('updateNodeDismiss', () async {
+    final result = await service.updateNodeDismiss("test", "test", value: true);
     testNodeDetailView(result);
   });
 

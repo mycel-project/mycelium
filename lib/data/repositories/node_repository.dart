@@ -60,7 +60,7 @@ class NodeRepository {
     String dateIso,
     int tzOffset,
   ) async {
-    final result = await nodeService.rescheduleNode(
+    final result = await nodeService.reschedule(
       colId,
       nodeId,
       dateIso,
@@ -142,7 +142,7 @@ class NodeRepository {
     String nodeId,
     double priority,
   ) async {
-    final result = await nodeService.reprioritiseNode(colId, nodeId, priority);
+    final result = await nodeService.reprioritise(colId, nodeId, priority);
     if (result is ApiError) return result;
     final node = _parseNode(result as ApiSuccess<String>);
     _nodeCache[node.id] = node;
@@ -295,7 +295,7 @@ class NodeRepository {
     final result = await nodeService.updateNodeDismiss(
       collectionId,
       nodeId,
-      dismiss,
+      value: dismiss,
     );
     return _handleUpdateResult(result, nodeId);
   }
