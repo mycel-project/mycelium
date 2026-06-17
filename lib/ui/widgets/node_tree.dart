@@ -217,9 +217,9 @@ class _NodeTreeState extends State<NodeTree> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      isSporeNode
-                                      ? widget.formatSpore(typedNode.firstFieldValue) 
-                                      : typedNode.contentPreview,
+                                      typedNode.data["title"] ?? (isSporeNode
+                                        ? widget.formatSpore(typedNode.firstFieldValue)
+                                        : typedNode.contentPreview),
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
                                       style: TextStyle(

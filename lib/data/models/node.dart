@@ -190,10 +190,10 @@ class Node {
     required this.createdAt,
     required this.contentPreview,
     required this.learningUnits,
+    required this.data,
     this.parentId,
     this.deletedAt,
     this.fields,
-    this.data,
   });
 
   final String id;
@@ -208,7 +208,7 @@ class Node {
   final String contentPreview;
   final Map<String, String>? fields;
   final List<LearningUnit> learningUnits;
-  final Map<String, dynamic>? data;
+  final Map<String, dynamic> data;
 
   factory Node.fromJson(Map<String, dynamic> json) {
     return Node(
@@ -228,7 +228,7 @@ class Node {
       learningUnits: (json['learning_units'] as List)
                 .map((x) => LearningUnit.fromJson(x as Map<String, dynamic>))
                 .toList(),
-      data: json['data'] as Map<String, dynamic>?,
+      data: json['data'] as Map<String, dynamic>,
     );
   }
 
