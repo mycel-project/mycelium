@@ -1,11 +1,9 @@
 import 'package:flutter/painting.dart';
-import 'package:mycelium/core/notifications/notification.dart';
 import 'package:mycelium/core/notifications/notification_bus.dart';
 import 'package:mycelium/core/stores/node_store.dart';
 import 'package:mycelium/core/stores/user_store.dart';
 import 'package:mycelium/data/api_result.dart';
 import 'package:mycelium/data/models/node.dart';
-import 'package:mycelium/data/models/node_type.dart';
 import 'package:mycelium/data/repositories/node_repository.dart';
 import 'package:mycelium/domain/navigation_usecase.dart';
 import 'package:mycelium/utils/time_utils.dart';
@@ -36,8 +34,6 @@ class CreateExtractUseCase {
 
     bool? addNav = userStore.conf?.get("add_extract_to_nav");
 
-    final nodeType = NodeType.fromString(extractType);
-
     final result = await nodeRepository.createExtract(
       node.collectionId,
       node.id,
@@ -45,7 +41,7 @@ class CreateExtractUseCase {
       "0",
       selection.start,
       selection.end,
-      nodeType.key,
+      extractType,
       tzOffsetMinutes,
     );
 

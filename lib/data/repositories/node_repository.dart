@@ -1,11 +1,9 @@
 import 'dart:convert';
 
-import 'package:collection/collection.dart';
 import 'package:mycelium/core/either.dart';
 import 'package:mycelium/core/errors/node_errors.dart';
 import 'package:mycelium/data/api_result.dart';
 import 'package:mycelium/data/models/node.dart';
-import 'package:mycelium/data/models/node_type.dart';
 import 'package:mycelium/data/models/outline_entry.dart';
 import 'package:mycelium/data/services/node_service.dart';
 
@@ -66,12 +64,14 @@ class NodeRepository {
     String nodeId,
     String dateIso,
     int tzOffset,
+    int slot,
   ) async {
     final result = await nodeService.reschedule(
       colId,
       nodeId,
       dateIso,
       tzOffset,
+      slot,
     );
 
     if (result is ApiError) return result;
@@ -108,7 +108,7 @@ class NodeRepository {
     String field,
     int startIndex,
     int endIndex,
-    int extractType,
+    String extractType,
     int tzOffset,
   ) async {
     final result = await nodeService.createExtract(
@@ -151,8 +151,9 @@ class NodeRepository {
     String colId,
     String nodeId,
     double priority,
+    int slot,
   ) async {
-    final result = await nodeService.reprioritise(colId, nodeId, priority);
+    final result = await nodeService.reprioritise(colId, nodeId, priority, slot);
     if (result is ApiError) return result;
     final node = _parseNode(result as ApiSuccess<String>);
     _nodeCache[node.id] = node;

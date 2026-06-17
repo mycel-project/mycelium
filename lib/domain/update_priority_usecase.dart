@@ -12,11 +12,12 @@ class UpdatePriorityUseCase {
     this.notificationBus,
   );
 
-  Future<Node?> execute(String colId, String nodeId, double priority) async {
+  Future<Node?> execute(String colId, String nodeId, double priority, {int slot = 0}) async {
     final result = await nodeRepository.reprioritiseNode(
       colId,
       nodeId,
       priority,
+      slot,
     );
     switch (result) {
       case ApiSuccess(:final data):

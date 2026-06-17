@@ -95,10 +95,12 @@ class NodeUseCase {
     return false;
   }
 
-  Future<Node?> updateNodeTitle(String colId, String nodeId, String title) async {
-    final data = NodeUpdate(
-      data: NodeData(title: title == "" ? null : title),
-    ).toJson();
+  Future<Node?> updateNodeTitle(
+    String colId,
+    String nodeId,
+    String title,
+  ) async {
+    final data = NodeUpdate(data: {title: title == "" ? null : title}).toJson();
     final result = await nodeRepository.updateNode(colId, nodeId, data);
 
     switch (result) {

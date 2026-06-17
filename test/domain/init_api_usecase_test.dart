@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:mycelium/core/stores/api_store.dart';
 import 'package:mycelium/data/local/api_preferences.dart';
+import 'package:mycelium/data/local/token_preferences.dart';
 import 'package:mycelium/domain/api_status.dart';
 import 'package:mycelium/domain/check_api_usecase.dart';
 import 'package:mycelium/domain/init_api_usecase.dart';
@@ -18,13 +19,15 @@ void main() {
   late MockApiStore apiStore;
   late MockCheckApiUseCase checkApiUseCase;
   late MockInitDataUseCase initDataUseCase;
+  late TokenPreferences tokenPreferences;
 
   setUp(() {
       apiPreferences = MockApiPreferences();
       apiStore = MockApiStore();
       checkApiUseCase = MockCheckApiUseCase();
       initDataUseCase = MockInitDataUseCase();
-      sut = InitApiUseCase(apiStore, checkApiUseCase, apiPreferences, initDataUseCase);
+      tokenPreferences = TokenPreferences();
+      sut = InitApiUseCase(apiStore, checkApiUseCase, apiPreferences, initDataUseCase, tokenPreferences);
   });
 
   group('initUrl', () {
