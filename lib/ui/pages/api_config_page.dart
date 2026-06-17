@@ -11,6 +11,7 @@ import 'package:flutter/gestures.dart';
 
 
 class ApiConfigPage extends StatefulWidget {
+  const ApiConfigPage({super.key}); 
   @override
   State<ApiConfigPage> createState() => _ApiConfigPageState();
 }

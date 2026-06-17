@@ -30,7 +30,7 @@ class NodeUseCase {
       final result = await nodeRepository.getNode(colId, currentNode.parentId!);
       result.fold(
         (error) {
-          print("Can't get parent node: $error");
+          notificationBus.showError("Can't get parent node: $error");
         },
         (node) {
           navigationUseCase.navigateTo(node.id);
@@ -49,7 +49,7 @@ class NodeUseCase {
       );
       result.fold(
         (error) {
-          print("Can't get root node: $error");
+          notificationBus.showError("Can't get root node: $error");
         },
         (node) {
           navigationUseCase.navigateTo(node.id);
@@ -67,7 +67,7 @@ class NodeUseCase {
     final result = await nodeRepository.getNode(colId, nodeId);
     return result.fold(
       (error) {
-        print("Can't get node title: $error");
+        notificationBus.showWarning("Can't get node title: $error");
         return null;
       },
       (node) {

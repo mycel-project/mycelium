@@ -336,8 +336,8 @@ class MoreBottomSheet extends StatelessWidget {
                 text: "Delete this fragment and all its children?",
                 destructive: true,
               );
-              if (!context.mounted) return;
               if (result.confirmed == true) await vm.deleteNode();
+              if (!context.mounted) return;
               Navigator.pop(context);
             },
           ),

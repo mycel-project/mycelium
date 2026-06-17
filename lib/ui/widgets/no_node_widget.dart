@@ -2,6 +2,8 @@ import "package:flutter/material.dart";
 import "package:mycelium/ui/widgets/launch_review_button.dart";
 
 class NoNodeWidget extends StatelessWidget {
+  const NoNodeWidget({super.key}); 
+  
   @override
   Widget build(BuildContext context) {
     return SafeArea(

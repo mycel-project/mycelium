@@ -117,7 +117,7 @@ class HomeViewModel extends ChangeNotifier {
   bool hasParent = false;
 
   void openHistory() {
-    print("History not implemented yet");
+    // History not implemented yet
   }
 
   bool hasPreviousNodes() => navigationUseCase.canGoBack;

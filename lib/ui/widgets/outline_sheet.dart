@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:mycelium/data/models/outline_entry.dart';
 
 // ClaudeAI
@@ -126,7 +127,7 @@ class _OutlineSheetState extends State<OutlineSheet> {
       clipBehavior: Clip.hardEdge,
       padding: const EdgeInsets.only(bottom: 12),
       itemCount: e.length,
-      cacheExtent: 20000,
+      scrollCacheExtent: ScrollCacheExtent.pixels(20000),
       itemBuilder: (context, i) {
         final entry = e[i];
         final isActive = entry == activeEntry;

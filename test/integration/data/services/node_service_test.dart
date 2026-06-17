@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mycelium/data/api_result.dart';
@@ -13,7 +14,7 @@ void main() {
 
   void testNodeDetailView(result) {
     if (result is ApiError) {
-      print("${result.code} ${result.message} ${result.statusCode}");
+      log("${result.code} ${result.message} ${result.statusCode}");
     }
     expect(result, isA<ApiSuccess>());
     final json = jsonDecode((result as ApiSuccess).data);

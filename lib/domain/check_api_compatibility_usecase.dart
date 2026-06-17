@@ -52,9 +52,9 @@ class CheckApiCompatibilityUseCase {
 
       apiStore.setCompatibility(result);
       return result;
-    } catch (e, stackTrace) {
-      print("CheckApiCompatibilityUseCase failed: $e");
-      print("$stackTrace");
+    } catch (e/*,stackTrace*/) {
+      //print("CheckApiCompatibilityUseCase failed: $e");
+      //print("$stackTrace");
       apiStore.setCompatibilityError();
       return ApiCompatibility.error;
     }

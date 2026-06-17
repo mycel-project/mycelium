@@ -43,7 +43,7 @@ class _DeletedNodesPageState extends State<DeletedNodesPage> {
         : NodeTree(
           nodes: vm.deletedNodes,
           isSpore: (node) {
-            return node.type == 1;
+            return node.type == "spore";
           },
           popOnClick: false,
           subtitleBuilder: (node) {

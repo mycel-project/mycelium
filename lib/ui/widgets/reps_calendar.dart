@@ -216,16 +216,16 @@ class _DetailPanel extends StatelessWidget {
                 .copyWith(fontWeight: FontWeight.w500),
           ),
           const SizedBox(height: 8),
-          _Row('Fragments', fragments, theme),
-          _Row('Spores', spores, theme),
+          _row('Fragments', fragments, theme),
+          _row('Spores', spores, theme),
           const Divider(height: 16),
-          _Row('Total', spores + fragments, theme, bold: true),
+          _row('Total', spores + fragments, theme, bold: true),
         ],
       ),
     );
   }
 
-  Widget _Row(String label, int value, ThemeData theme,
+  Widget _row(String label, int value, ThemeData theme,
       {bool bold = false}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),

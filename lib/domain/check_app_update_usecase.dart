@@ -58,7 +58,7 @@ class CheckAppUpdateUseCase {
         );
       }
     } catch (e) {
-      print("Cannot check last Mycelium update");
+      notificationBus.showInfo("Cannot check last Mycelium update");
     }
   }
 }
