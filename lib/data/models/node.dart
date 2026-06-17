@@ -2,7 +2,7 @@
 class BaseLearningUnit {
   final String id;
   final String nodeId;
-  final String position;
+  final double priority;
   final int due;
   final int? lastReview;
   final int slot;
@@ -10,7 +10,7 @@ class BaseLearningUnit {
   BaseLearningUnit({
     required this.id,
     required this.nodeId,
-    required this.position,
+    required this.priority,
     required this.due,
     this.lastReview,
     required this.slot,
@@ -20,7 +20,7 @@ class BaseLearningUnit {
     return BaseLearningUnit(
       id: json['id'],
       nodeId: json['node_id'],
-      position: json['position'],
+      priority: json['priority'].toDouble(),
       due: json['due'],
       lastReview: json['last_review'],
       slot: json['slot'],
