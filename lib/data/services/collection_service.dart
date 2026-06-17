@@ -18,6 +18,6 @@ class CollectionService {
   }
 
   Future<ApiResult<void>> renameCollection(String id, String newName) async {
-    return await api.patch("/collections/$id", {"newName": newName});
+    return await api.patch("/collections/$id", {"name": newName});
   }
 }

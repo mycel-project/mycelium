@@ -40,8 +40,8 @@ class NodeService {
     int slot,
   ) async {
     return await api.patch(
-      "/collections/$collectionId/nodes/$nodeId/reprioritise",
-      {"priority": priority, "slot": slot},
+      "/collections/$collectionId/nodes/$nodeId/slot/$slot/reprioritise",
+      {"priority": priority},
     );
   }
 
@@ -52,12 +52,11 @@ class NodeService {
     int tzOffset,
     int slot,
   ) async {
-    return await api.post(
-      "/collections/$collectionId/nodes/$nodeId/reschedule",
+    return await api.patch(
+      "/collections/$collectionId/nodes/$nodeId/slot/$slot/reschedule",
       {
         "date": dateIso,
         "tz_offset": tzOffset,
-        "slot": slot,
       },
     );
   }

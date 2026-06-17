@@ -12,6 +12,9 @@ void main() {
   late NodeService service;
 
   void testNodeDetailView(result) {
+    if (result is ApiError) {
+      print("${result.code} ${result.message} ${result.statusCode}");
+    }
     expect(result, isA<ApiSuccess>());
     final json = jsonDecode((result as ApiSuccess).data);
     expect(json["data"], isA<Map>());
@@ -60,12 +63,12 @@ void main() {
     testNodeDetailView(result);
   });
 
-  // test('deletetNode', () async {
-  //     final result = await service.deleteNode("test", "test");
-  //     expect(result, isA<ApiSuccess>());
-  //     final json = jsonDecode((result as ApiSuccess).data);
-  //     expect(json["data"]["deleted_ids"], isA<Map>());
-  // });
+  test('deletetNode', () async {
+      final result = await service.deleteNode("test", "test");
+      expect(result, isA<ApiSuccess>());
+      final json = jsonDecode((result as ApiSuccess).data);
+      expect(json["data"], isA<Map>());
+  });
 
   test('getOutline', () async {
     final result = await service.getOutline("test", "test");
@@ -83,7 +86,7 @@ void main() {
     testNodeDetailView(result);
   });
 
-  test('reprioritiseNode', () async {
+  test('rescheduleNode', () async {
     final result = await service.rescheduleNode(
       "test",
       "test",
