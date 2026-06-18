@@ -13,6 +13,7 @@
 - The “Remove links” option is still enabled right after hiding the keyboard.
 - Scroll animation is now correctly playing in outline section
 - Restored unsaved changes confirmation dialog when switching nodes with pending changes, accidentally removed in a previous refactor.
+- Invert prioritisation logic to follow mycel new standard.
 
 ### Refactor
 - **Adapt API contract to follow mycel v0.2.0 (changed models, use slots, use contentPreview built by Mycel, etc.)**

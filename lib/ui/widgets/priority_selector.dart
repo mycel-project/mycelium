@@ -58,17 +58,17 @@ class _PrioritySelectorState extends State<PrioritySelector> {
 
   static const double _logIntensity = 2; // control log intensity
 
-  double _priorityToSlider(double priority) {
+double _priorityToSlider(double priority) {
     if (_sortedPriorities.length <= 1) return 0.0;
     final index = _sortedPriorities.indexOf(priority);
     if (index == -1) return 0.0;
     final t = index / (_sortedPriorities.length - 1);
-    return log(1 + t * (exp(_logIntensity) - 1)) / _logIntensity;
+    return 1.0 - (log(1 + (1.0 - t) * (exp(_logIntensity) - 1)) / _logIntensity);
   }
 
   double _sliderToPriority(double sliderVal) {
     if (_sortedPriorities.length <= 1) return _sortedPriorities.first;
-    final t = (exp(sliderVal * _logIntensity) - 1) / (exp(_logIntensity) - 1);
+    final t = 1.0 - ((exp((1.0 - sliderVal) * _logIntensity) - 1) / (exp(_logIntensity) - 1));
     final index = (t * (_sortedPriorities.length - 1)).round().clamp(
       0,
       _sortedPriorities.length - 1,
@@ -106,16 +106,16 @@ class _PrioritySelectorState extends State<PrioritySelector> {
     });
   }
 
-  Node? get _higherPriorityNeighbor {
+Node? get _higherPriorityNeighbor {
     final candidates =
         widget.nodes
             .where(
               (n) =>
                   n.id != widget.currentNodeId &&
-                  n.getUnit().priority < _selectedPriority,
+                  n.getUnit().priority > _selectedPriority,
             )
             .toList()
-          ..sort((a, b) => b.getUnit().priority.compareTo(a.getUnit().priority));
+          ..sort((a, b) => a.getUnit().priority.compareTo(b.getUnit().priority)); 
     return candidates.isNotEmpty ? candidates.first : null;
   }
 
@@ -125,10 +125,10 @@ class _PrioritySelectorState extends State<PrioritySelector> {
             .where(
               (n) =>
                   n.id != widget.currentNodeId &&
-                  n.getUnit().priority > _selectedPriority,
+                  n.getUnit().priority < _selectedPriority,
             )
             .toList()
-          ..sort((a, b) => a.getUnit().priority.compareTo(b.getUnit().priority));
+          ..sort((a, b) => b.getUnit().priority.compareTo(a.getUnit().priority));
     return candidates.isNotEmpty ? candidates.first : null;
   }
 
