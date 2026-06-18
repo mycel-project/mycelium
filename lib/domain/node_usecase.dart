@@ -71,7 +71,7 @@ class NodeUseCase {
         return null;
       },
       (node) {
-        final title = node.data?["title"];
+        final title = node.data["title"];
         return title;
       },
     );

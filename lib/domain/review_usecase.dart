@@ -2,7 +2,6 @@ import 'package:mycelium/core/notifications/notification_bus.dart';
 import 'package:mycelium/core/stores/collection_store.dart';
 import 'package:mycelium/core/stores/review_store.dart';
 import 'package:mycelium/data/api_result.dart';
-import 'package:mycelium/data/models/node.dart';
 import 'package:mycelium/data/models/review_target.dart';
 import 'package:mycelium/data/repositories/node_repository.dart';
 import 'package:mycelium/data/repositories/review_repository.dart';

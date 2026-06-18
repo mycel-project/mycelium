@@ -65,10 +65,10 @@ void main() {
   });
 
   test('deletetNode', () async {
-      final result = await service.deleteNode("test", "test");
-      expect(result, isA<ApiSuccess>());
-      final json = jsonDecode((result as ApiSuccess).data);
-      expect(json["data"], isA<Map>());
+    final result = await service.deleteNode("test", "test");
+    expect(result, isA<ApiSuccess>());
+    final json = jsonDecode((result as ApiSuccess).data);
+    expect(json["data"], isA<Map>());
   });
 
   test('getOutline', () async {
@@ -88,13 +88,7 @@ void main() {
   });
 
   test('rescheduleNode', () async {
-    final result = await service.reschedule(
-      "test",
-      "test",
-      "2099-10-19",
-      0,
-      0,
-    );
+    final result = await service.reschedule("test", "test", "2099-10-19", 0, 0);
     testNodeDetailView(result);
   });
 
@@ -119,19 +113,37 @@ void main() {
   });
 
   test('createExtract', () async {
-      final result = await service.createExtract("test", "test", "test", "test", 0, 10, "fragment", 0);
-      expect(result, isA<ApiSuccess>());
-      final json = jsonDecode((result as ApiSuccess).data);
-      expect(json["data"], isA<Map>());
+    final result = await service.createExtract(
+      "test",
+      "test",
+      "test",
+      "test",
+      0,
+      10,
+      "fragment",
+      0,
+    );
+    expect(result, isA<ApiSuccess>());
+    final json = jsonDecode((result as ApiSuccess).data);
+    expect(json["data"], isA<Map>());
   });
 
   test('removeLinks', () async {
-      final result = await service.removeLinks("test", "test", "test", "content", 0, 10);
-      testNodeDetailView(result);
+    final result = await service.removeLinks(
+      "test",
+      "test",
+      "test",
+      "content",
+      0,
+      10,
+    );
+    testNodeDetailView(result);
   });
 
   test('saveNodeContent', () async {
-      final result = await service.saveNodeContent("test", "test", "test");
-      testNodeDetailView(result);
+    final result = await service.saveNodeContent("test", "test", {
+      "test": "test",
+    });
+    testNodeDetailView(result);
   });
 }
