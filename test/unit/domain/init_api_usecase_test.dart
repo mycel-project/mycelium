@@ -7,6 +7,7 @@ import 'package:mycelium/domain/api_status.dart';
 import 'package:mycelium/domain/check_api_usecase.dart';
 import 'package:mycelium/domain/init_api_usecase.dart';
 import 'package:mycelium/domain/init_data_usecase.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class MockApiPreferences extends Mock implements ApiPreferences {}
 class MockApiStore extends Mock implements ApiStore {}
@@ -14,6 +15,8 @@ class MockCheckApiUseCase extends Mock implements CheckApiUseCase {}
 class MockInitDataUseCase extends Mock implements InitDataUseCase {}
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+  
   late InitApiUseCase sut;
   late MockApiPreferences apiPreferences;
   late MockApiStore apiStore;
@@ -22,6 +25,8 @@ void main() {
   late TokenPreferences tokenPreferences;
 
   setUp(() {
+        SharedPreferences.setMockInitialValues({});
+      
       apiPreferences = MockApiPreferences();
       apiStore = MockApiStore();
       checkApiUseCase = MockCheckApiUseCase();
@@ -44,7 +49,7 @@ void main() {
 
           await sut.initApiUrl();
 
-          verify(() => apiStore.setBaseUrl('')).called(1);
+          verify(() => apiStore.setBaseUrl("https://api.mycelcloud.com")).called(1);
       });
   });
 
