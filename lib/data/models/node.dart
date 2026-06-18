@@ -204,7 +204,6 @@ class Node {
   final Map<String, dynamic> data;
 
   factory Node.fromJson(Map<String, dynamic> json) {
-    print(json);
     return Node(
       id: json['id'],
       collectionId: json['collection_id'],

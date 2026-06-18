@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:mycelium/data/api_result.dart';
 import 'package:mycelium/data/models/day_review_overview.dart';
 import 'package:mycelium/data/models/node.dart';
+import 'package:mycelium/data/models/review_target.dart';
 import 'package:mycelium/data/services/review_service.dart';
 
 class ReviewRepository {
@@ -12,9 +13,9 @@ class ReviewRepository {
 
   String? _clozeRegex;
 
-  Future<ApiResult<Node?>> undoReview(String colId) async {
+  Future<ApiResult<ReviewTarget?>> undoReview(String colId) async {
     final result = await reviewService.undoReview(colId);
-    return parsedReviewData(result);
+    return parseReviewData(result);
   }
 
   Future<ApiResult<Node?>> reviewFragment(
@@ -25,7 +26,7 @@ class ReviewRepository {
     int slot,
   ) async {
     final result = await reviewService.completeFragmentReview(colId, nodeId, duration, tzOffset, slot);
-    return parsedReviewData(result);
+    return parseNodeData(result);
   }
 
   Future<ApiResult<Node?>> reviewSpore(
@@ -44,7 +45,7 @@ class ReviewRepository {
       tzOffset,
       slot,
     );
-    return parsedReviewData(result);
+    return parseNodeData(result);
   }
 
   Future<ApiResult<Map<DateTime, DayReviewOverview>>> getCalendar(
@@ -68,7 +69,7 @@ class ReviewRepository {
     return ApiSuccess(map);
   }
 
-  ApiResult<Node?> parsedReviewData(ApiResult<String> result) {
+  ApiResult<Node?> parseNodeData(ApiResult<String> result) {
     if (result is ApiError) return result;
     final json = jsonDecode((result as ApiSuccess<String>).data)["data"];
     final nodeJson = json;
@@ -76,12 +77,19 @@ class ReviewRepository {
     return ApiSuccess(Node.fromJson(nodeJson));
   }
 
-  Future<ApiResult<Node?>> getNextReview(
+  ApiResult<ReviewTarget?> parseReviewData(ApiResult<String> result) {
+    if (result is ApiError) return result;
+    final json = jsonDecode((result as ApiSuccess<String>).data)["data"];
+    if (json == null) return ApiSuccess(null);
+    return ApiSuccess(ReviewTarget.fromJson(json));
+  }
+
+  Future<ApiResult<ReviewTarget?>> getNextReview(
     String colId,
     int tzOffset
   ) async {
     final result = await reviewService.getNextReview(colId, tzOffset);
-    return parsedReviewData(result);
+    return parseReviewData(result);
   }
 
   Future<String?> getClozeRegex() async {
