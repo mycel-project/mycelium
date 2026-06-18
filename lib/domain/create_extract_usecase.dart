@@ -38,7 +38,7 @@ class CreateExtractUseCase {
       node.collectionId,
       node.id,
       content.substring(selection.start, selection.end),
-      "0",
+      node.firstFieldKey,
       selection.start,
       selection.end,
       extractType,

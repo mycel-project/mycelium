@@ -30,7 +30,7 @@ class RemoveLinksUseCase {
       node.collectionId,
       node.id,
       content.substring(start, end),
-      "0",
+      node.firstFieldKey,
       start,
       end,
     );

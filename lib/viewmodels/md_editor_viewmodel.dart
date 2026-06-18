@@ -316,11 +316,11 @@ class MdEditorViewModel extends ChangeNotifier {
   }
 
   Future<Node?> createFragment(String currentContent) async {
-    return await createExtract("FRAGMENT", currentContent);
+    return await createExtract("fragment", currentContent);
   }
 
   Future<Node?> createSpore(String currentContent) async {
-    return await createExtract("SPORE", currentContent);
+    return await createExtract("spore", currentContent);
   }
 
   Future<void> removeLinks(String currentContent) async {

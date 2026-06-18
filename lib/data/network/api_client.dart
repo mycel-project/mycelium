@@ -42,12 +42,12 @@ class ApiClient {
           );
         case "internal":
           _notificationBus.showError(
-            "Internal error, report it at https://github.com/mycel-project/mycel.",
+            "Internal error, report it at https://github.com/mycel-project/mycelium.",
             result,
           );
         default:
           _notificationBus.showError(
-            "Unknown error, report it at https://github.com/mycel-project/mycel.",
+            "Unknown error, report it at https://github.com/mycel-project/mycelium.",
             result,
           );
       }

@@ -127,9 +127,9 @@ sealed class LearningData {
 
 class FsrsData extends LearningData {
   final int state;
-  final double stability;
-  final double difficulty;
-  final int step;
+  final double? stability;
+  final double? difficulty;
+  final int? step;
 
   FsrsData({
     required this.state,
@@ -140,8 +140,8 @@ class FsrsData extends LearningData {
   factory FsrsData.fromJson(Map<String, dynamic> json) {
     return FsrsData(
       state: json['state'],
-      stability: json['stability'].toDouble(),
-      difficulty: json['difficulty'].toDouble(),
+      stability: (json['stability'] as num?)?.toDouble(),
+      difficulty: (json['difficulty'] as num?)?.toDouble(),
       step: json['step'],
     );
   }
@@ -204,6 +204,7 @@ class Node {
   final Map<String, dynamic> data;
 
   factory Node.fromJson(Map<String, dynamic> json) {
+    print(json);
     return Node(
       id: json['id'],
       collectionId: json['collection_id'],
