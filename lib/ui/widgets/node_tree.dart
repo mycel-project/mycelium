@@ -218,7 +218,7 @@ class _NodeTreeState extends State<NodeTree> {
                                   children: [
                                     Text(
                                       typedNode.data["title"] ?? (isSporeNode
-                                        ? widget.formatSpore(typedNode.firstFieldValue)
+                                        ? widget.formatSpore(typedNode.contentPreview)
                                         : typedNode.contentPreview),
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
