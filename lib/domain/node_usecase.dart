@@ -104,7 +104,7 @@ class NodeUseCase {
     String nodeId,
     String title,
   ) async {
-    final data = NodeUpdate(data: {title: title == "" ? null : title}).toJson();
+    final data = NodeUpdate(data: {"title": title == "" ? null : title}).toJson();
     final result = await nodeRepository.updateNode(colId, nodeId, data);
 
     switch (result) {
