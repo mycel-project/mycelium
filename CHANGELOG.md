@@ -7,6 +7,8 @@
 - Left panel closes automatically on desktop when navigating to a spore under review to avoid spoiling the answer
 - Spore editor now highlights in red when no cloze field is detected. Error toasts once and the highlight persists until corrected. Invalid states are rejected by the backend and the last valid state is preserved.
 - Add tests (for services)
+- Functionnality to split nodes by heading
+- Add background color when node is dismissed and for spores
 
 ### Fixed
 - When changing the displayed node, systematically remove focus to avoid keyboard/cursor inconsistencies.

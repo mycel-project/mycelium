@@ -181,10 +181,19 @@ class MdEditorState extends State<MdEditor> {
                   children: [
                     Positioned.fill(
                       child: Container(
-                        decoration: vm.noClozeField
-                        ? BoxDecoration(
+                        decoration:
+                        vm.isCurrentNodeSpore()
+                        ?
+                        vm.noClozeField
+                        ?
+                        BoxDecoration(
                           color: Colors.red.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(8))
+                        :
+                        BoxDecoration(
+                          color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.05),
+                          borderRadius: BorderRadius.circular(8))
+
                         : vm.dismissState == true
                         ? BoxDecoration(
                           color: Colors.grey.withValues(alpha: 0.2),
