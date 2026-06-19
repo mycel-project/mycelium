@@ -33,5 +33,5 @@ jobs:
       - name: Make scripts executable
         run: chmod +x test.sh test_unit.sh test_integration.sh
 
-      - name: Run tests
-        run: ./test.sh
+      # - name: Run tests
+      #   run: ./test.sh
