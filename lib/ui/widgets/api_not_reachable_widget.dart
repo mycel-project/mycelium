@@ -2,6 +2,8 @@ import "package:flutter/material.dart";
 import "package:mycelium/ui/pages/api_config_page.dart";
 
 class ApiNotReachableWidget extends StatelessWidget {
+  const ApiNotReachableWidget({super.key});
+  
   @override
   Widget build(BuildContext context) {
     return SafeArea(

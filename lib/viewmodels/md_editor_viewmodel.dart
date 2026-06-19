@@ -94,7 +94,7 @@ class MdEditorViewModel extends ChangeNotifier {
 
   bool _noClozeField = false;
 
-  bool? get dismissState => node?.typeData?['dismiss'] as bool?;
+  bool? get dismissState => node?.getFragment()?.dismiss;
 
   bool _showUnsavedChangesDialog = false;
   bool get showUnsavedChangesDialog => _showUnsavedChangesDialog;
@@ -225,16 +225,14 @@ class MdEditorViewModel extends ChangeNotifier {
     }
   }
 
-  Future<void> handleSporeReview(int rating) async => _handleReview(
-    "spore",
-    rating: rating,
-  ); // maybe that hardocing node type is better to use NodeType.spore as in backend...
+  Future<void> handleSporeReview(int rating) async =>
+      _handleReview("spore", rating: rating);
 
   Future<void> handleFragmentReview() async => _handleReview("fragment");
 
   Future<bool> nextReview() async {
     final result = await reviewUseCase.handleNextReview();
-    if (result case ApiError error) {
+    if (result case DomainError error) {
       notificationBus.showError("Cannot get review", error);
       return false;
     }
@@ -329,11 +327,11 @@ class MdEditorViewModel extends ChangeNotifier {
   }
 
   Future<Node?> createFragment(String currentContent) async {
-    return await createExtract("FRAGMENT", currentContent);
+    return await createExtract("fragment", currentContent);
   }
 
   Future<Node?> createSpore(String currentContent) async {
-    return await createExtract("SPORE", currentContent);
+    return await createExtract("spore", currentContent);
   }
 
   Future<void> removeLinks(String currentContent) async {
@@ -362,15 +360,14 @@ class MdEditorViewModel extends ChangeNotifier {
         // need to change in node store ?
         node = data;
         notifyListeners();
-      case ApiError error:
+      case DomainError error:
         notificationBus.showError("Can't toggle dismiss", error);
     }
   }
 
   bool isCurrentNodeSpore() {
     if (node != null) {
-      final type = nodeRepository.getNodeTypeSync(node!.type);
-      return type?.label == "SPORE";
+      return node?.type == "spore";
     } else {
       return false;
     }
@@ -379,7 +376,7 @@ class MdEditorViewModel extends ChangeNotifier {
   void editMode() {
     if (isCurrentNodeSpore() && !isEditing) {
       isEditing = true;
-      _applyContent(node?.content?["0"] ?? "");
+      _applyContent(node?.firstFieldValue ?? "");
       notifyListeners();
     }
   }
@@ -387,7 +384,7 @@ class MdEditorViewModel extends ChangeNotifier {
   void showAnswer() {
     isAnswerVisible = true;
     final newContent = reviewUseCase.transformClozeContent(
-      node?.content?["0"] ?? "",
+      node?.firstFieldValue ?? "",
       mode: ClozeMode.show,
     );
     _applyContent(newContent);
@@ -410,14 +407,14 @@ class MdEditorViewModel extends ChangeNotifier {
       if (isCurrentNodeSpore()) {
         if (reviewStore.currentNodeId == node.id) {
           newContent = reviewUseCase.transformClozeContent(
-            node.content?["0"] ?? "",
+            node.firstFieldValue,
             mode: ClozeMode.hide,
           );
         } else {
-          newContent = node.content?["0"] ?? "";
+          newContent = node.firstFieldValue;
         }
       } else {
-        newContent = node.content?["0"] ?? "";
+        newContent = node.firstFieldValue;
       }
 
       _applyContent(newContent);
@@ -497,7 +494,7 @@ class MdEditorViewModel extends ChangeNotifier {
     final result = await nodeRepository.updateNodeContent(
       collectionId,
       nodeId,
-      content,
+      {node?.firstFieldKey: content},
     );
     switch (result) {
       case ApiSuccess():
@@ -507,7 +504,7 @@ class MdEditorViewModel extends ChangeNotifier {
         setNoClozeField(false);
         notifyListeners();
         return true;
-      case ApiError error:
+      case DomainError error:
         if (error.code == "NO_CLOZE_FIELD_ERROR") {
           if (!noClozeField) {
             setNoClozeField(true);
@@ -516,15 +513,17 @@ class MdEditorViewModel extends ChangeNotifier {
         } else {
           notificationBus.showError("Cannot save content", error);
         }
-        return false;
     }
+    return false;
   }
 
-  Future<bool> updatePriority(int nodeId, double priority) async {
+  Future<bool> updatePriority(String nodeId, double priority) async {
     final colId = collectionStore.currentCollection?.id;
     if (colId == null) return false;
     final result = await updatePriorityUseCase.execute(colId, nodeId, priority);
     if (result is Node) {
+      nodeStore.selectNode(node);
+      await refreshPriorities();
       notifyListeners();
       return true;
     }

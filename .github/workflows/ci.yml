@@ -13,6 +13,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Setup Node.js (for Prism)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
       - name: Install Flutter
         uses: subosito/flutter-action@v2
         with:
@@ -25,5 +30,8 @@ jobs:
       - name: Analyze code
         run: flutter analyze --no-fatal-infos
 
+      - name: Make scripts executable
+        run: chmod +x test.sh test_unit.sh test_integration.sh
+
       - name: Run tests
-        run: flutter test
+        run: ./test.sh

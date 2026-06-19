@@ -1,14 +1,14 @@
 import 'dart:convert';
 import 'package:mycelium/data/api_result.dart';
-import 'package:mycelium/data/services/api_service.dart';
+import 'package:mycelium/data/network/api_client.dart';
 
 class ReviewService {
-  final ApiService api;
+  final ApiClient api;
 
   ReviewService(this.api);
 
   Future<ApiResult<String?>> getClozeRegex() async {
-    final result = await api.get("/config/cloze-regex");
+    final result = await api.get("/constants/cloze-regex");
 
     if (result is ApiError) return result;
 
@@ -18,7 +18,7 @@ class ReviewService {
     return ApiSuccess<String?>(json["regex"] as String?);
   }
 
-  Future<ApiResult<String>> getNextReview(int colId, int tzOffset) async {
+  Future<ApiResult<String>> getNextReview(String colId, int tzOffset) async {
     return await api.get(
       "/collections/$colId/reviews/next",
       queryParams: {
@@ -27,7 +27,7 @@ class ReviewService {
     );
   }
 
-  Future<ApiResult<String>> getCalendar(int colId, int tzOffset) async {
+  Future<ApiResult<String>> getCalendar(String colId, int tzOffset) async {
     return await api.get(
       "/collections/$colId/reviews/calendar",
       queryParams: {
@@ -36,34 +36,38 @@ class ReviewService {
     );
   }
 
-  Future<ApiResult<String>> undoReview(int colId) async {
-    return await api.post("/collections/$colId/reviews/undo", {});
+  Future<ApiResult<String>> undoReview(String colId) async {
+    return await api.post("/collections/$colId/reviews/undo", null);
   }
 
   Future<ApiResult<String>> completeFragmentReview(
-    int colId,
-    int nodeId,
+    String colId,
+    String nodeId,
     int duration,
-    int tzOffset
+    int tzOffset,
+    int slot,
   ) async {
-    return await api.post("/collections/$colId/nodes/$nodeId/fragment-review", {
+    return await api.post("/collections/$colId/nodes/$nodeId/review", {
       "duration": duration,
-      "type_review_data": {},
-      "tz_offset": tzOffset.toString(),
+      "type_review_data": {"type": "fragment"},
+      "tz_offset": tzOffset,
+      "slot": slot,
     });
   }
 
   Future<ApiResult<String>> completeSporeReview(
-    int colId,
-    int nodeId,
+    String colId,
+    String nodeId,
     int duration,
     int rating,
-    int tzOffset
+    int tzOffset,
+    int slot,
   ) async {
-    return await api.post("/collections/$colId/nodes/$nodeId/spore-review", {
+    return await api.post("/collections/$colId/nodes/$nodeId/review", {
       "duration": duration,
-      "type_review_data": {"rating": rating},
-      "tz_offset": tzOffset.toString(),
+      "type_review_data": {"type": "spore", "rating": rating},
+      "tz_offset": tzOffset,
+      "slot": slot,
     });
   }
 }

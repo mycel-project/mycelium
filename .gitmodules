@@ -1,0 +1,3 @@
+[submodule "test/fixtures/openapi"]
+	path = test/fixtures/openapi
+	url = https://github.com/mycel-project/mycel-openapi

@@ -9,8 +9,8 @@ import 'package:flutter_svg/flutter_svg.dart';
 /// Based on ClaudAI to handle tree building and layouting, is a bit hacky, especially for guide line when expanding element, maybe my manual modifications make it even more hacky ?
 class NodeTree extends StatefulWidget {
   final List<Node> nodes;
-  final void Function(int id)? clickCallback;
-  final Future<void> Function(int id, Offset offset)?
+  final void Function(String id)? clickCallback;
+  final Future<void> Function(String id, Offset offset)?
   secondaryAction;
   final bool Function(Node node)? isSpore;
   final String Function(String content) formatSpore;
@@ -69,7 +69,7 @@ class _NodeTreeState extends State<NodeTree> {
   int _getDepth(TreeSliverNode node) {
     int depth = 0;
     final typedNode = node.content as Node;
-    int? parentId = typedNode.parentId;
+    String? parentId = typedNode.parentId;
     while (parentId != null) {
       final parent = widget.nodes.firstWhereOrNull((n) => n.id == parentId);
       if (parent == null) break; // To display nodes whose parent is absent from the list at the tree root
@@ -165,7 +165,7 @@ class _NodeTreeState extends State<NodeTree> {
                           width: 12,
                           height: 12,
                           colorFilter:
-                          typedNode.typeData?["dismiss"] == true
+                          typedNode.getFragment()?.dismiss == true
                           ? ColorFilter.mode(
                             Colors.grey.withValues(
                               alpha: 0.8,
@@ -217,15 +217,15 @@ class _NodeTreeState extends State<NodeTree> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      formatNodeTitle(
-                                        typedNode.data?.title ?? (isSporeNode ? widget.formatSpore(typedNode.content?['0']) : typedNode.content?['0'])
-                                      ),
+                                      typedNode.data["title"] ?? (isSporeNode
+                                        ? widget.formatSpore(typedNode.contentPreview)
+                                        : typedNode.contentPreview),
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
                                       style: TextStyle(
                                         color: isSporeNode == true
                                         ? Theme.of(context).colorScheme.primary
-                                        : (typedNode.typeData?["dismiss"] as bool?) == true
+                                        : (typedNode.getFragment()?.dismiss) == true
                                         ? Colors.grey.withValues(alpha: 0.5)
                                         : Theme.of(context).textTheme.bodyMedium?.color,
                                       ),
@@ -262,7 +262,7 @@ class _NodeTreeState extends State<NodeTree> {
 bool hasUndismissedFragment(TreeSliverNode node, bool Function(Node)? isSpore) {
   final typedNode = node.content as Node;
   
-  if (isSpore?.call(typedNode) == false && typedNode.typeData?["dismiss"] != true) {
+  if (isSpore?.call(typedNode) == false && typedNode.getFragment()?.dismiss != true) {
     return true;
   }
   
@@ -276,15 +276,10 @@ bool isSubtreeDismissed(TreeSliverNode node, bool Function(Node)? isSpore) {
 
   if (fragmentChildren.isEmpty) {
     final hasOnlySpores = node.children.isNotEmpty;
-    return hasOnlySpores || (node.content as Node).typeData?["dismiss"] == true;
+    return hasOnlySpores || (node.content as Node).getFragment()?.dismiss == true;
   }
 
   return !fragmentChildren.any((c) => hasUndismissedFragment(c, isSpore));
-}
-
-String formatNodeTitle(String? raw) {
-  if (raw == null) return '';
-  return raw.replaceAll(RegExp(r'^>+\s*', multiLine: true), '').trim();
 }
 
 List<TreeSliverNode<Node>> buildTree(
@@ -292,7 +287,7 @@ List<TreeSliverNode<Node>> buildTree(
     Node? selectedNode,
     bool Function(Node node)? isSpore,
 }) {
-  final Map<int?, List<Node>> grouped = {};
+  final Map<String?, List<Node>> grouped = {};
   for (final node in nodes) {
     grouped.putIfAbsent(node.parentId, () => []).add(node);
   }
@@ -305,7 +300,7 @@ List<TreeSliverNode<Node>> buildTree(
       });
     }
   }
-  final Set<int> ancestorIds = {};
+  final Set<String> ancestorIds = {};
   if (selectedNode != null) {
     Node? current = nodes.firstWhereOrNull((n) => n.id == selectedNode.id);
     while (current?.parentId != null) {

@@ -7,23 +7,22 @@ class GetOutlineUseCase {
   final NodeRepository nodeRepository;
   final NotificationBus notificationBus;
 
-  GetOutlineUseCase(
-    this.nodeRepository,
-    this.notificationBus,
-  );
+  GetOutlineUseCase(this.nodeRepository, this.notificationBus);
 
-  Future<List<OutlineEntry>?> execute(int colId, int nodeId, {bool forceRefresh = false}) async {
+  Future<List<OutlineEntry>?> execute(
+    String colId,
+    String nodeId, {
+    bool forceRefresh = false,
+  }) async {
     if (forceRefresh) nodeRepository.clearOutlineCache();
-    final result = await nodeRepository.getOutline(
-      colId,
-      nodeId,
-    );
+    final result = await nodeRepository.getOutline(colId, nodeId);
     switch (result) {
       case ApiSuccess(:final data):
         return data;
-      case ApiError error:
+      case DomainError error:
         notificationBus.showError("Cannot get outline", error);
         return null;
     }
+    return null;
   }
 }

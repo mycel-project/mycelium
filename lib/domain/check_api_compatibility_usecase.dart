@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:mycelium/core/stores/api_store.dart';
 import 'package:mycelium/core/stores/app_store.dart';
 import 'package:mycelium/data/api_result.dart';
-import 'package:mycelium/data/services/api_service.dart';
+import 'package:mycelium/data/network/api_service.dart';
 import 'package:mycelium/data/services/app_service.dart';
 import 'package:mycelium/domain/api_compatibility.dart';
 import 'package:mycelium/domain/compatibility_checker.dart';
@@ -52,9 +52,9 @@ class CheckApiCompatibilityUseCase {
 
       apiStore.setCompatibility(result);
       return result;
-    } catch (e, stackTrace) {
-      print("CheckApiCompatibilityUseCase failed: $e");
-      print("$stackTrace");
+    } catch (e/*,stackTrace*/) {
+      //print("CheckApiCompatibilityUseCase failed: $e");
+      //print("$stackTrace");
       apiStore.setCompatibilityError();
       return ApiCompatibility.error;
     }

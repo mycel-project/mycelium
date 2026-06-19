@@ -3,11 +3,13 @@ import 'package:mycelium/domain/api_compatibility.dart';
 import 'package:mycelium/domain/api_status.dart';
 
 class ApiStore extends ChangeNotifier {
-  String _baseUrl = "";
+  String _baseUrl = "https://api.mycelcloud.com";
+  String _token = "";
   ApiStatus apiStatus = ApiStatus.unknown;
   ApiCompatibility apiCompatibility = ApiCompatibility.unchecked;
 
   String get baseUrl => _baseUrl;
+  String get token => _token;
   ApiStatus get status => apiStatus;
   ApiCompatibility get compatibility => apiCompatibility;
 
@@ -29,6 +31,11 @@ class ApiStore extends ChangeNotifier {
     } else {
       setUnknown();
     }
+    notifyListeners();
+  }
+
+  void setToken(String token) {
+    _token = token;
     notifyListeners();
   }
 

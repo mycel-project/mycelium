@@ -3,7 +3,6 @@
 import 'package:flutter/material.dart';
 import 'package:mycelium/core/stores/collection_store.dart';
 import 'package:mycelium/core/stores/node_store.dart';
-import 'package:mycelium/data/models/node_type.dart';
 import 'package:mycelium/ui/widgets/confirmation_dialog.dart';
 import 'package:mycelium/ui/widgets/input_dialog.dart';
 import 'package:mycelium/ui/widgets/node_tree.dart';
@@ -29,60 +28,52 @@ class LeftDrawer extends StatelessWidget {
                 selectedNode: context.watch<NodeStore>().currentNode,
                 formatSpore: (content) => vm.hideSpore(content),
                 nodes: vm.getNodes(),
-                isSpore: (node) {
-                  final type = vm.getNodeTypes().firstWhere(
-                    (t) => t.key == node.type,
-                    orElse: () => NodeType(label: "", key: -1),
-                  );
-                  return type.label == "SPORE";
-                },
+                isSpore: (node) => node.type == "spore",
                 popOnClick: !Device.isDesktop ? true : false,
-                clickCallback: (int value) => vm.navigateTo(value),
-                secondaryAction:
-                    (int nodeId, Offset position) async {
-                      final screenWidth = MediaQuery.of(context).size.width;
-                      double dx = position.dx - 75;
-                      if (dx < 8) dx = 8;
+                clickCallback: (String value) => vm.navigateTo(value),
+                secondaryAction: (String nodeId, Offset position) async {
+                  final screenWidth = MediaQuery.of(context).size.width;
+                  double dx = position.dx - 75;
+                  if (dx < 8) dx = 8;
 
-                      final selected = await showMenu(
-                        context: context,
-                        position: RelativeRect.fromLTRB(
-                          dx,
-                          position.dy,
-                          screenWidth - dx,
-                          position.dy,
-                        ),
-                        items: const [
-                          PopupMenuItem(value: 'delete', child: Text("Delete")),
-                          PopupMenuItem(value: 'rename', child: Text("Rename")),
-                        ],
-                      );
+                  final selected = await showMenu(
+                    context: context,
+                    position: RelativeRect.fromLTRB(
+                      dx,
+                      position.dy,
+                      screenWidth - dx,
+                      position.dy,
+                    ),
+                    items: const [
+                      PopupMenuItem(value: 'delete', child: Text("Delete")),
+                      PopupMenuItem(value: 'rename', child: Text("Rename")),
+                    ],
+                  );
 
-                      if (!context.mounted) return;
+                  if (!context.mounted) return;
 
-                      if (selected == 'delete') {
-                        final result = await ConfirmationDialog.show(
-                          context,
-                          title: "Delete confirmation",
-                          text: "Delete this node and all its children?",
-                          destructive: true,
-                        );
-                        if (!context.mounted) return;
-                        if (result.confirmed == true)
-                          await vm.deleteNode(nodeId);
-                      } else if (selected == 'rename') {
-                        final name = await vm.getNodeTitle(nodeId) ?? "";
-                        if (!context.mounted) return;
-                        await showInputDialogWithRetry(
-                          context: context,
-                          title: "Enter new title",
-                          placeholder: "Node title",
-                          initialValue: name,
-                          onSubmit: (newName) async =>
-                              await vm.updateNodeTitle(nodeId, newName),
-                        );
-                      }
-                    },
+                  if (selected == 'delete') {
+                    final result = await ConfirmationDialog.show(
+                      context,
+                      title: "Delete confirmation",
+                      text: "Delete this node and all its children?",
+                      destructive: true,
+                    );
+                    if (!context.mounted) return;
+                    if (result.confirmed == true) await vm.deleteNode(nodeId);
+                  } else if (selected == 'rename') {
+                    final name = await vm.getNodeTitle(nodeId) ?? "";
+                    if (!context.mounted) return;
+                    await showInputDialogWithRetry(
+                      context: context,
+                      title: "Enter new title",
+                      placeholder: "Node title",
+                      initialValue: name,
+                      onSubmit: (newName) async =>
+                          await vm.updateNodeTitle(nodeId, newName),
+                    );
+                  }
+                },
               ),
             ),
           ],

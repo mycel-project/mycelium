@@ -42,16 +42,16 @@ abstract class ConfigField {
         min: json["minimum"] ?? 0,
         max: json["maximum"] ?? 100,
         step: json["step"] ?? 1,
-        warning: json["warning"] ?? null,
+        warning: json["warning"],
       );
-      case "string":
+      case "String":
       return StringConfigField(
         key: common['key'] as String,
         title: common['title'] as String,
         category: common['category'] as String,
         description: common['description'] as String?,
         defaultValue: json["default"] ?? "",
-        warning: json["warning"] ?? null,
+        warning: json["warning"],
       );
       case "boolean":
       return BoolConfigField(
@@ -60,7 +60,7 @@ abstract class ConfigField {
         category: common['category'] as String,
         description: common['description'] as String?,
         defaultValue: json["default"] ?? false,
-        warning: json["warning"] ?? null,
+        warning: json["warning"],
       );
       default:
       throw Exception("Unsupported type: $type");

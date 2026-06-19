@@ -15,21 +15,29 @@ class MyceliumNotificationListener extends StatelessWidget {
     final notification = bus.current;
     if (notification != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        toastification.show(
-          style: ToastificationStyle.minimal,
-          type: switch (notification.type) {
-            NotificationType.error => ToastificationType.error,
-            NotificationType.success => ToastificationType.success,
-            NotificationType.info => ToastificationType.info,
-            NotificationType.warning => ToastificationType.warning,
-          },
-          title: Text(notification.title),
-          description: notification.details != null
-              ? Text(notification.details!)
-              : null,
-          autoCloseDuration: const Duration(seconds: 4),
-        );
-        bus.clear();
+          toastification.show(
+            style: ToastificationStyle.minimal,
+            type: switch (notification.type) {
+              NotificationType.error => ToastificationType.error,
+              NotificationType.success => ToastificationType.success,
+              NotificationType.info => ToastificationType.info,
+              NotificationType.warning => ToastificationType.warning,
+            },
+            title: notification.title != null ? Text(notification.title!) : null,
+            description: ConstrainedBox(
+              constraints: const BoxConstraints(maxHeight: 400),
+              child: SingleChildScrollView(
+                child: Text(
+                  notification.description,
+                  style: TextStyle(
+                    fontSize: 12
+                  )
+                ),
+              ),
+            ),
+            autoCloseDuration: const Duration(seconds: 4),
+          );
+          bus.clear();
       });
     }
     return child;

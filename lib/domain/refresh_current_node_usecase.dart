@@ -25,7 +25,7 @@ class RefreshCurrentNodeUseCase {
       case ApiSuccess(:final data):
         return data;
       case ApiError():
-        return null;
     }
+    return null;
   }
 }

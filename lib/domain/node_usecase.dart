@@ -1,19 +1,20 @@
 import 'package:mycelium/core/notifications/notification_bus.dart';
 import 'package:mycelium/core/stores/node_store.dart';
 import 'package:mycelium/data/api_result.dart';
-import 'package:mycelium/data/models/node_data.dart';
 import 'package:mycelium/data/models/node_update.dart';
 import 'package:mycelium/data/repositories/node_repository.dart';
 import 'package:mycelium/data/services/node_service.dart';
 import 'package:mycelium/core/either.dart';
 import 'package:mycelium/domain/navigation_usecase.dart';
 import 'package:mycelium/data/models/node.dart';
+import 'package:mycelium/domain/refresh_priorities_usecase.dart';
 
 class NodeUseCase {
   NodeService nodeService;
   NodeStore nodeStore;
   NodeRepository nodeRepository;
   NavigationUseCase navigationUseCase;
+  RefreshPrioritiesUseCase refreshPrioritiesUseCase;
   NotificationBus notificationBus;
 
   NodeUseCase(
@@ -22,6 +23,7 @@ class NodeUseCase {
     this.nodeRepository,
     this.navigationUseCase,
     this.notificationBus,
+    this.refreshPrioritiesUseCase,
   );
 
   void selectParentNode() async {
@@ -31,7 +33,7 @@ class NodeUseCase {
       final result = await nodeRepository.getNode(colId, currentNode.parentId!);
       result.fold(
         (error) {
-          print("Can't get parent node: $error");
+          notificationBus.showError("Can't get parent node: $error");
         },
         (node) {
           navigationUseCase.navigateTo(node.id);
@@ -50,7 +52,7 @@ class NodeUseCase {
       );
       result.fold(
         (error) {
-          print("Can't get root node: $error");
+          notificationBus.showError("Can't get root node: $error");
         },
         (node) {
           navigationUseCase.navigateTo(node.id);
@@ -59,26 +61,26 @@ class NodeUseCase {
     }
   }
 
-  bool hasChildren(int nodeId) {
+  bool hasChildren(String nodeId) {
     // Only looking in cache because we suppose that if we have access to a node we have fetched its subtree
     return nodeRepository.nodeCache.values.any((n) => n.parentId == nodeId);
   }
 
-  Future<String?> getNodeTitle(int colId, int nodeId) async {
+  Future<String?> getNodeTitle(String colId, String nodeId) async {
     final result = await nodeRepository.getNode(colId, nodeId);
     return result.fold(
       (error) {
-        print("Can't get node title: $error");
+        notificationBus.showWarning("Can't get node title: $error");
         return null;
       },
       (node) {
-        final title = node.data?.title;
+        final title = node.data["title"];
         return title;
       },
     );
   }
 
-  Future<bool> deleteNode(int colId, int nodeId) async {
+  Future<bool> deleteNode(String colId, String nodeId) async {
     /// return false if error during delete
     final result = await nodeRepository.deleteNode(colId, nodeId);
 
@@ -89,25 +91,28 @@ class NodeUseCase {
           nodeStore.selectNode(null);
         }
         navigationUseCase.onNodesDeleted(deletedIds);
+        refreshPrioritiesUseCase.execute();
         return true;
       case ApiError error:
         notificationBus.showError("Can't delete node", error);
-        return false;
     }
+    return false;
   }
 
-  Future<Node?> updateNodeTitle(int colId, int nodeId, String title) async {
-    final data = NodeUpdate(
-      data: NodeData(title: title == "" ? null : title),
-    ).toJson();
+  Future<Node?> updateNodeTitle(
+    String colId,
+    String nodeId,
+    String title,
+  ) async {
+    final data = NodeUpdate(data: {title: title == "" ? null : title}).toJson();
     final result = await nodeRepository.updateNode(colId, nodeId, data);
 
     switch (result) {
       case ApiSuccess(:final data):
         return data;
-      case ApiError error:
+      case DomainError error:
         notificationBus.showError("Can't update node title", error);
-        return null;
     }
+    return null;
   }
 }

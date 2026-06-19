@@ -36,7 +36,7 @@ class CollectionsViewModel extends ChangeNotifier {
     switch (result) {
       case ApiSuccess():
         notifyListeners();
-      case ApiError error:
+      case DomainError error:
         notificationBus.showError("Cannot load collections", error);
     }
   }
@@ -52,13 +52,13 @@ class CollectionsViewModel extends ChangeNotifier {
       case ApiSuccess():
         notifyListeners();
         return true;
-      case ApiError error:
+      case DomainError error:
         notificationBus.showError("Cannot create collection", error);
-        return false;
     }
+    return false;
   }
 
-  Future<void> deleteCollection(int id) async {
+  Future<void> deleteCollection(String id) async {
     await collectionRepository.deleteCollection(id);
     if (collectionStore.currentCollection?.id == id) {
       collectionStore.clearCollection();
@@ -66,7 +66,7 @@ class CollectionsViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<bool> renameCollection(int id, String? newName) async {
+  Future<bool> renameCollection(String id, String? newName) async {
     if (newName == null || newName.isEmpty) {
       notificationBus.showWarning("Empty name");
       return false;
@@ -77,13 +77,13 @@ class CollectionsViewModel extends ChangeNotifier {
       case ApiSuccess():
         notifyListeners();
         return true;
-      case ApiError error:
+      case DomainError error:
         notificationBus.showError("Cannot rename collection", error);
-        return false;
     }
+    return false;
   }
 
-  Future<void> setCollection(int id) async {
+  Future<void> setCollection(String id) async {
     final candidates = collections.where((c) => c.id == id);
     if (candidates.isNotEmpty && currentCollection?.id != id) {
       await selectCollectionUseCase.execute(candidates.first);

@@ -6,7 +6,7 @@ import 'package:mycelium/viewmodels/md_editor_viewmodel.dart';
 class ReviewActionBar extends StatelessWidget {
   final MdEditorViewModel vm;
   final FocusNode focusNode;
-  final int? reviewNodeId;
+  final String? reviewNodeId;
   const ReviewActionBar({super.key, required this.vm, required this.focusNode, required this.reviewNodeId});
 
   @override

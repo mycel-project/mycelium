@@ -10,7 +10,7 @@ class UserRepository {
   final UserService userService;
 
   Map<String, ConfigField> configSchemaCache = {};
-  final Map<int, User> _userCache = {};
+  final Map<String, User> _userCache = {};
 
   UserRepository(this.userService);
 
@@ -23,8 +23,8 @@ class UserRepository {
   }
 
   User _parseUser(ApiSuccess<String> result) {
-    final json = jsonDecode(result.data);
-    final user = User.fromJson(json["user"]);
+    final json = jsonDecode(result.data)["data"];
+    final user = User.fromJson(json);
     _userCache[user.id] = user;
     return user;
   }
@@ -50,14 +50,12 @@ class UserRepository {
     if (result is ApiError) return result;
 
     final decoded = jsonDecode((result as ApiSuccess<String>).data);
-    final properties = decoded["schema"]["properties"] as Map<String, dynamic>;
+    final properties =
+        decoded["data"]["properties"] as Map<String, dynamic>;
 
     configSchemaCache = Map.fromEntries(
       properties.entries.map(
-        (e) => MapEntry(
-          e.key,
-          ConfigField.fromJson(e.key, e.value),
-        ),
+        (e) => MapEntry(e.key, ConfigField.fromJson(e.key, e.value)),
       ),
     );
 

@@ -1,5 +1,5 @@
 import 'package:mycelium/core/stores/api_store.dart';
-import 'package:mycelium/data/services/api_service.dart';
+import 'package:mycelium/data/network/api_service.dart';
 import 'package:mycelium/domain/api_status.dart';
 import 'package:mycelium/domain/check_api_compatibility_usecase.dart';
 

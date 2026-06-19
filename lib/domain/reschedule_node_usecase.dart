@@ -17,12 +17,13 @@ class RescheduleNodeUseCase {
     this.reviewStore,
   );
 
-  Future<Node?> execute(int colId, int nodeId, String dateIso) async {
+  Future<Node?> execute(String colId, String nodeId, String dateIso, {int slot=0} )  async {
     final result = await nodeRepository.rescheduleNode(
       colId,
       nodeId,
       dateIso,
       tzOffsetMinutes,
+      slot,
     );
     switch (result) {
       case ApiSuccess(:final data):
@@ -32,9 +33,9 @@ class RescheduleNodeUseCase {
           reviewStore.stopReview();
         }
         return data;
-      case ApiError error:
+      case DomainError error:
         notificationBus.showError("Cannot reschedule node", error);
-        return null;
     }
+    return null;
   }
 }

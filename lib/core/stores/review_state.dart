@@ -5,7 +5,7 @@ class ReviewLoading extends ReviewState {}
 class ReviewNotStarted extends ReviewState {}
 
 class Reviewing extends ReviewState {
-  final int nodeId;
+  final String nodeId;
   Reviewing(this.nodeId);
 }
 

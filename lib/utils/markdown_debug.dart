@@ -1,3 +1,5 @@
+import "dart:developer";
+
 import "package:markdown_mycel_fork/markdown.dart";
 
 String astToString(List<Node> nodes, {int indent = 0}) {
@@ -22,6 +24,6 @@ String astToString(List<Node> nodes, {int indent = 0}) {
 }
 
 void printAst(List<Node> nodes, {int indent = 0}) {
-  print("\n");
-  print(astToString(nodes, indent: indent));
+  log("\n");
+  log(astToString(nodes, indent: indent));
 }

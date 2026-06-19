@@ -12,18 +12,19 @@ class UpdatePriorityUseCase {
     this.notificationBus,
   );
 
-  Future<Node?> execute(int colId, int nodeId, double priority) async {
+  Future<Node?> execute(String colId, String nodeId, double priority, {int slot = 0}) async {
     final result = await nodeRepository.reprioritiseNode(
       colId,
       nodeId,
       priority,
+      slot,
     );
     switch (result) {
       case ApiSuccess(:final data):
         return data;
-      case ApiError error:
+      case DomainError error:
         notificationBus.showError("Cannot update priority", error);
-        return null;
     }
+    return null;
   }
 }

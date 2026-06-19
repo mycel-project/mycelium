@@ -1,45 +1,44 @@
-import 'dart:convert';
 import 'package:mycelium/data/api_result.dart';
-import 'package:mycelium/data/models/node_type.dart';
-import 'package:mycelium/data/services/api_service.dart';
+import 'package:mycelium/data/network/api_client.dart';
 
 class NodeService {
-  final ApiService api;
+  final ApiClient api;
   NodeService(this.api);
 
-  Future<ApiResult<String>> getNodes(int collectionId) async {
+  Future<ApiResult<String>> getNodes(String collectionId) async {
     return await api.get("/collections/$collectionId/nodes");
   }
 
-  Future<ApiResult<String>> getDeletedNodes(int collectionId) async {
+  Future<ApiResult<String>> getDeletedNodes(String collectionId) async {
     return await api.get("/collections/$collectionId/nodes/deleted");
   }
 
-  Future<ApiResult<String>> getNode(int collectionId, int nodeId) async {
+  Future<ApiResult<String>> getNode(String collectionId, String nodeId) async {
     return await api.get("/collections/$collectionId/nodes/$nodeId");
   }
 
-  Future<ApiResult<String>> getPriorities(int collectionId) async {
+  Future<ApiResult<String>> getPriorities(String collectionId) async {
     return await api.get("/collections/$collectionId/nodes/priorities");
   }
 
-  Future<ApiResult<String>> getRootNode(int collectionId, int nodeId) async {
+  Future<ApiResult<String>> getRootNode(String collectionId, String nodeId) async {
     return await api.get("/collections/$collectionId/nodes/$nodeId/root");
   }
 
-  Future<ApiResult<String>> deleteNode(int collectionId, int nodeId) async {
+  Future<ApiResult<String>> deleteNode(String collectionId, String nodeId) async {
     return await api.delete("/collections/$collectionId/nodes/$nodeId");
   }
 
-  Future<ApiResult<String>> getOutline(int collectionId, int nodeId) async {
+  Future<ApiResult<String>> getOutline(String collectionId, String nodeId) async {
     return await api.get("/collections/$collectionId/nodes/$nodeId/outline");
   }
 
   Future<ApiResult<String>> splitNode(
-    int collectionId,
-    int nodeId,
+    String collectionId,
+    String nodeId,
     int level,
     int tzOffset,
+    int slot,
   ) async {
     return await api.post(
       "/collections/$collectionId/nodes/$nodeId/split",
@@ -47,80 +46,84 @@ class NodeService {
       queryParams: {"level": level.toString(), "tz_offset": tzOffset.toString()},
     );
   }
-
-  Future<ApiResult<String>> reprioritiseNode(
-    int collectionId,
-    int nodeId,
+  
+  Future<ApiResult<String>> reprioritise(
+    String collectionId,
+    String nodeId,
     double priority,
+    int slot,
   ) async {
-    return await api.post(
-      "/collections/$collectionId/nodes/$nodeId/reprioritise",
+    return await api.patch(
+      "/collections/$collectionId/nodes/$nodeId/slot/$slot/reprioritise",
       {"priority": priority},
     );
   }
 
-  Future<ApiResult<String>> rescheduleNode(
-    int collectionId,
-    int nodeId,
+  Future<ApiResult<String>> reschedule(
+    String collectionId,
+    String nodeId,
     String dateIso,
     int tzOffset,
+    int slot,
   ) async {
-    return await api.post(
-      "/collections/$collectionId/nodes/$nodeId/reschedule",
-      {"date": dateIso, "tz_offset": tzOffset},
+    return await api.patch(
+      "/collections/$collectionId/nodes/$nodeId/slot/$slot/reschedule",
+      {
+        "date": dateIso,
+        "tz_offset": tzOffset,
+      },
     );
   }
 
-  Future<ApiResult<String>> restoreNode(
-    int collectionId,
-    int nodeId,
-    bool restoreAncestors,
-    bool restoreDescendants,
-  ) async {
-    return await api.post("/collections/$collectionId/nodes/$nodeId/restore", {
-      "restore_ancestors": restoreAncestors,
-      "restore_descendants": restoreDescendants,
-    });
+  Future<ApiResult<String>> restoreNode(String collectionId, String nodeId, bool restoreAncestors, bool restoreDescendants) async {
+    return await api.post(
+      "/collections/$collectionId/nodes/$nodeId/restore",
+      {
+        "restore_ancestors":restoreAncestors,
+        "restore_descendants":restoreDescendants,
+      },
+    );
   }
 
   Future<ApiResult<String>> fetchRessourceFromUrl(
-    int collectionId,
+    String collectionId,
     String url,
     int tzOffset,
   ) async {
-    return await api.post(
-      "/collections/$collectionId/nodes",
-      {"type": "url", "url": url},
-      queryParams: {"tz_offset": tzOffset.toString()},
-    );
+    return await api.post("/collections/$collectionId/nodes", {
+        "type": "url",
+        "url": url,
+        "tz_offset": tzOffset
+    });
   }
 
   Future<ApiResult<String>> updateNode(
-    int collectionId,
-    int nodeId,
+    String collectionId,
+    String nodeId,
     Map<String, dynamic> data,
   ) async {
     return await api.patch("/collections/$collectionId/nodes/$nodeId", data);
   }
 
   Future<ApiResult<String>> updateNodeDismiss(
-    int collectionId,
-    int nodeId,
-    bool dismiss,
-  ) async {
-    return await api.patch("/collections/$collectionId/nodes/$nodeId", {
-      "type_data": {"dismiss": dismiss},
-    });
+    String collectionId,
+    String nodeId, {
+      bool? value,
+  }) async {
+    return await api.patch(
+      "/collections/$collectionId/nodes/$nodeId/slot/0/dismiss",
+      value != null ? {"value": value} : {},
+    );
   }
 
   Future<ApiResult<String>> createExtract(
-    int collectionId,
-    int nodeId,
+    String collectionId,
+    String nodeId,
     String text,
     String field,
     int startIndex,
     int endIndex,
-    int extractType,
+    String extractType,
     int tzOffset,
   ) async {
     return await api.post("/collections/$collectionId/nodes/$nodeId/extracts", {
@@ -129,13 +132,13 @@ class NodeService {
       "start_index": startIndex,
       "end_index": endIndex,
       "extract_type": extractType,
-      "tz_offset": tzOffset.toString(),
+      "tz_offset": tzOffset,
     });
   }
 
   Future<ApiResult<String>> removeLinks(
-    int collectionId,
-    int nodeId,
+    String collectionId,
+    String nodeId,
     String text,
     String field,
     int startIndex,
@@ -153,25 +156,12 @@ class NodeService {
   }
 
   Future<ApiResult<String>> saveNodeContent(
-    int collectionId,
-    int nodeId,
-    String content,
+    String collectionId,
+    String nodeId,
+    Map fields,
   ) async {
     return api.patch("/collections/$collectionId/nodes/$nodeId", {
-      "content": content,
+      "fields": fields,
     });
-  }
-
-  Future<ApiResult<List<NodeType>>> getNodeTypes() async {
-    final result = await api.get("/config/node-types");
-
-    if (result is ApiError) return result;
-
-    final success = result as ApiSuccess<String>;
-    final json = jsonDecode(success.data);
-
-    return ApiSuccess<List<NodeType>>(
-      (json["types"] as List).map((e) => NodeType.fromJson(e)).toList(),
-    );
   }
 }

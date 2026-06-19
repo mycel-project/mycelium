@@ -11,10 +11,10 @@ class ReviewNodeUseCase {
     this.reviewRepository
   );
 
-  Future<ApiError?> execute(int colId, int nodeId, String type, {int? rating}) async {
+  Future<ApiError?> execute(String colId, String nodeId, String type, {int? rating, int slot = 0}) async {
     final result = switch (type) {
-      "spore" => await reviewRepository.reviewSpore(colId, nodeId, 10, rating!, tzOffsetMinutes),
-      "fragment" => await reviewRepository.reviewFragment(colId, nodeId, 10, tzOffsetMinutes),
+      "spore" => await reviewRepository.reviewSpore(colId, nodeId, 10, rating!, tzOffsetMinutes, slot),
+      "fragment" => await reviewRepository.reviewFragment(colId, nodeId, 10, tzOffsetMinutes, slot),
       _ => throw ArgumentError("Unknown review type: $type"),
     };
 

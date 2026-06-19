@@ -1,5 +1,4 @@
 import 'package:flutter/painting.dart';
-import 'package:mycelium/core/notifications/notification.dart';
 import 'package:mycelium/core/notifications/notification_bus.dart';
 import 'package:mycelium/core/stores/node_store.dart';
 import 'package:mycelium/core/stores/user_store.dart';
@@ -28,54 +27,43 @@ class CreateExtractUseCase {
     Node node,
     String extractType,
     String content,
-    TextSelection selection,
-    {
-      VoidCallback? onMismatch,
-    }
-  ) async {
+    TextSelection selection, {
+    VoidCallback? onMismatch,
+  }) async {
     /// Return created extract if extract has been created
 
     bool? addNav = userStore.conf?.get("add_extract_to_nav");
-
-    final nodeType = nodeRepository.getNodeTypeByLabelSync(extractType);
-    if (nodeType == null) {
-      notificationBus.show(
-        "Cannot extract: unknown node type: $extractType",
-        NotificationType.error,
-      );
-      return null;
-    }
 
     final result = await nodeRepository.createExtract(
       node.collectionId,
       node.id,
       content.substring(selection.start, selection.end),
-      "0",
+      node.firstFieldKey,
       selection.start,
       selection.end,
-      nodeType.key,
+      extractType,
       tzOffsetMinutes,
     );
 
     switch (result) {
       case ApiSuccess(:final data):
-      final updatedNode = data.firstWhere((n) => n.id == node.id);
-      final extract = data.firstWhere((n) => n.id != node.id);
-      
-      nodeStore.selectNode(updatedNode);
-      
-      if (addNav == true) {
-        navigationUseCase.pushToHistory(extract.id, offset: 0);
-      }
-      return extract;
-      case ApiError error:
-      if (error.code == "EXTRACT_MISMATCH") {
-        notificationBus.showError("Retry - report if this persists", error);
-        onMismatch?.call();
-        return null;
-      }
-      notificationBus.showError("Can't create extract", error);
-      return null;
+        final updatedNode = data.firstWhere((n) => n.id == node.id);
+        final extract = data.firstWhere((n) => n.id != node.id);
+
+        nodeStore.selectNode(updatedNode);
+
+        if (addNav == true) {
+          navigationUseCase.pushToHistory(extract.id, offset: 0);
+        }
+        return extract;
+      case DomainError error:
+        if (error.code == "EXTRACT_MISMATCH") {
+          notificationBus.showError("Retry - report if this persists", error);
+          onMismatch?.call();
+          return null;
+        }
+        notificationBus.showError("Can't create extract", error);
     }
+    return null;
   }
 }

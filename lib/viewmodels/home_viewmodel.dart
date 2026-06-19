@@ -13,10 +13,9 @@ import 'package:mycelium/core/stores/scroll_position_store.dart';
 import 'package:mycelium/data/api_result.dart';
 import 'package:mycelium/data/models/day_review_overview.dart';
 import 'package:mycelium/data/models/node.dart';
-import 'package:mycelium/data/models/node_type.dart';
 import 'package:mycelium/data/models/outline_entry.dart';
 import 'package:mycelium/data/repositories/node_repository.dart';
-import 'package:mycelium/data/services/api_service.dart';
+import 'package:mycelium/data/network/api_client.dart';
 import 'package:mycelium/domain/check_api_usecase.dart';
 import 'package:mycelium/domain/cloze_mode.dart';
 import 'package:mycelium/domain/get_calendar_usecase.dart';
@@ -31,7 +30,7 @@ import 'package:mycelium/domain/update_priority_usecase.dart';
 import 'package:mycelium/utils/time_utils.dart';
 
 class HomeViewModel extends ChangeNotifier {
-  final ApiService apiService;
+  final ApiClient apiService;
   final ReviewStore reviewStore;
   final NodeUseCase nodeUseCase;
   final NodeStore nodeStore;
@@ -105,7 +104,7 @@ class HomeViewModel extends ChangeNotifier {
   void closeLeftPanelIfReviewingSpore() {
     if (reviewStore.currentNodeId != null &&
         nodeStore.currentNode?.id == reviewStore.currentNodeId &&
-        nodeStore.currentNode?.type == 2) {
+        nodeStore.currentNode?.type == "spore") {
       closeLeftPanel();
     }
   }
@@ -126,7 +125,7 @@ class HomeViewModel extends ChangeNotifier {
   bool hasParent = false;
 
   void openHistory() {
-    print("History not implemented yet");
+    // History not implemented yet
   }
 
   bool hasPreviousNodes() => navigationUseCase.canGoBack;
@@ -138,13 +137,13 @@ class HomeViewModel extends ChangeNotifier {
     if (id != null) _loadNode(id);
   }
 
-  Future<String?> getNodeTitle(int nodeId) async {
+  Future<String?> getNodeTitle(String nodeId) async {
     final colId = collectionStore.currentCollection?.id;
     if (colId == null) return "";
     return await nodeUseCase.getNodeTitle(colId, nodeId);
   }
 
-  Future<bool> updateNodeTitle(int nodeId, String title) async {
+  Future<bool> updateNodeTitle(String nodeId, String title) async {
     final colId = collectionStore.currentCollection?.id;
     if (colId == null) return false;
     final result = await nodeUseCase.updateNodeTitle(colId, nodeId, title);
@@ -160,7 +159,7 @@ class HomeViewModel extends ChangeNotifier {
     if (id != null) _loadNode(id);
   }
 
-  void navigateTo(int nodeId) async {
+  void navigateTo(String nodeId) async {
     if (nodeId != nodeStore.currentNode?.id) {
       navigationUseCase.navigateTo(nodeId);
     }
@@ -214,11 +213,8 @@ class HomeViewModel extends ChangeNotifier {
     return result;
   }
 
-  List<NodeType> getNodeTypes() =>
-      nodeRepository.nodeTypesCache.values.toList();
-
   // Navigate without pushing in history
-  Future<void> _loadNode(int id) async {
+  Future<void> _loadNode(String id) async {
     final colId = collectionStore.currentCollection?.id;
     if (colId == null) return;
     final result = await nodeRepository.getNode(colId, id);
@@ -255,7 +251,7 @@ class HomeViewModel extends ChangeNotifier {
     }
   }
 
-  Future<void> deleteNode(int nodeId) async {
+  Future<void> deleteNode(String nodeId) async {
     final colId = collectionStore.currentCollection?.id;
     if (colId == null) return;
     await nodeUseCase.deleteNode(colId, nodeId);
@@ -272,7 +268,7 @@ class HomeViewModel extends ChangeNotifier {
 
   Future<void> handleNextReview() async {
     final result = await reviewUseCase.handleNextReview();
-    if (result case ApiError error) {
+    if (result case DomainError error) {
       notificationBus.showError("Cannot get review", error);
     }
   }
@@ -281,19 +277,20 @@ class HomeViewModel extends ChangeNotifier {
     return collectionStore.currentCollection?.name;
   }
 
-  Future<bool> updatePriority(int nodeId, double priority) async {
+  Future<bool> updatePriority(String nodeId, double priority) async {
     final colId = collectionStore.currentCollection?.id;
     if (colId == null) return false;
     final result = await updatePriorityUseCase.execute(colId, nodeId, priority);
     if (result is Node) {
       nodeStore.selectNode(result);
+      await refreshPriorities();
       notifyListeners();
       return true;
     }
     return false;
   }
 
-  Future<bool> rescheduleNode(int nodeId, String dateIso) async {
+  Future<bool> rescheduleNode(String nodeId, String dateIso) async {
     final colId = collectionStore.currentCollection?.id;
     if (colId == null) return false;
     final result = await rescheduleNodeUseCase.execute(colId, nodeId, dateIso);
@@ -323,10 +320,10 @@ class HomeViewModel extends ChangeNotifier {
         await navigationUseCase.navigateTo(node.id);
         notifyListeners();
         return true;
-      case ApiError error:
+      case DomainError error:
         notificationBus.showError("Cannot import ressource", error);
-        return false;
     }
+    return false;
   }
 
   Map<DateTime, ({int spores, int fragments})> repsData = {

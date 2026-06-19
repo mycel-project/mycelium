@@ -2,6 +2,8 @@ import "package:flutter/material.dart";
 import "package:mycelium/ui/pages/collections_page.dart";
 
 class NoCollectionWidget extends StatelessWidget {
+  const NoCollectionWidget({super.key}); 
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(

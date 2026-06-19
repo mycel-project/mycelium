@@ -11,18 +11,23 @@ import 'package:flutter/gestures.dart';
 
 
 class ApiConfigPage extends StatefulWidget {
+  const ApiConfigPage({super.key}); 
   @override
   State<ApiConfigPage> createState() => _ApiConfigPageState();
 }
 
 class _ApiConfigPageState extends State<ApiConfigPage> {
-  late final TextEditingController controller;
+  late final TextEditingController urlController;
+  late final TextEditingController tokenController;
 
   @override
   void initState() {
     super.initState();
-    controller = TextEditingController(
+    urlController = TextEditingController(
       text: context.read<ApiViewModel>().baseUrl,
+    );
+    tokenController = TextEditingController(
+      text: context.read<ApiViewModel>().token,
     );
   }
 
@@ -65,7 +70,7 @@ class _ApiConfigPageState extends State<ApiConfigPage> {
                             ),
                             TextSpan(
                               text:
-                                  ".\n\nPlease enter your API endpoint below to connect Mycelium to an active Mycel instance (MycelCloud or self-hosted).",
+                              ".\n\nPlease enter your API address below to connect Mycelium to an active Mycel instance (MycelCloud through 'https://api.mycelcloud.com' or self-hosted through your server address)."
                             ),
                           ],
                         ),
@@ -73,20 +78,39 @@ class _ApiConfigPageState extends State<ApiConfigPage> {
                       ),
                       SizedBox(height: 48),
                       TextField(
-                        controller: controller,
+                        controller: urlController,
                         decoration: InputDecoration(
                           labelText: "API Base URL",
-                          hintText: "http://192.168.1.10:8000",
+                          hintText: "https://api.mycelcloud.com",
                           suffixIcon: IconButton(
                             icon: const Icon(Icons.arrow_circle_right_outlined),
                             onPressed: () async {
-                              vm.setUrl(controller.text);
+                              vm.setUrl(urlController.text);
                               FocusScope.of(context).unfocus();
                             },
                           ),
                         ),
                         onSubmitted: (value) => vm.setUrl(value),
                       ),
+                      urlController.text == "https://api.mycelcloud.com"
+                      ?
+                      TextField(
+                        controller: tokenController,
+                        decoration: InputDecoration(
+                          labelText: "MycelCloud Token",
+                          hintText: "Find it on mycelcloud.com",
+                          suffixIcon: IconButton(
+                            icon: const Icon(Icons.arrow_circle_right_outlined),
+                            onPressed: () async {
+                              vm.setToken(tokenController.text);
+                              FocusScope.of(context).unfocus();
+                            },
+                          ),
+                        ),
+                        onSubmitted: (value) => vm.setToken(value),
+                      )
+                      :
+                      const SizedBox(),
                       const SizedBox(height: 16),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,

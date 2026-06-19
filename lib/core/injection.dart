@@ -11,12 +11,14 @@ import 'package:mycelium/core/stores/scroll_position_store.dart';
 import 'package:mycelium/core/stores/user_store.dart';
 import 'package:mycelium/data/local/api_preferences.dart';
 import 'package:mycelium/data/local/collection_preferences.dart';
+import 'package:mycelium/data/local/token_preferences.dart';
 import 'package:mycelium/data/local/user_preferences.dart';
 import 'package:mycelium/data/repositories/collection_repository.dart';
 import 'package:mycelium/data/repositories/node_repository.dart';
 import 'package:mycelium/data/repositories/review_repository.dart';
 import 'package:mycelium/data/repositories/user_repository.dart';
-import 'package:mycelium/data/services/api_service.dart';
+import 'package:mycelium/data/network/api_service.dart';
+import 'package:mycelium/data/network/api_client.dart';
 import 'package:mycelium/data/services/app_service.dart';
 import 'package:mycelium/data/services/collection_service.dart';
 import 'package:mycelium/data/services/node_service.dart';
@@ -46,6 +48,7 @@ import 'package:mycelium/domain/select_collection_usecase.dart';
 import 'package:mycelium/domain/select_user_usecase.dart';
 import 'package:mycelium/domain/split_node_usecase.dart';
 import 'package:mycelium/domain/update_api_usecase.dart';
+import 'package:mycelium/domain/update_token_usecase.dart';
 import 'package:mycelium/domain/update_priority_usecase.dart';
 import 'package:mycelium/viewmodels/about_viewmodel.dart';
 import 'package:mycelium/viewmodels/api_viewmodel.dart';
@@ -63,9 +66,11 @@ Future<void> setup() async {
   sl.registerSingleton(NetworkLogger());
   // Infra
   sl.registerSingleton(ApiPreferences());
+  sl.registerSingleton(TokenPreferences());
   sl.registerSingleton(ApiStore());
   sl.registerSingleton(AppStore());
   sl.registerSingleton(ApiService(sl(), sl()));
+  sl.registerSingleton(ApiClient(sl(), sl()));
   sl.registerSingleton(AppService());
 
   // Data
@@ -92,15 +97,17 @@ Future<void> setup() async {
   sl.registerSingleton(CheckApiCompatibilityUseCase(sl(), sl(), sl(), sl()));
   sl.registerSingleton(CheckApiUseCase(sl(), sl(), sl()));
   sl.registerSingleton(UpdateApiUrlUseCase(sl(), sl(), sl()));
+  sl.registerSingleton(UpdateTokenUseCase(sl(), sl()));
   sl.registerSingleton(InitCollectionsUseCase(sl(), sl(), sl(), sl()));
   sl.registerSingleton(
     InitDataUseCase(sl(), sl(), sl(), sl(), sl(), sl(), sl()),
   );
-  sl.registerSingleton(InitApiUseCase(sl(), sl(), sl(), sl()));
+  sl.registerSingleton(InitApiUseCase(sl(), sl(), sl(), sl(), sl()));
   sl.registerSingleton(SelectCollectionUseCase(sl(), sl()));
   sl.registerSingleton(NavigationUseCase(sl(), sl(), sl(), sl()));
+  sl.registerSingleton(RefreshPrioritiesUseCase(sl(), sl(), sl()));
   sl.registerSingleton(ReviewUseCase(sl(), sl(), sl(), sl(), sl(), sl()));
-  sl.registerSingleton(NodeUseCase(sl(), sl(), sl(), sl(), sl()));
+  sl.registerSingleton(NodeUseCase(sl(), sl(), sl(), sl(), sl(), sl()));
   sl.registerSingleton(CheckAppUpdateUseCase(sl(), sl(), sl()));
   sl.registerSingleton(CreateExtractUseCase(sl(), sl(), sl(), sl(), sl()));
   sl.registerSingleton(GetCalendarUseCase(sl(), sl()));
@@ -108,7 +115,6 @@ Future<void> setup() async {
   sl.registerSingleton(ReviewNodeUseCase(sl(), sl()));
   sl.registerSingleton(RemoveLinksUseCase(sl(), sl(), sl()));
   sl.registerSingleton(UpdatePriorityUseCase(sl(), sl()));
-  sl.registerSingleton(RefreshPrioritiesUseCase(sl(), sl(), sl()));
   sl.registerSingleton(GetOutlineUseCase(sl(), sl()));
   sl.registerSingleton(SplitNodeUseCase(sl(), sl()));
   sl.registerSingleton(RefreshCurrentNodeUseCase(sl(), sl(), sl()));
@@ -146,7 +152,7 @@ Future<void> setup() async {
       sl(),
     ),
   );
-  sl.registerFactory(() => ApiViewModel(sl(), sl(), sl(), sl(), sl()));
+  sl.registerFactory(() => ApiViewModel(sl(), sl(), sl(), sl(), sl(), sl()));
   //// should reduce dependencies ?
   sl.registerFactory(
     () => MdEditorViewModel(
@@ -174,5 +180,5 @@ Future<void> setup() async {
   );
   sl.registerFactory(() => LaunchReviewButtonViewmodel(sl()));
   sl.registerFactory(() => SettingViewModel(sl(), sl(), sl()));
-  sl.registerFactory(() => DeletedNodesViewModel(sl(), sl(), sl(), sl()));
+  sl.registerFactory(() => DeletedNodesViewModel(sl(), sl(), sl(), sl(), sl()));
 }

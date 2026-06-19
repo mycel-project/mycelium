@@ -9,7 +9,7 @@ import 'package:mycelium/ui/widgets/adaptative_sheet.dart';
 // Used ClaudeAI to quickly build widget
 class PrioritySelector extends StatefulWidget {
   final List<Node> nodes;
-  final int currentNodeId;
+  final String currentNodeId;
   final void Function(double newPriority) onConfirm;
   final String title;
 
@@ -34,13 +34,13 @@ class _PrioritySelectorState extends State<PrioritySelector> {
   @override
   void initState() {
     super.initState();
-    _sortedPriorities = widget.nodes.map((n) => n.priority).toSet().toList()
+    _sortedPriorities = widget.nodes.map((n) => n.getUnit().priority).toSet().toList()
       ..sort();
 
     final currentNode = widget.nodes.firstWhere(
       (n) => n.id == widget.currentNodeId,
     );
-    _selectedPriority = currentNode.priority;
+    _selectedPriority = currentNode.getUnit().priority;
     _textController = TextEditingController(text: _selectedPriority.toString());
 
     _textFocusNode = FocusNode();
@@ -58,17 +58,17 @@ class _PrioritySelectorState extends State<PrioritySelector> {
 
   static const double _logIntensity = 2; // control log intensity
 
-  double _priorityToSlider(double priority) {
+double _priorityToSlider(double priority) {
     if (_sortedPriorities.length <= 1) return 0.0;
     final index = _sortedPriorities.indexOf(priority);
     if (index == -1) return 0.0;
     final t = index / (_sortedPriorities.length - 1);
-    return log(1 + t * (exp(_logIntensity) - 1)) / _logIntensity;
+    return 1.0 - (log(1 + (1.0 - t) * (exp(_logIntensity) - 1)) / _logIntensity);
   }
 
   double _sliderToPriority(double sliderVal) {
     if (_sortedPriorities.length <= 1) return _sortedPriorities.first;
-    final t = (exp(sliderVal * _logIntensity) - 1) / (exp(_logIntensity) - 1);
+    final t = 1.0 - ((exp((1.0 - sliderVal) * _logIntensity) - 1) / (exp(_logIntensity) - 1));
     final index = (t * (_sortedPriorities.length - 1)).round().clamp(
       0,
       _sortedPriorities.length - 1,
@@ -106,16 +106,16 @@ class _PrioritySelectorState extends State<PrioritySelector> {
     });
   }
 
-  Node? get _higherPriorityNeighbor {
+Node? get _higherPriorityNeighbor {
     final candidates =
         widget.nodes
             .where(
               (n) =>
                   n.id != widget.currentNodeId &&
-                  n.priority < _selectedPriority,
+                  n.getUnit().priority > _selectedPriority,
             )
             .toList()
-          ..sort((a, b) => b.priority.compareTo(a.priority));
+          ..sort((a, b) => a.getUnit().priority.compareTo(b.getUnit().priority)); 
     return candidates.isNotEmpty ? candidates.first : null;
   }
 
@@ -125,17 +125,11 @@ class _PrioritySelectorState extends State<PrioritySelector> {
             .where(
               (n) =>
                   n.id != widget.currentNodeId &&
-                  n.priority > _selectedPriority,
+                  n.getUnit().priority < _selectedPriority,
             )
             .toList()
-          ..sort((a, b) => a.priority.compareTo(b.priority));
+          ..sort((a, b) => b.getUnit().priority.compareTo(a.getUnit().priority));
     return candidates.isNotEmpty ? candidates.first : null;
-  }
-
-  String _excerpt(Node node) {
-    final raw = node.content?['0'].trim() as String?;
-    if (raw == null || raw.isEmpty) return '(no content)';
-    return raw.length > 100 ? "${raw.substring(0, 100)}…" : raw;
   }
 
   @override
@@ -162,8 +156,8 @@ class _PrioritySelectorState extends State<PrioritySelector> {
           _NeighborCard(
             label: 'More prioritized',
             node: higher,
-            excerpt: higher != null ? _excerpt(higher) : null,
-            priority: higher?.priority,
+            excerpt:  higher?.contentPreview,
+            priority: higher?.getUnit().priority,
             dimmed: higher == null,
           ),
 
@@ -226,8 +220,8 @@ class _PrioritySelectorState extends State<PrioritySelector> {
           _NeighborCard(
             label: 'Less prioritized',
             node: lower,
-            excerpt: lower != null ? _excerpt(lower) : null,
-            priority: lower?.priority,
+            excerpt: lower?.contentPreview,
+            priority: lower?.getUnit().priority,
             dimmed: lower == null,
           ),
 
@@ -322,9 +316,9 @@ Future<void> showPriorityPicker(
   BuildContext context, {
     String? title,
     required List<Node> nodes,
-    required int currentNodeId,
+    required String currentNodeId,
     required Future<void> Function() onRefresh,
-    required Future<bool> Function(int nodeId, double priority) onUpdate,
+    required Future<bool> Function(String nodeId, double priority) onUpdate,
 }) async {
   if (nodes.length < 500) {
     await onRefresh();

@@ -3,14 +3,15 @@ import 'package:shared_preferences/shared_preferences.dart';
 class CollectionPreferences {
   static const _key = "selected_collection_id";
 
-  Future<int?> getSavedId() async {
+  Future<String?> getSavedId() async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getInt(_key);
+    final value = prefs.get(_key);
+    return value?.toString();
   }
 
-  Future<void> saveId(int id) async {
+  Future<void> saveId(String id) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setInt(_key, id);
+    await prefs.setString(_key, id);
   }
 
   Future<void> clearId() async {

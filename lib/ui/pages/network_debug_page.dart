@@ -5,6 +5,8 @@ import "package:mycelium/ui/widgets/app_bar.dart";
 import "package:provider/provider.dart";
 
 class NetworkDebugPage extends StatelessWidget {
+  const NetworkDebugPage({super.key});
+  
   @override
   Widget build(BuildContext context) {
     final logs = context.watch<NetworkLogger>().logs;

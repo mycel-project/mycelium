@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:mycelium/core/notifications/notification_bus.dart';
 import 'package:mycelium/core/stores/collection_store.dart';
 import 'package:mycelium/data/api_result.dart';
@@ -29,12 +31,13 @@ class InitCollectionsUseCase {
           final match = collections.where((c) => c.id == savedId).firstOrNull;
           if (match != null) collectionStore.selectCollection(match);
         } else {
-          print("No collection retrieved");
+          log("No collection retrieved");
         }
         return collections;
-      case ApiError error:
+      case DomainError error:
         notificationBus.showError("Cannot load collections", error);
         return [];
     }
+    return [];
   }
 }

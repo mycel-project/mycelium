@@ -6,9 +6,11 @@ import 'package:mycelium/domain/api_status.dart';
 import 'package:mycelium/domain/check_api_usecase.dart';
 import 'package:mycelium/domain/init_data_usecase.dart';
 import 'package:mycelium/domain/update_api_usecase.dart';
+import 'package:mycelium/domain/update_token_usecase.dart';
 
 class ApiViewModel extends ChangeNotifier {
   final UpdateApiUrlUseCase updateApiUrlUseCase;
+  final UpdateTokenUseCase updateTokenUseCase;
   final CheckApiUseCase checkApiUseCase;
   final InitDataUseCase initDataUseCase;
   final ApiStore apiStore;
@@ -16,12 +18,14 @@ class ApiViewModel extends ChangeNotifier {
   bool isChecking = false;
 
   String get baseUrl => apiStore.baseUrl;
+  String get token => apiStore.token;
   String? get mycelVersion => apiStore.version;
   ApiCompatibility get mycelCompatibility => apiStore.compatibility;
   String get myceliumVersion => appStore.version;
 
   ApiViewModel(
     this.updateApiUrlUseCase,
+    this.updateTokenUseCase,
     this.checkApiUseCase,
     this.apiStore,
     this.initDataUseCase,
@@ -30,6 +34,15 @@ class ApiViewModel extends ChangeNotifier {
 
   Future<void> setUrl(String newUrl) async {
     await updateApiUrlUseCase.execute(newUrl);
+    notifyListeners();
+    final status = await checkReachability();
+    if (status == ApiStatus.reachable) {
+      initDataUseCase.execute();
+    }
+  }
+
+  Future<void> setToken(String newToken) async {
+    await updateTokenUseCase.execute(newToken);
     notifyListeners();
     final status = await checkReachability();
     if (status == ApiStatus.reachable) {

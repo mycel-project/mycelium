@@ -127,7 +127,7 @@ class MdEditorState extends State<MdEditor> {
     super.dispose();
   }
 
-  int? _previousNodeId;
+  String? _previousNodeId;
 
   bool _isShowingDialog = false;
   @override

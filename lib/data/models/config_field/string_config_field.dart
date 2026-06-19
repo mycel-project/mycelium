@@ -11,5 +11,5 @@ class StringConfigField extends ConfigField {
     super.description,
     super.warning,
     required this.defaultValue,
-  }) : super(type: "string");
+  }) : super(type: "String");
 }

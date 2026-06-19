@@ -2,7 +2,7 @@ import 'package:mycelium/core/notifications/notification_bus.dart';
 import 'package:mycelium/core/stores/collection_store.dart';
 import 'package:mycelium/core/stores/review_store.dart';
 import 'package:mycelium/data/api_result.dart';
-import 'package:mycelium/data/models/node.dart';
+import 'package:mycelium/data/models/review_target.dart';
 import 'package:mycelium/data/repositories/node_repository.dart';
 import 'package:mycelium/data/repositories/review_repository.dart';
 import 'package:mycelium/domain/cloze_mode.dart';
@@ -39,26 +39,26 @@ class ReviewUseCase {
     return ApiSuccess(null);
   }
 
-  void setReview(Node? node) {
-    if (node != null) {
-      navigationUseCase.navigateTo(node.id);
-      reviewStore.setReview(node.id);
+  void setReview(ReviewTarget? reviewTarget) {
+    if (reviewTarget != null) {
+      navigationUseCase.navigateTo(reviewTarget.node.id);
+      reviewStore.setReview(reviewTarget.node.id, slot: reviewTarget.slot);
     } else {
       reviewStore.endReview();
     }
   }
 
-  Future<bool> undo(int collectionId) async {
+  Future<bool> undo(String collectionId) async {
     final result = await reviewRepository.undoReview(collectionId);
     switch (result) {
       case ApiSuccess(:final data):
-        final node = data;
-        if (node is Node) {
-          nodeRepository.updateCache(node.id, node);
+        final reviewTarget = data;
+        if (reviewTarget != null) {
+          nodeRepository.updateCache(reviewTarget.node.id, reviewTarget.node);
         }
-        setReview(node);
+        setReview(reviewTarget);
         return true;
-      case ApiError error:
+      case DomainError error:
         switch (error.code) {
           case "NO_REVIEW_TO_UNDO":
             notificationBus.showInfo("No review to undo");
@@ -71,8 +71,8 @@ class ReviewUseCase {
           default:
             notificationBus.showError("Cannot undo review", error);
         }
-        return false;
     }
+    return false;
   }
 
   String transformClozeContent(
