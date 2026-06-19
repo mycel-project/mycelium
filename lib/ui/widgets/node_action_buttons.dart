@@ -66,36 +66,39 @@ class DismissButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FloatingActionButton(
-      heroTag: "fab_dismiss",
-      onPressed: vm.dismissState == true
-          ? () async => await vm.toggleDismiss()
-          : () async {
-              FocusScope.of(context).unfocus();
+    return Tooltip(
+      message: 'Dismiss',
+      child: FloatingActionButton(
+        heroTag: "fab_dismiss",
+        onPressed: vm.dismissState == true
+        ? () async => await vm.toggleDismiss()
+        : () async {
+          FocusScope.of(context).unfocus();
+          final result = await ConfirmationDialog.show(
+            context,
+            title: "Confirmation",
+            text:
+            "Have you extracted all the relevant information from this fragment?\n\nIt won’t be shown again in future reviews.",
+          );
+          if (result.confirmed == true) {
+            if (!vm.hasChildren()) {
+              if (!context.mounted) return;
               final result = await ConfirmationDialog.show(
                 context,
-                title: "Confirmation",
+                title: "No children",
                 text:
-                    "Have you extracted all the relevant information from this fragment?\n\nIt won’t be shown again in future reviews.",
+                "This fragment has no children.\n\nOnly confirm if it is not valuable to you, as it will not be shown again in reviews.",
               );
-              if (result.confirmed == true) {
-                if (!vm.hasChildren()) {
-                  if (!context.mounted) return;
-                  final result = await ConfirmationDialog.show(
-                    context,
-                    title: "No children",
-                    text:
-                        "This fragment has no children.\n\nOnly confirm if it is not valuable to you, as it will not be shown again in reviews.",
-                  );
-                  if (!result.confirmed) return;
-                }
-                await vm.toggleDismiss();
-              }
-            },
-      child: Opacity(
-        opacity: vm.dismissState ?? false ? 0.4 : 1.0,
-        child: const Icon(Icons.task_alt),
-      ),
+              if (!result.confirmed) return;
+            }
+            await vm.toggleDismiss();
+          }
+        },
+        child: Opacity(
+          opacity: vm.dismissState ?? false ? 0.4 : 1.0,
+          child: const Icon(Icons.task_alt),
+        ),
+      )
     );
   }
 }
