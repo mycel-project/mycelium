@@ -5,11 +5,13 @@ import 'package:mycelium/core/stores/user_store.dart';
 import 'package:mycelium/data/api_result.dart';
 import 'package:mycelium/data/models/node.dart';
 import 'package:mycelium/data/repositories/node_repository.dart';
+import 'package:mycelium/domain/refresh_priorities_usecase.dart';
 
 class DeletedNodesViewModel extends ChangeNotifier {
   final NodeRepository nodeRepository;
   final CollectionStore collectionStore;
   final NotificationBus notificationBus;
+  RefreshPrioritiesUseCase refreshPrioritiesUseCase;
   final UserStore userStore;
 
   List<Node> deletedNodes = [];
@@ -19,8 +21,9 @@ class DeletedNodesViewModel extends ChangeNotifier {
     this.collectionStore,
     this.notificationBus,
     this.userStore,
+    this.refreshPrioritiesUseCase,
   );
-  
+
   Future<void> getDeletedNodes() async {
     final collectionId = collectionStore.currentCollection?.id;
     if (collectionId == null) return;
@@ -50,6 +53,7 @@ class DeletedNodesViewModel extends ChangeNotifier {
     switch (result) {
       case ApiSuccess():
         await getDeletedNodes();
+        refreshPrioritiesUseCase.execute();
         notifyListeners();
       case DomainError error:
         notificationBus.showError("Cannot restore nodes", error);
@@ -64,8 +68,8 @@ class DeletedNodesViewModel extends ChangeNotifier {
     final daysLeft = expiresAt.difference(DateTime.now()).inDays;
     final daysLeftStr = daysLeft < 0 ? "Expired" : "$daysLeft days left";
     final dateStr =
-    "${dt.year}-${dt.month.toString().padLeft(2, '0')}-${dt.day.toString().padLeft(2, '0')} "
-    "${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}";
+        "${dt.year}-${dt.month.toString().padLeft(2, '0')}-${dt.day.toString().padLeft(2, '0')} "
+        "${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}";
     return "$daysLeftStr | $dateStr";
   }
 }

@@ -7,12 +7,14 @@ import 'package:mycelium/data/services/node_service.dart';
 import 'package:mycelium/core/either.dart';
 import 'package:mycelium/domain/navigation_usecase.dart';
 import 'package:mycelium/data/models/node.dart';
+import 'package:mycelium/domain/refresh_priorities_usecase.dart';
 
 class NodeUseCase {
   NodeService nodeService;
   NodeStore nodeStore;
   NodeRepository nodeRepository;
   NavigationUseCase navigationUseCase;
+  RefreshPrioritiesUseCase refreshPrioritiesUseCase;
   NotificationBus notificationBus;
 
   NodeUseCase(
@@ -21,6 +23,7 @@ class NodeUseCase {
     this.nodeRepository,
     this.navigationUseCase,
     this.notificationBus,
+    this.refreshPrioritiesUseCase,
   );
 
   void selectParentNode() async {
@@ -88,6 +91,7 @@ class NodeUseCase {
           nodeStore.selectNode(null);
         }
         navigationUseCase.onNodesDeleted(deletedIds);
+        refreshPrioritiesUseCase.execute();
         return true;
       case ApiError error:
         notificationBus.showError("Can't delete node", error);

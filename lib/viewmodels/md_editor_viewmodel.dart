@@ -506,6 +506,8 @@ class MdEditorViewModel extends ChangeNotifier {
     if (colId == null) return false;
     final result = await updatePriorityUseCase.execute(colId, nodeId, priority);
     if (result is Node) {
+      nodeStore.selectNode(node);
+      await refreshPriorities();
       notifyListeners();
       return true;
     }

@@ -103,8 +103,9 @@ Future<void> setup() async {
   sl.registerSingleton(InitApiUseCase(sl(), sl(), sl(), sl(), sl()));
   sl.registerSingleton(SelectCollectionUseCase(sl(), sl()));
   sl.registerSingleton(NavigationUseCase(sl(), sl(), sl(), sl()));
+  sl.registerSingleton(RefreshPrioritiesUseCase(sl(), sl(), sl()));
   sl.registerSingleton(ReviewUseCase(sl(), sl(), sl(), sl(), sl(), sl()));
-  sl.registerSingleton(NodeUseCase(sl(), sl(), sl(), sl(), sl()));
+  sl.registerSingleton(NodeUseCase(sl(), sl(), sl(), sl(), sl(), sl()));
   sl.registerSingleton(CheckAppUpdateUseCase(sl(), sl(), sl()));
   sl.registerSingleton(CreateExtractUseCase(sl(), sl(), sl(), sl(), sl()));
   sl.registerSingleton(GetCalendarUseCase(sl(), sl()));
@@ -112,7 +113,6 @@ Future<void> setup() async {
   sl.registerSingleton(ReviewNodeUseCase(sl(), sl()));
   sl.registerSingleton(RemoveLinksUseCase(sl(), sl(), sl()));
   sl.registerSingleton(UpdatePriorityUseCase(sl(), sl()));
-  sl.registerSingleton(RefreshPrioritiesUseCase(sl(), sl(), sl()));
   sl.registerSingleton(GetOutlineUseCase(sl(), sl()));
   sl.registerSingleton(
     AppCoordinator(sl(), sl(), sl(), sl(), sl(), sl(), sl()),
@@ -172,5 +172,5 @@ Future<void> setup() async {
   );
   sl.registerFactory(() => LaunchReviewButtonViewmodel(sl()));
   sl.registerFactory(() => SettingViewModel(sl(), sl(), sl()));
-  sl.registerFactory(() => DeletedNodesViewModel(sl(), sl(), sl(), sl()));
+  sl.registerFactory(() => DeletedNodesViewModel(sl(), sl(), sl(), sl(), sl()));
 }

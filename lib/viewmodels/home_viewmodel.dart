@@ -291,6 +291,7 @@ class HomeViewModel extends ChangeNotifier {
     final result = await updatePriorityUseCase.execute(colId, nodeId, priority);
     if (result is Node) {
       nodeStore.selectNode(result);
+      await refreshPriorities();
       notifyListeners();
       return true;
     }
