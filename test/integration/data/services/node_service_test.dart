@@ -82,6 +82,13 @@ void main() {
     expect(entries, isA<List>());
   });
 
+  test('splitNode', () async {
+    final result = await service.splitNode("test", "test", 2, 0);
+    expect(result, isA<ApiSuccess>());
+    final json = jsonDecode((result as ApiSuccess).data);
+    expect(json["data"], isA<List>());
+  });
+
   test('reprioritiseNode', () async {
     final result = await service.reprioritise("test", "test", 7, 0);
     testNodeDetailView(result);

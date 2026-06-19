@@ -13,13 +13,12 @@ class SplitNodeUseCase {
     this.notificationBus,
   );
 
-  Future<List<Node>?> execute(String colId, String nodeId, int level, {int slot = 0}) async {
+  Future<List<Node>?> execute(String colId, String nodeId, int level) async {
     final result = await nodeRepository.splitNode(
       colId,
       nodeId,
       level,
       tzOffsetMinutes,
-      slot,
     );
     switch (result) {
       case ApiSuccess(:final data):

@@ -165,9 +165,8 @@ class NodeRepository {
     String nodeId,
     int level,
     int tzOffset,
-    int slot,
   ) async {
-    final result = await nodeService.splitNode(collectionId, nodeId, level, tzOffset, slot);
+    final result = await nodeService.splitNode(collectionId, nodeId, level, tzOffset);
     if (result is ApiError) return result;
     final nodes = _parseNodes(result as ApiSuccess<String>);
     for (final node in nodes) {

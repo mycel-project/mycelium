@@ -38,12 +38,10 @@ class NodeService {
     String nodeId,
     int level,
     int tzOffset,
-    int slot,
   ) async {
     return await api.post(
       "/collections/$collectionId/nodes/$nodeId/split",
-      {},
-      queryParams: {"level": level.toString(), "tz_offset": tzOffset.toString()},
+      {"level": level, "tz_offset": tzOffset},
     );
   }
   
