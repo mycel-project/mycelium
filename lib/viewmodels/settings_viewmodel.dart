@@ -29,7 +29,7 @@ class SettingViewModel extends ChangeNotifier {
   }
 
   Future<void> updateConf(String key, dynamic value) async {
-    final update = UserConfUpdate({key: value});
+    final update = UserConfUpdate({"conf": {key: value}});
     final result = await userRepository.updateUserConfig(update);
     if (result is ApiSuccess<User>) {
       userStore.selectUser(result.data);

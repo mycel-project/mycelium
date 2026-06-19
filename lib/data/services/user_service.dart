@@ -10,9 +10,7 @@ class UserService {
     return await api.get("/users");
   }
 
-  Future<ApiResult<String>> updateUserConfig(
-    UserConfUpdate data,
-  ) async {
+  Future<ApiResult<String>> updateUserConfig(UserConfUpdate data) async {
     return await api.patch("/users", data.toJson());
   }
 
