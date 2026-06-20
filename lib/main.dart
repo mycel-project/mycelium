@@ -23,13 +23,16 @@ import 'package:mycelium/viewmodels/deleted_nodes_viewmodel.dart';
 import 'package:mycelium/viewmodels/home_viewmodel.dart';
 import 'package:mycelium/viewmodels/md_editor_viewmodel.dart';
 import 'package:mycelium/viewmodels/settings_viewmodel.dart';
-// import 'package:shared_preferences/shared_preferences.dart';
+import 'package:window_manager/window_manager.dart';
 import 'package:toastification/toastification.dart';
 import 'ui/pages/home_page.dart';
 import 'package:provider/provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  if (Device.isDesktop) {
+    await windowManager.ensureInitialized();
+  }
 
   // SharedPreferences preferences = await SharedPreferences.getInstance();
   // await preferences.clear();
