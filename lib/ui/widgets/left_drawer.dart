@@ -103,6 +103,7 @@ class _DrawerHeader extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
             ),
           ),
+          context.watch<CollectionStore>().currentCollection?.name != null ?
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -138,7 +139,9 @@ class _DrawerHeader extends StatelessWidget {
                 icon: const Icon(Icons.post_add, size: 18),
               ),
             ],
-          ),
+          )
+          :
+          SizedBox(),
         ],
       ),
     );

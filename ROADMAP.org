@@ -2,9 +2,8 @@
 Coming soon...
 (draft)
 ** Now
-- [ ] Fix bugs
-  - [ ] Fix spore formatting
-- [ ] Remove import without collection
+- [X] Fix spore formatting
+- [X] Remove import without collection
 - [ ] Simplify/make robust the API config page
 - [ ] Add colors for priorities
 - [ ] Refactor ViewModels for better layer separation
