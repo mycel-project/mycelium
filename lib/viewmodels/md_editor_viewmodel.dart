@@ -25,6 +25,7 @@ import 'package:mycelium/domain/refresh_priorities_usecase.dart';
 import 'package:mycelium/domain/remove_links_usecase.dart';
 import 'package:mycelium/domain/review_node_usecase.dart';
 import 'package:mycelium/domain/review_usecase.dart';
+import 'package:mycelium/domain/transform_cloze_usecase.dart';
 import 'package:mycelium/domain/split_node_usecase.dart';
 import 'package:mycelium/domain/update_priority_usecase.dart';
 
@@ -41,6 +42,7 @@ class MdEditorViewModel extends ChangeNotifier {
   NotificationBus notificationBus;
   NavigationUseCase navigationUseCase;
   ReviewUseCase reviewUseCase;
+  TransformClozeUseCase transformClozeUseCase;
   CreateExtractUseCase createExtractUseCase;
   ReviewNodeUseCase reviewNodeUseCase;
   RemoveLinksUseCase removeLinksUseCase;
@@ -70,6 +72,7 @@ class MdEditorViewModel extends ChangeNotifier {
     this.reviewStore,
     this.nodeRepository,
     this.reviewUseCase,
+    this.transformClozeUseCase,
     this.reviewRepository,
     this.nodeUseCase,
     this.collectionStore,
@@ -383,9 +386,10 @@ class MdEditorViewModel extends ChangeNotifier {
 
   void showAnswer() {
     isAnswerVisible = true;
-    final newContent = reviewUseCase.transformClozeContent(
+    final newContent = transformClozeUseCase.execute(
       node?.firstFieldValue ?? "",
       mode: ClozeMode.show,
+      targetSlot: reviewStore.currentSlot,
     );
     _applyContent(newContent);
     notifyListeners();
@@ -406,9 +410,10 @@ class MdEditorViewModel extends ChangeNotifier {
       String newContent;
       if (isCurrentNodeSpore()) {
         if (reviewStore.currentNodeId == node.id) {
-          newContent = reviewUseCase.transformClozeContent(
+          newContent = transformClozeUseCase.execute(
             node.firstFieldValue,
             mode: ClozeMode.hide,
+            targetSlot: reviewStore.currentSlot,
           );
         } else {
           newContent = node.firstFieldValue;

@@ -26,6 +26,7 @@ import 'package:mycelium/domain/refresh_current_node_usecase.dart';
 import 'package:mycelium/domain/refresh_priorities_usecase.dart';
 import 'package:mycelium/domain/reschedule_node_usecase.dart';
 import 'package:mycelium/domain/review_usecase.dart';
+import 'package:mycelium/domain/transform_cloze_usecase.dart';
 import 'package:mycelium/domain/update_priority_usecase.dart';
 import 'package:mycelium/utils/time_utils.dart';
 
@@ -39,6 +40,7 @@ class HomeViewModel extends ChangeNotifier {
   final NavigationUseCase navigationUseCase;
   final NavigationStore navigationStore;
   final ReviewUseCase reviewUseCase;
+  final TransformClozeUseCase transformClozeUseCase;
   final ApiStore apiStore;
   final CheckApiUseCase checkApiUseCase;
   final NotificationBus notificationBus;
@@ -62,6 +64,7 @@ class HomeViewModel extends ChangeNotifier {
     this.navigationStore,
     this.navigationUseCase,
     this.reviewUseCase,
+    this.transformClozeUseCase,
     this.apiStore,
     this.checkApiUseCase,
     this.notificationBus,
@@ -347,6 +350,6 @@ class HomeViewModel extends ChangeNotifier {
   }
 
   String hideSpore(String content) {
-    return reviewUseCase.transformClozeContent(content, mode: ClozeMode.hide);
+    return transformClozeUseCase.execute(content, mode: ClozeMode.hide);
   }
 }
