@@ -5,7 +5,7 @@ import 'package:mycelium/data/api_result.dart';
 import 'package:mycelium/data/models/review_target.dart';
 import 'package:mycelium/data/repositories/node_repository.dart';
 import 'package:mycelium/data/repositories/review_repository.dart';
-import 'package:mycelium/domain/cloze_mode.dart';
+
 import 'package:mycelium/domain/navigation_usecase.dart';
 import 'package:mycelium/utils/time_utils.dart';
 
@@ -33,8 +33,9 @@ class ReviewUseCase {
     final result = await reviewRepository.getNextReview(colId, tzOffsetMinutes);
     if (result is ApiError) return result;
     if (result is ApiSuccess) {
-      final node = (result as ApiSuccess).data;
-      setReview(node);
+      final review = (result as ApiSuccess).data;
+      print(review);
+      setReview(review);
     }
     return ApiSuccess(null);
   }
@@ -73,32 +74,5 @@ class ReviewUseCase {
         }
     }
     return false;
-  }
-
-  String transformClozeContent(
-    String content, {
-    required ClozeMode mode,
-    String placeholder = "[...]",
-    String revealWrapper = "**",
-  }) {
-    final regexString = reviewRepository.getClozeRegexSync();
-
-    if (regexString == null) {
-      return content;
-    }
-
-    final regex = RegExp(regexString, dotAll: true);
-
-    return content.replaceAllMapped(regex, (match) {
-      final value = match.group(1) ?? "";
-
-      switch (mode) {
-        case ClozeMode.hide:
-          return placeholder;
-
-        case ClozeMode.show:
-          return "$revealWrapper$value$revealWrapper";
-      }
-    });
   }
 }
