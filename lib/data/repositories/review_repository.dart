@@ -25,7 +25,13 @@ class ReviewRepository {
     int tzOffset,
     int slot,
   ) async {
-    final result = await reviewService.completeFragmentReview(colId, nodeId, duration, tzOffset, slot);
+    final result = await reviewService.completeFragmentReview(
+      colId,
+      nodeId,
+      duration,
+      tzOffset,
+      slot,
+    );
     return parseNodeData(result);
   }
 
@@ -50,7 +56,7 @@ class ReviewRepository {
 
   Future<ApiResult<Map<DateTime, DayReviewOverview>>> getCalendar(
     String colId,
-    int tzOffset
+    int tzOffset,
   ) async {
     final result = await reviewService.getCalendar(colId, tzOffset);
     if (result is ApiError) return result;
@@ -58,13 +64,9 @@ class ReviewRepository {
     final json = jsonDecode((result as ApiSuccess<String>).data)["data"];
     final calendar = json as List;
 
-    final list = calendar
-    .map((e) => DayReviewOverview.fromJson(e))
-    .toList();
+    final list = calendar.map((e) => DayReviewOverview.fromJson(e)).toList();
 
-    final map = {
-      for (final item in list) DateTime.parse(item.date): item,
-    };
+    final map = {for (final item in list) DateTime.parse(item.date): item};
 
     return ApiSuccess(map);
   }
@@ -86,7 +88,7 @@ class ReviewRepository {
 
   Future<ApiResult<ReviewTarget?>> getNextReview(
     String colId,
-    int tzOffset
+    int tzOffset,
   ) async {
     final result = await reviewService.getNextReview(colId, tzOffset);
     return parseReviewData(result);
