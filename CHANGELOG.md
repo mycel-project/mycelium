@@ -1,6 +1,7 @@
 ## Unreleased
 
 ### Added
+- Sanitize base URL and token inputs by automatically stripping spaces, invisible control characters, and (for URLs) trailing slashes, and prefixing with 'http://' if missing.
 - Auto-select the "Default" collection if no active collection is found (e.g. fresh install).
 - Track current slot during reviews.
 - Target specific cloze slots in the UI based on the current review slot.

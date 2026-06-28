@@ -8,8 +8,16 @@ class UpdateTokenUseCase {
   UpdateTokenUseCase(this.apiStore, this.tokenPreferences);
 
   Future<void> execute(String newToken) async {
-    if (newToken == apiStore.token) return;
-    await tokenPreferences.saveToken(newToken);
-    apiStore.setToken(newToken);
+    String cleanedToken = newToken.trim();
+    if (cleanedToken.isNotEmpty) {
+      cleanedToken = cleanedToken.replaceAll(
+        RegExp(r'[\s\x00-\x1F\x7F\u200B-\u200D\uFEFF]'),
+        '',
+      );
+    }
+
+    if (cleanedToken == apiStore.token) return;
+    await tokenPreferences.saveToken(cleanedToken);
+    apiStore.setToken(cleanedToken);
   }
 }

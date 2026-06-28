@@ -4,7 +4,7 @@ Coming soon...
 ** Now
 - [X] Fix spore formatting
 - [X] Remove import without collection
-- [ ] Simplify/make robust the API config page
+- [X] Simplify/make robust the API config page
 - [ ] Add colors for priorities
 - [ ] Refactor ViewModels for better layer separation
 ** Next

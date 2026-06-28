@@ -10,8 +10,27 @@ class UpdateApiUrlUseCase {
   UpdateApiUrlUseCase(this.apiStore, this.apiPreferences, this.checkApiUseCase);
 
   Future<void> execute(String newUrl) async {
-    if (newUrl == apiStore.baseUrl) return;
-    await apiPreferences.saveBaseUrl(newUrl);
-    apiStore.setBaseUrl(newUrl);
+    String cleanedUrl = newUrl.trim();
+
+    if (cleanedUrl.isNotEmpty) {
+      // Remove all spaces, newlines, tabs, and invisible control/formatting characters
+      cleanedUrl = cleanedUrl.replaceAll(
+        RegExp(r'[\s\x00-\x1F\x7F\u200B-\u200D\uFEFF]'),
+        '',
+      );
+
+      if (!cleanedUrl.startsWith('http://') &&
+          !cleanedUrl.startsWith('https://')) {
+        cleanedUrl = 'http://$cleanedUrl';
+      }
+      while (cleanedUrl.endsWith('/')) {
+        cleanedUrl = cleanedUrl.substring(0, cleanedUrl.length - 1);
+      }
+    }
+
+    if (cleanedUrl == apiStore.baseUrl) return;
+
+    await apiPreferences.saveBaseUrl(cleanedUrl);
+    apiStore.setBaseUrl(cleanedUrl);
   }
 }
