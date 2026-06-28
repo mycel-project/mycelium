@@ -2,7 +2,7 @@
 Coming soon...
 (draft)
 ** Now
-- [ ] Fix major bugs
+- [ ] Fix bugs
   - [ ] Fix spore formatting
 - [ ] Remove import without collection
 - [ ] Simplify/make robust the API config page
