@@ -106,8 +106,8 @@ class _DrawerHeader extends StatelessWidget {
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              _iconButton(context, Icons.search, () => onClose?.call()),
-              const SizedBox(width: 8),
+              // _iconButton(context, Icons.search, () => onClose?.call()),
+              // const SizedBox(width: 8),
               PopupMenuButton<String>(
                 onSelected: (value) async {
                   if (value == "url") {

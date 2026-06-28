@@ -1,5 +1,6 @@
 ## Unreleased
 
+## v0.1.4
 ### Added
 - When removing links, remove cursor and restore scroll position.
 - Enhance highlighting of the selected heading in the outline
