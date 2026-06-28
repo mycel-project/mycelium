@@ -32,8 +32,7 @@ class HomePage extends StatelessWidget {
     return Scaffold(
       drawerEdgeDragWidth: 200,
       appBar: MyAppBar(
-        leading:
-        Builder(
+        leading: Builder(
           builder: (context) => IconButton(
             icon: SvgPicture.asset(
               'assets/icons/panel.svg',
@@ -57,8 +56,8 @@ class HomePage extends StatelessWidget {
         actions: [
           Tooltip(
             message: Device.isDesktop
-            ? 'Previous Node (right-click for history (coming-soon))'
-            : 'Previous Node (hold for history (coming-soon))',
+                ? 'Previous Node (right-click for history (coming-soon))'
+                : 'Previous Node (hold for history (coming-soon))',
             child: GestureDetector(
               onSecondaryTap: Device.isDesktop ? vm.openHistory : null,
               child: IconButton(
@@ -70,8 +69,8 @@ class HomePage extends StatelessWidget {
           ),
           Tooltip(
             message: Device.isDesktop
-            ? 'Next Node (right-click for history (coming-soon))'
-            : 'Next Node (hold for history (coming-soon))',
+                ? 'Next Node (right-click for history (coming-soon))'
+                : 'Next Node (hold for history (coming-soon))',
             child: GestureDetector(
               onSecondaryTap: Device.isDesktop ? vm.openHistory : null,
               child: IconButton(
@@ -82,9 +81,9 @@ class HomePage extends StatelessWidget {
             ),
           ),
           Tooltip(
-            message: Device.isDesktop 
-            ? 'Parent Node (right-click for root)'
-            : 'Parent Node (hold for root)',
+            message: Device.isDesktop
+                ? 'Parent Node (right-click for root)'
+                : 'Parent Node (hold for root)',
             child: GestureDetector(
               onSecondaryTap: Device.isDesktop ? vm.goRootNode : null,
               child: IconButton(
@@ -98,10 +97,10 @@ class HomePage extends StatelessWidget {
             message: "Start review",
             child: IconButton(
               onPressed: !vm.isCurrentNodeUnderReview()
-              ? () {
-                vm.handleNextReview();
-              }
-              : null,
+                  ? () {
+                      vm.handleNextReview();
+                    }
+                  : null,
               icon: const Icon(Icons.school),
             ),
           ),
@@ -135,7 +134,7 @@ class HomePage extends StatelessWidget {
                 );
               }
             },
-            itemBuilder:  (BuildContext context) => const[
+            itemBuilder: (BuildContext context) => const [
               PopupMenuItem(value: 1, child: Text("Manage collections")),
               PopupMenuItem(value: 2, child: Text("API configuration")),
               PopupMenuItem(value: 3, child: Text("Settings")),
@@ -144,110 +143,116 @@ class HomePage extends StatelessWidget {
             ],
           ),
           if (!Device.isMobile)
-          Builder(
-            builder: (context) => IconButton(
-              iconSize: 24,        // taille de l'icone
-              padding: const EdgeInsets.all(14), // zone cliquable = 24 + 12*2 = 48px
-              constraints: const BoxConstraints(),
-              icon: Transform.rotate(
-                angle: 3.1416,
-                child: SvgPicture.asset(
-                  'assets/icons/panel.svg',
-                  width: 24,
-                  height: 24,
-                  colorFilter: const ColorFilter.mode(
-                    Colors.white,
-                    BlendMode.srcIn,
+            Builder(
+              builder: (context) => IconButton(
+                iconSize: 24, // taille de l'icone
+                padding: const EdgeInsets.all(
+                  14,
+                ), // zone cliquable = 24 + 12*2 = 48px
+                constraints: const BoxConstraints(),
+                icon: Transform.rotate(
+                  angle: 3.1416,
+                  child: SvgPicture.asset(
+                    'assets/icons/panel.svg',
+                    width: 24,
+                    height: 24,
+                    colorFilter: const ColorFilter.mode(
+                      Colors.white,
+                      BlendMode.srcIn,
+                    ),
                   ),
                 ),
+                onPressed: () {
+                  if (!Responsive.isDesktop(context)) {
+                    Scaffold.of(context).openEndDrawer();
+                  } else {
+                    vm.toggleEndPanel();
+                  }
+                },
               ),
-              onPressed: () {
-                if (!Responsive.isDesktop(context)) {
-                  Scaffold.of(context).openEndDrawer();
-                } else {
-                  vm.toggleEndPanel();
-                }
-              },
             ),
-          ),
         ],
       ),
       body: Stack(
         children: [
           Positioned.fill(
             child: vm.noMoreReviewsFlag
-            ? NoMoreReviewsWidget(onDismiss: vm.dismissNoMoreReviews, onUndo: vm.undoReview)
-            : context.watch<NodeStore>().currentNode != null
-            ? const MdEditor()
-            : apiStore.apiStatus != ApiStatus.reachable
-            ? ApiNotReachableWidget()
-            : context.watch<CollectionStore>().currentCollection == null
-            ? NoCollectionWidget()
-            : Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  if (vm.currentCollectionName() != null)
-                  Text(
-                    vm.currentCollectionName()!,
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
+                ? NoMoreReviewsWidget(
+                    onDismiss: vm.dismissNoMoreReviews,
+                    onUndo: vm.undoReview,
+                  )
+                : context.watch<NodeStore>().currentNode != null
+                ? const MdEditor()
+                : apiStore.apiStatus != ApiStatus.reachable
+                ? ApiNotReachableWidget()
+                : context.watch<CollectionStore>().currentCollection == null
+                ? NoCollectionWidget()
+                : Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        if (vm.currentCollectionName() != null)
+                          Text(
+                            "Collection: ${vm.currentCollectionName()!}",
+                            style: Theme.of(context).textTheme.titleLarge
+                                ?.copyWith(fontWeight: FontWeight.bold),
+                          ),
+                        NoNodeWidget(),
+                      ],
                     ),
                   ),
-                  NoNodeWidget(),
-                ],
-              ),
-            ),
           ),
           if (!Responsive.isMobile(context))
-          Positioned(
-            top: 0,
-            bottom: 0,
-            left: 0,
-            child: AnimatedSlide(
-              offset: vm.isLeftPanelOpen ? Offset.zero : const Offset(-1, 0),
-              duration: const Duration(milliseconds: 250),
-              curve: Curves.easeInOut,
-              child: Container(
-                width:  MediaQuery.sizeOf(context).width * 0.25,
-                decoration: BoxDecoration(
-                  border: Border(
-                    right: BorderSide(
-                      color: Theme.of(context).dividerColor,
-                      width: 1,
+            Positioned(
+              top: 0,
+              bottom: 0,
+              left: 0,
+              child: AnimatedSlide(
+                offset: vm.isLeftPanelOpen ? Offset.zero : const Offset(-1, 0),
+                duration: const Duration(milliseconds: 250),
+                curve: Curves.easeInOut,
+                child: Container(
+                  width: MediaQuery.sizeOf(context).width * 0.25,
+                  decoration: BoxDecoration(
+                    border: Border(
+                      right: BorderSide(
+                        color: Theme.of(context).dividerColor,
+                        width: 1,
+                      ),
                     ),
                   ),
+                  child: LeftDrawer(vm: vm),
                 ),
-                child: LeftDrawer(vm: vm),
               ),
             ),
-          ),
           if (!Responsive.isMobile(context))
-          Positioned(
-            top: 0,
-            bottom: 0,
-            right: 0,
-            child: AnimatedSlide(
-              offset: vm.isEndPanelOpen ? Offset.zero : const Offset(1, 0),
-              duration: const Duration(milliseconds: 250),
-              curve: Curves.easeInOut,
-              child: Container(
-                width: MediaQuery.sizeOf(context).width * 0.25,
-                decoration: BoxDecoration(
-                  border: Border(
-                    left: BorderSide(
-                      color: Theme.of(context).dividerColor,
-                      width: 1,
+            Positioned(
+              top: 0,
+              bottom: 0,
+              right: 0,
+              child: AnimatedSlide(
+                offset: vm.isEndPanelOpen ? Offset.zero : const Offset(1, 0),
+                duration: const Duration(milliseconds: 250),
+                curve: Curves.easeInOut,
+                child: Container(
+                  width: MediaQuery.sizeOf(context).width * 0.25,
+                  decoration: BoxDecoration(
+                    border: Border(
+                      left: BorderSide(
+                        color: Theme.of(context).dividerColor,
+                        width: 1,
+                      ),
                     ),
                   ),
+                  child: const RightDrawer(),
                 ),
-                child: const RightDrawer(),
               ),
             ),
-          ),
         ],
       ),
-      drawer: Responsive.isMobile(context) ? LeftDrawer(vm: vm, onClose: () => Navigator.pop(context)) : null,
+      drawer: Responsive.isMobile(context)
+          ? LeftDrawer(vm: vm, onClose: () => Navigator.pop(context))
+          : null,
       endDrawer: Responsive.isMobile(context) ? const RightDrawer() : null,
       onDrawerChanged: (isOpened) {
         if (isOpened) vm.refreshNodes();
