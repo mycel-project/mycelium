@@ -6,6 +6,7 @@
 - Target specific cloze slots in the UI based on the current review slot.
 
 ### Refactored
+- Redesign API config page UI and improve custom URL handling when switching connection methods.
 - Extract cloze transformation logic into a dedicated `TransformClozeUseCase`.
 - Change default slot value from 0 to 1 across the codebase for consistency with the backend.
 

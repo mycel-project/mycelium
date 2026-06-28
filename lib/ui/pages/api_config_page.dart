@@ -9,32 +9,37 @@ import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/gestures.dart';
 
-
 class ApiConfigPage extends StatefulWidget {
-  const ApiConfigPage({super.key}); 
+  const ApiConfigPage({super.key});
   @override
   State<ApiConfigPage> createState() => _ApiConfigPageState();
 }
 
+enum ApiMode { cloud, local }
+
 class _ApiConfigPageState extends State<ApiConfigPage> {
   late final TextEditingController urlController;
   late final TextEditingController tokenController;
+  late ApiMode _mode;
+  String _lastCustomUrl = "";
 
   @override
   void initState() {
     super.initState();
-    urlController = TextEditingController(
-      text: context.read<ApiViewModel>().baseUrl,
-    );
-    tokenController = TextEditingController(
-      text: context.read<ApiViewModel>().token,
-    );
+    final vm = context.read<ApiViewModel>();
+    urlController = TextEditingController(text: vm.baseUrl);
+    tokenController = TextEditingController(text: vm.token);
+
+    _mode = (vm.baseUrl == "https://api.mycelcloud.com" || vm.baseUrl.isEmpty)
+        ? ApiMode.cloud
+        : ApiMode.local;
   }
 
   @override
   Widget build(BuildContext context) {
     final vm = context.watch<ApiViewModel>();
     final store = context.watch<ApiStore>();
+
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       behavior: HitTestBehavior.opaque,
@@ -42,10 +47,10 @@ class _ApiConfigPageState extends State<ApiConfigPage> {
         appBar: MyAppBar(titleText: "Api Configuration"),
         body: LayoutBuilder(
           builder: (context, constraints) => SingleChildScrollView(
-            padding: const EdgeInsets.all(64),
+            padding: const EdgeInsets.all(32),
             child: ConstrainedBox(
               constraints: BoxConstraints(
-                minHeight: constraints.maxHeight - 128,
+                minHeight: constraints.maxHeight - 64,
               ),
               child: IntrinsicHeight(
                 child: Center(
@@ -55,10 +60,13 @@ class _ApiConfigPageState extends State<ApiConfigPage> {
                       Text.rich(
                         TextSpan(
                           children: [
-                            TextSpan(text: "Mycelium is powered by "),
+                            const TextSpan(text: "Mycelium is powered by "),
                             TextSpan(
                               text: "Mycel",
-                              style: TextStyle(color: Theme.of(context).colorScheme.primary),
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.primary,
+                                fontWeight: FontWeight.bold,
+                              ),
                               recognizer: TapGestureRecognizer()
                                 ..onTap = () {
                                   launchUrl(
@@ -68,56 +76,161 @@ class _ApiConfigPageState extends State<ApiConfigPage> {
                                   );
                                 },
                             ),
+                            const TextSpan(text: ".\nSee the "),
                             TextSpan(
-                              text:
-                              ".\n\nPlease enter your API address below to connect Mycelium to an active Mycel instance (MycelCloud through 'https://api.mycelcloud.com' or self-hosted through your server address)."
+                              text: "getting started guide",
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.primary,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              recognizer: TapGestureRecognizer()
+                                ..onTap = () {
+                                  launchUrl(
+                                    Uri.parse(
+                                      "https://mycel-project.com/getting-started.html",
+                                    ),
+                                  );
+                                },
                             ),
+                            const TextSpan(text: " for help."),
                           ],
                         ),
                         textAlign: TextAlign.center,
                       ),
-                      SizedBox(height: 48),
-                      TextField(
-                        controller: urlController,
-                        decoration: InputDecoration(
-                          labelText: "API Base URL",
-                          hintText: "https://api.mycelcloud.com",
-                          suffixIcon: IconButton(
-                            icon: const Icon(Icons.arrow_circle_right_outlined),
-                            onPressed: () async {
-                              vm.setUrl(urlController.text);
-                              FocusScope.of(context).unfocus();
-                            },
-                          ),
+                      const SizedBox(height: 32),
+                      SegmentedButton<ApiMode>(
+                        style: ButtonStyle(
+                          backgroundColor:
+                              MaterialStateProperty.resolveWith<Color?>((
+                                Set<MaterialState> states,
+                              ) {
+                                if (states.contains(MaterialState.selected)) {
+                                  return Theme.of(
+                                    context,
+                                  ).colorScheme.primary.withOpacity(0.1);
+                                }
+                                return null;
+                              }),
                         ),
-                        onSubmitted: (value) => vm.setUrl(value),
+                        segments: const [
+                          ButtonSegment(
+                            value: ApiMode.cloud,
+                            label: Text('MycelCloud'),
+                            icon: Icon(Icons.cloud),
+                          ),
+                          ButtonSegment(
+                            value: ApiMode.local,
+                            label: Text('Self-hosted'),
+                            icon: Icon(Icons.computer),
+                          ),
+                        ],
+                        selected: {_mode},
+                        onSelectionChanged: (Set<ApiMode> newSelection) {
+                          final newMode = newSelection.first;
+                          if (_mode == newMode) return;
+
+                          setState(() {
+                            _mode = newMode;
+                          });
+
+                          if (_mode == ApiMode.cloud) {
+                            if (urlController.text !=
+                                "https://api.mycelcloud.com") {
+                              _lastCustomUrl = urlController.text;
+                            }
+                            urlController.text = "https://api.mycelcloud.com";
+                            vm.setUrl("https://api.mycelcloud.com");
+                          } else {
+                            if (_lastCustomUrl.isNotEmpty) {
+                              urlController.text = _lastCustomUrl;
+                            } else if (urlController.text ==
+                                "https://api.mycelcloud.com") {
+                              urlController.clear();
+                            }
+                            vm.setUrl(urlController.text);
+                          }
+                        },
                       ),
-                      urlController.text == "https://api.mycelcloud.com"
-                      ?
-                      TextField(
-                        controller: tokenController,
-                        decoration: InputDecoration(
-                          labelText: "MycelCloud Token",
-                          hintText: "Find it on mycelcloud.com",
-                          suffixIcon: IconButton(
-                            icon: const Icon(Icons.arrow_circle_right_outlined),
-                            onPressed: () async {
-                              vm.setToken(tokenController.text);
-                              FocusScope.of(context).unfocus();
-                            },
+                      const SizedBox(height: 32),
+                      if (_mode == ApiMode.cloud) ...[
+                        Text.rich(
+                          TextSpan(
+                            children: [
+                              const TextSpan(
+                                text:
+                                    "Connect using your mycelcloud token on your ",
+                              ),
+                              TextSpan(
+                                text: "MycelCloud account",
+                                style: TextStyle(
+                                  color: Theme.of(context).colorScheme.primary,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                recognizer: TapGestureRecognizer()
+                                  ..onTap = () {
+                                    launchUrl(
+                                      Uri.parse("https://mycelcloud.com"),
+                                    );
+                                  },
+                              ),
+                              const TextSpan(text: "."),
+                            ],
                           ),
+                          textAlign: TextAlign.center,
                         ),
-                        onSubmitted: (value) => vm.setToken(value),
-                      )
-                      :
-                      const SizedBox(),
-                      const SizedBox(height: 16),
+                        const SizedBox(height: 16),
+                        TextField(
+                          controller: tokenController,
+                          decoration: InputDecoration(
+                            labelText: "MycelCloud Token",
+                            hintText: "Find it on mycelcloud.com",
+                            suffixIcon: IconButton(
+                              icon: const Icon(
+                                Icons.arrow_circle_right_outlined,
+                              ),
+                              onPressed: () async {
+                                vm.setToken(tokenController.text);
+                                FocusScope.of(context).unfocus();
+                              },
+                            ),
+                          ),
+                          onSubmitted: (value) => vm.setToken(value),
+                        ),
+                      ] else ...[
+                        const Text(
+                          "Connect to your own self-hosted Mycel instance.",
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 16),
+                        TextField(
+                          controller: urlController,
+                          decoration: InputDecoration(
+                            labelText: "API Base URL",
+                            hintText: "http://192.168.1.132:8000",
+                            suffixIcon: IconButton(
+                              icon: const Icon(
+                                Icons.arrow_circle_right_outlined,
+                              ),
+                              onPressed: () async {
+                                vm.setUrl(urlController.text);
+                                FocusScope.of(context).unfocus();
+                              },
+                            ),
+                          ),
+                          onSubmitted: (value) => vm.setUrl(value),
+                        ),
+                      ],
+                      const SizedBox(height: 32),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Text("Connection Status: "),
+                          const Text("Connection Status: "),
                           if (vm.isChecking)
-                            const CircularProgressIndicator()
+                            const SizedBox(
+                              height: 16,
+                              width: 16,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
                           else
                             Icon(
                               switch (store.apiStatus) {
@@ -140,10 +253,11 @@ class _ApiConfigPageState extends State<ApiConfigPage> {
                         Text(
                           "Mycel version: ${vm.mycelVersion}",
                           style: TextStyle(
-                            color: Theme.of(context).colorScheme.primary
+                            color: Theme.of(context).colorScheme.primary,
                           ),
                         ),
-                        if (vm.mycelCompatibility == ApiCompatibility.error) ...[
+                        if (vm.mycelCompatibility ==
+                            ApiCompatibility.error) ...[
                           const SizedBox(height: 8),
                           const Text(
                             "Could not check Mycel compatibility. Please retry or report this error.",
@@ -151,32 +265,37 @@ class _ApiConfigPageState extends State<ApiConfigPage> {
                             style: TextStyle(color: Colors.red),
                           ),
                         ],
-                        if (vm.mycelCompatibility == ApiCompatibility.incompatible) ...[
+                        if (vm.mycelCompatibility ==
+                            ApiCompatibility.incompatible) ...[
                           const SizedBox(height: 8),
                           Text.rich(
                             TextSpan(
                               children: [
                                 TextSpan(
-                                  text: "This Mycel version is not compatible with your current Mycelium version (${vm.myceliumVersion}). See ",
+                                  text:
+                                      "This Mycel version is not compatible with your current Mycelium version (${vm.myceliumVersion}). See ",
                                   style: const TextStyle(color: Colors.red),
                                 ),
                                 TextSpan(
                                   text: "compatibility.json",
                                   style: TextStyle(
-                                    color: Theme.of(context).colorScheme.primary,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.primary,
                                     fontWeight: FontWeight.w600,
                                   ),
                                   recognizer: TapGestureRecognizer()
-                                  ..onTap = () {
-                                    launchUrl(
-                                      Uri.parse(
-                                        "https://github.com/mycel-project/mycelium/blob/main/compatibility.json",
-                                      ),
-                                    );
-                                  },
+                                    ..onTap = () {
+                                      launchUrl(
+                                        Uri.parse(
+                                          "https://github.com/mycel-project/mycelium/blob/main/compatibility.json",
+                                        ),
+                                      );
+                                    },
                                 ),
                                 const TextSpan(
-                                  text: " on Mycelium's Github for compatibility details.",
+                                  text:
+                                      " on Mycelium's Github for compatibility details.",
                                   style: TextStyle(color: Colors.red),
                                 ),
                               ],
@@ -196,9 +315,7 @@ class _ApiConfigPageState extends State<ApiConfigPage> {
                             );
                           },
                           child: const Text("Go to home page"),
-                        )
-                      else if (store.apiStatus == ApiStatus.unreachable)
-                        _buildDebugHelp(context),
+                        ),
                     ],
                   ),
                 ),
@@ -209,68 +326,4 @@ class _ApiConfigPageState extends State<ApiConfigPage> {
       ),
     );
   }
-}
-
-// ClaudeAI formatting
-Widget _buildDebugHelp(BuildContext context) {
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      _buildSection(
-        context,
-        title: "General",
-        tips: [(Icons.wifi, "Make sure your device has internet access")],
-      ),
-      const SizedBox(height: 12),
-      _buildSection(
-        context,
-        title: "Self-hosted",
-        tips: [
-          (
-            Icons.terminal,
-            "Make sure Mycel is currently running on your server",
-          ),
-          (Icons.lan, "Server must be reachable on the same network"),
-          (Icons.security, "Check that no firewall blocks the port"),
-        ],
-      ),
-    ],
-  );
-}
-
-Widget _buildSection(
-  BuildContext context, {
-  required String title,
-  required List<(IconData, String)> tips,
-}) {
-  return Container(
-    width: double.infinity,
-    padding: const EdgeInsets.all(16),
-    decoration: BoxDecoration(
-      color: Theme.of(context).colorScheme.surfaceContainerHighest,
-      borderRadius: BorderRadius.circular(12),
-    ),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(title, style: Theme.of(context).textTheme.titleSmall),
-        const SizedBox(height: 10),
-        ...tips.map((tip) => _debugTip(tip.$1, tip.$2)),
-      ],
-    ),
-  );
-}
-
-Widget _debugTip(IconData icon, String text) {
-  return Padding(
-    padding: const EdgeInsets.symmetric(vertical: 4),
-    child: Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Icon(icon, size: 16, color: Colors.grey),
-        const SizedBox(width: 8),
-        Expanded(child: Text(text, style: const TextStyle(fontSize: 14))),
-      ],
-    ),
-  );
 }
