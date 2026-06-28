@@ -5,6 +5,7 @@ import 'package:mycelium/data/models/node.dart';
 import 'package:mycelium/data/models/outline_entry.dart';
 import 'package:mycelium/ui/widgets/adaptative_sheet.dart';
 import 'package:mycelium/ui/widgets/outline_sheet.dart';
+import 'package:mycelium/ui/utils/priority_colors.dart';
 import 'package:mycelium/ui/widgets/priority_selector.dart';
 import 'package:mycelium/ui/widgets/reps_calendar.dart';
 import 'package:mycelium/ui/widgets/reschedule_widget.dart';
@@ -20,15 +21,14 @@ class RightDrawer extends StatelessWidget {
     final vm = context.watch<HomeViewModel>();
     final node = context.watch<NodeStore>().currentNode;
 
-
     return Drawer(
       child: SafeArea(
         child: Column(
           children: [
             if (vm.currentCollectionName() == null)
-            const Expanded(
-              child: Center(child: Text("No collection selected")),
-            )
+              const Expanded(
+                child: Center(child: Text("No collection selected")),
+              )
             else ...[
               const _RightDrawerReviewHeader(),
               const Divider(height: 1),
@@ -44,7 +44,12 @@ class RightDrawer extends StatelessWidget {
                   child: ListView(
                     padding: EdgeInsets.zero,
                     children: [
-                      _PriorityTile(node: node, nodes: vm.getNodes(), refreshPriorities: vm.refreshPriorities, updatePriority: vm.updatePriority),                      
+                      _PriorityTile(
+                        node: node,
+                        nodes: vm.getNodes(),
+                        refreshPriorities: vm.refreshPriorities,
+                        updatePriority: vm.updatePriority,
+                      ),
                       _DueTile(node: node, vm: vm),
                     ],
                   ),
@@ -149,7 +154,6 @@ class _RightDrawerNodeHeader extends StatelessWidget {
   }
 }
 
-
 class _RightDrawerReviewHeader extends StatelessWidget {
   const _RightDrawerReviewHeader();
 
@@ -176,7 +180,10 @@ class CalendarTile extends StatelessWidget {
   void _showRepsCalendar(BuildContext context) async {
     await vm.getCalendar();
     if (!context.mounted) return;
-    showAdaptiveSheet(context: context, child: RepsCalendar(reps: vm.calendar));
+    showAdaptiveSheet(
+      context: context,
+      child: RepsCalendar(reps: vm.calendar),
+    );
   }
 }
 
@@ -198,15 +205,12 @@ class _DueTile extends StatelessWidget {
     return ListTile(
       leading: const Icon(Icons.schedule),
       title: const Text("Due"),
-      trailing: Chip(
-        label: Text("${_daysDiff(node.getUnit().due)}d",
-        ),
-      ),
+      trailing: Chip(label: Text("${_daysDiff(node.getUnit().due)}d")),
       onTap: () => showRescheduleWidget(
         context,
         initialDate: DateTime.fromMillisecondsSinceEpoch(node.getUnit().due),
         onConfirm: (dateIso) => vm.rescheduleNode(node.id, dateIso),
-      )
+      ),
     );
   }
 }
@@ -229,7 +233,13 @@ class _PriorityTile extends StatelessWidget {
     return ListTile(
       leading: const Icon(Icons.star_outline),
       title: const Text("Priority"),
-      trailing: Chip(label: Text("${node.getUnit().priority}")),
+      trailing: Chip(
+        label: Text("${node.getUnit().priority}"),
+        side: BorderSide(
+          color: getPriorityColor(node.getUnit().priority),
+          width: 2,
+        ),
+      ),
       onTap: () => showPriorityPicker(
         context,
         nodes: nodes,

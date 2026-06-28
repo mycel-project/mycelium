@@ -5,7 +5,7 @@ Coming soon...
 - [X] Fix spore formatting
 - [X] Remove import without collection
 - [X] Simplify/make robust the API config page
-- [ ] Add colors for priorities
+- [X] Add colors for priorities
 - [ ] Refactor ViewModels for better layer separation
 ** Next
 - [ ] Use CodeMirror for Markdown rendering

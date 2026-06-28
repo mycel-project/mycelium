@@ -2,6 +2,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import "package:mycelium/data/models/node.dart";
+import 'package:mycelium/ui/utils/priority_colors.dart';
 import 'package:mycelium/ui/widgets/adaptative_sheet.dart';
 
 // Maybe pass small node views embedding for instance title formatted (true title or content extract as in node tree)
@@ -14,11 +15,11 @@ class PrioritySelector extends StatefulWidget {
   final String title;
 
   const PrioritySelector({
-      super.key,
-      String? title,
-      required this.nodes,
-      required this.currentNodeId,
-      required this.onConfirm,
+    super.key,
+    String? title,
+    required this.nodes,
+    required this.currentNodeId,
+    required this.onConfirm,
   }) : title = title ?? "Reprioritize";
 
   @override
@@ -34,8 +35,8 @@ class _PrioritySelectorState extends State<PrioritySelector> {
   @override
   void initState() {
     super.initState();
-    _sortedPriorities = widget.nodes.map((n) => n.getUnit().priority).toSet().toList()
-      ..sort();
+    _sortedPriorities =
+        widget.nodes.map((n) => n.getUnit().priority).toSet().toList()..sort();
 
     final currentNode = widget.nodes.firstWhere(
       (n) => n.id == widget.currentNodeId,
@@ -56,19 +57,23 @@ class _PrioritySelectorState extends State<PrioritySelector> {
     super.dispose();
   }
 
-  static const double _logIntensity = 2; // control log intensity
+  static const double _logIntensity = 1.0; // control log intensity
 
-double _priorityToSlider(double priority) {
+  double _priorityToSlider(double priority) {
     if (_sortedPriorities.length <= 1) return 0.0;
     final index = _sortedPriorities.indexOf(priority);
     if (index == -1) return 0.0;
     final t = index / (_sortedPriorities.length - 1);
-    return 1.0 - (log(1 + (1.0 - t) * (exp(_logIntensity) - 1)) / _logIntensity);
+    return 1.0 -
+        (log(1 + (1.0 - t) * (exp(_logIntensity) - 1)) / _logIntensity);
   }
 
   double _sliderToPriority(double sliderVal) {
     if (_sortedPriorities.length <= 1) return _sortedPriorities.first;
-    final t = 1.0 - ((exp((1.0 - sliderVal) * _logIntensity) - 1) / (exp(_logIntensity) - 1));
+    final t =
+        1.0 -
+        ((exp((1.0 - sliderVal) * _logIntensity) - 1) /
+            (exp(_logIntensity) - 1));
     final index = (t * (_sortedPriorities.length - 1)).round().clamp(
       0,
       _sortedPriorities.length - 1,
@@ -106,7 +111,7 @@ double _priorityToSlider(double priority) {
     });
   }
 
-Node? get _higherPriorityNeighbor {
+  Node? get _higherPriorityNeighbor {
     final candidates =
         widget.nodes
             .where(
@@ -115,7 +120,9 @@ Node? get _higherPriorityNeighbor {
                   n.getUnit().priority > _selectedPriority,
             )
             .toList()
-          ..sort((a, b) => a.getUnit().priority.compareTo(b.getUnit().priority)); 
+          ..sort(
+            (a, b) => a.getUnit().priority.compareTo(b.getUnit().priority),
+          );
     return candidates.isNotEmpty ? candidates.first : null;
   }
 
@@ -128,7 +135,9 @@ Node? get _higherPriorityNeighbor {
                   n.getUnit().priority < _selectedPriority,
             )
             .toList()
-          ..sort((a, b) => b.getUnit().priority.compareTo(a.getUnit().priority));
+          ..sort(
+            (a, b) => b.getUnit().priority.compareTo(a.getUnit().priority),
+          );
     return candidates.isNotEmpty ? candidates.first : null;
   }
 
@@ -138,6 +147,11 @@ Node? get _higherPriorityNeighbor {
     final higher = _higherPriorityNeighbor;
     final lower = _lowerPriorityNeighbor;
     final sliderVal = _priorityToSlider(_selectedPriority);
+
+    final List<Color> sliderGradientColors = [];
+    for (int i = 0; i <= 20; i++) {
+      sliderGradientColors.add(getPriorityColor(_sliderToPriority(i / 20.0)));
+    }
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
@@ -156,7 +170,7 @@ Node? get _higherPriorityNeighbor {
           _NeighborCard(
             label: 'More prioritized',
             node: higher,
-            excerpt:  higher?.contentPreview,
+            excerpt: higher?.contentPreview,
             priority: higher?.getUnit().priority,
             dimmed: higher == null,
           ),
@@ -168,17 +182,19 @@ Node? get _higherPriorityNeighbor {
               Expanded(
                 child: SliderTheme(
                   data: SliderTheme.of(context).copyWith(
-                    trackHeight: 3,
+                    trackHeight: 4,
+                    trackShape: GradientSliderTrackShape(
+                      colors: sliderGradientColors,
+                    ),
                     thumbShape: const RoundSliderThumbShape(
                       enabledThumbRadius: 8,
                     ),
                     overlayShape: const RoundSliderOverlayShape(
                       overlayRadius: 16,
                     ),
-                    activeTrackColor: theme.colorScheme.primary,
                     inactiveTrackColor:
                         theme.colorScheme.surfaceContainerHighest,
-                    thumbColor: theme.colorScheme.primary,
+                    thumbColor: getPriorityColor(_selectedPriority),
                   ),
                   child: Slider(
                     value: sliderVal.clamp(0.0, 1.0),
@@ -274,7 +290,12 @@ class _NeighborCard extends StatelessWidget {
             alpha: 0.5,
           ),
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: theme.dividerColor.withValues(alpha: 0.3)),
+          border: Border.all(
+            color: priority != null
+                ? getPriorityColor(priority!)
+                : theme.dividerColor.withValues(alpha: 0.3),
+            width: priority != null ? 2 : 1,
+          ),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -314,11 +335,11 @@ class _NeighborCard extends StatelessWidget {
 
 Future<void> showPriorityPicker(
   BuildContext context, {
-    String? title,
-    required List<Node> nodes,
-    required String currentNodeId,
-    required Future<void> Function() onRefresh,
-    required Future<bool> Function(String nodeId, double priority) onUpdate,
+  String? title,
+  required List<Node> nodes,
+  required String currentNodeId,
+  required Future<void> Function() onRefresh,
+  required Future<bool> Function(String nodeId, double priority) onUpdate,
 }) async {
   if (nodes.length < 500) {
     await onRefresh();
@@ -336,4 +357,88 @@ Future<void> showPriorityPicker(
       },
     ),
   );
+}
+
+class GradientSliderTrackShape extends SliderTrackShape {
+  final List<Color> colors;
+  const GradientSliderTrackShape({required this.colors});
+
+  @override
+  Rect getPreferredRect({
+    required RenderBox parentBox,
+    Offset offset = Offset.zero,
+    required SliderThemeData sliderTheme,
+    bool isEnabled = false,
+    bool isDiscrete = false,
+  }) {
+    final double trackHeight = sliderTheme.trackHeight ?? 4.0;
+    final double trackLeft = offset.dx;
+    final double trackTop =
+        offset.dy + (parentBox.size.height - trackHeight) / 2;
+    final double trackWidth = parentBox.size.width;
+    return Rect.fromLTWH(trackLeft, trackTop, trackWidth, trackHeight);
+  }
+
+  @override
+  void paint(
+    PaintingContext context,
+    Offset offset, {
+    required RenderBox parentBox,
+    required SliderThemeData sliderTheme,
+    required Animation<double> enableAnimation,
+    required TextDirection textDirection,
+    required Offset thumbCenter,
+    Offset? secondaryOffset,
+    bool isDiscrete = false,
+    bool isEnabled = false,
+  }) {
+    final Rect trackRect = getPreferredRect(
+      parentBox: parentBox,
+      offset: offset,
+      sliderTheme: sliderTheme,
+      isEnabled: isEnabled,
+      isDiscrete: isDiscrete,
+    );
+
+    final activeGradient = LinearGradient(colors: colors);
+
+    final activeRect = Rect.fromLTRB(
+      trackRect.left,
+      trackRect.top,
+      thumbCenter.dx,
+      trackRect.bottom,
+    );
+    final inactiveRect = Rect.fromLTRB(
+      thumbCenter.dx,
+      trackRect.top,
+      trackRect.right,
+      trackRect.bottom,
+    );
+
+    if (activeRect.width > 0) {
+      final activePaint = Paint()
+        ..shader = activeGradient.createShader(trackRect);
+      context.canvas.drawRRect(
+        RRect.fromRectAndCorners(
+          activeRect,
+          topLeft: Radius.circular(trackRect.height / 2),
+          bottomLeft: Radius.circular(trackRect.height / 2),
+        ),
+        activePaint,
+      );
+    }
+
+    if (inactiveRect.width > 0) {
+      final inactivePaint = Paint()
+        ..color = sliderTheme.inactiveTrackColor ?? Colors.grey;
+      context.canvas.drawRRect(
+        RRect.fromRectAndCorners(
+          inactiveRect,
+          topRight: Radius.circular(trackRect.height / 2),
+          bottomRight: Radius.circular(trackRect.height / 2),
+        ),
+        inactivePaint,
+      );
+    }
+  }
 }
