@@ -1,12 +1,16 @@
 ## Unreleased
 
 ### Added
+- Auto-select the "Default" collection if no active collection is found (e.g. fresh install).
 - Track current slot during reviews.
 - Target specific cloze slots in the UI based on the current review slot.
 
 ### Refactored
 - Extract cloze transformation logic into a dedicated `TransformClozeUseCase`.
 - Change default slot value from 0 to 1 across the codebase for consistency with the backend.
+
+### Fixed
+- Hide import buttons when no collection is selected
 
 ## v0.1.4
 ### Added

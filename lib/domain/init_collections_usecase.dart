@@ -27,9 +27,22 @@ class InitCollectionsUseCase {
     switch (result) {
       case ApiSuccess(:final data):
         final collections = data;
-        if (savedId != null && collections.isNotEmpty) {
-          final match = collections.where((c) => c.id == savedId).firstOrNull;
-          if (match != null) collectionStore.selectCollection(match);
+
+        if (collections.isNotEmpty) {
+          final match = savedId != null
+              ? collections.where((c) => c.id == savedId).firstOrNull
+              : null;
+
+          if (match != null) {
+            collectionStore.selectCollection(match);
+          } else {
+            Collection? defaultCol = collections
+                .where((c) => c.name == "Default")
+                .firstOrNull;
+            if (defaultCol != null) {
+              collectionStore.selectCollection(defaultCol);
+            }
+          }
         } else {
           log("No collection retrieved");
         }
