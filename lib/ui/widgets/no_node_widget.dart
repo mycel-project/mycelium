@@ -14,7 +14,7 @@ class NoNodeWidget extends StatelessWidget {
             Padding(
               padding: EdgeInsetsGeometry.all(32),
               child: Text(
-                "No node selected.\nBrowse nodes using the left panel or launch review.",
+                "No node selected.\nBrowse or add nodes using the left panel, or launch review.",
                 textAlign: TextAlign.center,
               ),
             ),

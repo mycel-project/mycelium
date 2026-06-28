@@ -1,0 +1,14 @@
+* Mycelium Roadmap
+Coming soon...
+(draft)
+** Now
+- [ ] Fix major bugs
+  - [ ] Fix spore formatting
+- [ ] Remove import without collection
+- [ ] Simplify/make robust the API config page
+- [ ] Add colors for priorities
+- [ ] Refactor ViewModels for better layer separation
+** Next
+- [ ] Use CodeMirror for Markdown rendering
+- [ ] Import from local files
+** Later
