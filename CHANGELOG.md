@@ -1,5 +1,13 @@
 ## Unreleased
 
+### Added
+- Track current slot during reviews.
+- Target specific cloze slots in the UI based on the current review slot.
+
+### Refactored
+- Extract cloze transformation logic into a dedicated `TransformClozeUseCase`.
+- Change default slot value from 0 to 1 across the codebase for consistency with the backend.
+
 ## v0.1.4
 ### Added
 - When removing links, remove cursor and restore scroll position.

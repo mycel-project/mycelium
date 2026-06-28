@@ -257,7 +257,7 @@ class Node {
     );
   }
 
-  LearningUnit getUnit([int slot = 0]) {
+  LearningUnit getUnit([int slot = 1]) {
     for (final u in learningUnits) {
       final currentSlot = switch (u) {
         Fragment f => f.unit.slot,
@@ -268,12 +268,12 @@ class Node {
     throw StateError('No learning unit found for slot $slot on node $id');
   }
 
-  Fragment? getFragment([int slot = 0]) {
+  Fragment? getFragment([int slot = 1]) {
     final unit = getUnit(slot);
     return unit is Fragment ? unit : null;
   }
 
-  Spore? getSpore([int slot = 0]) {
+  Spore? getSpore([int slot = 1]) {
     final unit = getUnit(slot);
     return unit is Spore ? unit : null;
   }

@@ -6,15 +6,31 @@ import 'package:mycelium/utils/time_utils.dart';
 class ReviewNodeUseCase {
   final NodeRepository nodeRepository;
   final ReviewRepository reviewRepository;
-  ReviewNodeUseCase(
-    this.nodeRepository,
-    this.reviewRepository
-  );
+  ReviewNodeUseCase(this.nodeRepository, this.reviewRepository);
 
-  Future<ApiError?> execute(String colId, String nodeId, String type, {int? rating, int slot = 0}) async {
+  Future<ApiError?> execute(
+    String colId,
+    String nodeId,
+    String type, {
+    int? rating,
+    int slot = 1,
+  }) async {
     final result = switch (type) {
-      "spore" => await reviewRepository.reviewSpore(colId, nodeId, 10, rating!, tzOffsetMinutes, slot),
-      "fragment" => await reviewRepository.reviewFragment(colId, nodeId, 10, tzOffsetMinutes, slot),
+      "spore" => await reviewRepository.reviewSpore(
+        colId,
+        nodeId,
+        10,
+        rating!,
+        tzOffsetMinutes,
+        slot,
+      ),
+      "fragment" => await reviewRepository.reviewFragment(
+        colId,
+        nodeId,
+        10,
+        tzOffsetMinutes,
+        slot,
+      ),
       _ => throw ArgumentError("Unknown review type: $type"),
     };
 
@@ -24,6 +40,6 @@ class ReviewNodeUseCase {
       nodeRepository.updateCache(data.id, data);
     }
 
-    return null; 
+    return null;
   }
 }

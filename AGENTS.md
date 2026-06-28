@@ -55,3 +55,4 @@ The flow is: page → ViewModel → (Use cases →) → Repository
 - Add a body when the commit message alone is not self-explanatory, or for releases. Skip it for trivial changes.
 - Add Co-authored-by: <model-name> only when the agent wrote or significantly modified the code, not for simple instructions applied as-is.
 - Always write in English in commit messages, even if we are talking in another language.
+- After each meaningful commit, add an entry to CHANGELOG.md under the Unreleased section, in the appropriate category (Added, Fixed, or Refactored), in English. Skip trivial or chore commits.
