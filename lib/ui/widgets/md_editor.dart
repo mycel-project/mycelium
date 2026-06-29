@@ -59,7 +59,7 @@ class MdEditorState extends State<MdEditor> {
               "window.myceliumEditor.setMode(isLocked, showKeyboard, false);",
           arguments: {
             'isLocked': _previousLocked ?? false,
-            'showKeyboard': _previousKeyboard ?? true,
+            'showKeyboard': _previousKeyboard ?? false,
           },
         );
       }
@@ -106,18 +106,17 @@ class MdEditorState extends State<MdEditor> {
   }
 
   bool _isRemovingFocus = false; // avoid stack overflow
-  void removeFocusAndCursor() {
-    if (_isRemovingFocus || vm.hasSelection) return;
+  void removeFocusAndCursor({bool force = false}) {
+    if (_isRemovingFocus || (!force && vm.hasSelection)) return;
     _isRemovingFocus = true;
     focusNode.unfocus();
     _webViewController?.clearFocus();
     _webViewController?.callAsyncJavaScript(
-      functionBody:
-          "if (document.activeElement) document.activeElement.blur();",
+      functionBody: "window.myceliumEditor.blur();",
     );
-    vm.onCursorChanged(null);
-    vm.updateSelection(null);
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      vm.onCursorChanged(null);
+      vm.updateSelection(null);
       _isRemovingFocus = false;
     });
   }
@@ -153,6 +152,7 @@ class MdEditorState extends State<MdEditor> {
   String? _previousNodeId;
   bool? _previousLocked;
   bool? _previousKeyboard;
+  bool? _previousActiveKeyboard;
 
   bool _isShowingDialog = false;
   @override
@@ -163,7 +163,7 @@ class MdEditorState extends State<MdEditor> {
 
     if (_previousNodeId != newNodeId) {
       _previousNodeId = newNodeId;
-      focusNode.unfocus();
+      removeFocusAndCursor(force: true);
     }
 
     if (vm.showUnsavedChangesDialog && !_isShowingDialog) {
@@ -190,11 +190,16 @@ class MdEditorState extends State<MdEditor> {
     final isLocked = vm.isLocked();
     final showKeyboard =
         Device.isDesktop || vm.activeKeyboard || vm.isCurrentNodeSpore();
-    final requestFocus = showKeyboard && _previousKeyboard == false;
 
-    if (_previousLocked != isLocked || _previousKeyboard != showKeyboard) {
+    final activeKeyboardChanged = _previousActiveKeyboard != vm.activeKeyboard;
+    final requestFocus = vm.activeKeyboard && activeKeyboardChanged;
+
+    if (_previousLocked != isLocked ||
+        _previousKeyboard != showKeyboard ||
+        activeKeyboardChanged) {
       _previousLocked = isLocked;
       _previousKeyboard = showKeyboard;
+      _previousActiveKeyboard = vm.activeKeyboard;
       _webViewController?.callAsyncJavaScript(
         functionBody:
             "window.myceliumEditor.setMode(isLocked, showKeyboard, requestFocus);",
@@ -325,13 +330,13 @@ class MdEditorState extends State<MdEditor> {
                               final initialText = vm.content;
                               await controller.callAsyncJavaScript(
                                 functionBody: """
-                                window.myceliumEditor.setMode(isLocked, showKeyboard, false);
                                 window.myceliumEditor.setDoc(content, true);
+                                window.myceliumEditor.setMode(isLocked, showKeyboard, false);
                               """,
                                 arguments: {
                                   'content': initialText,
-                                  'isLocked': _previousLocked ?? false,
-                                  'showKeyboard': _previousKeyboard ?? true,
+                                  'isLocked': isLocked,
+                                  'showKeyboard': showKeyboard,
                                 },
                               );
                             },

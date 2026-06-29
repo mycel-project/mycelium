@@ -23,6 +23,7 @@
 - Restore functionality of node action buttons (extract creation, delete before/after cursor, remove links) by removing dependency on the obsolete markdown controller.
 - Fix outline navigation layout shifting and inaccuracies by synchronizing scroll position using exact absolute character offsets instead of relative scroll percentages.
 - Fix missing background colors (spore, invalid cloze, dismissed node) in CodeMirror by enforcing transparent HTML bodies and InAppWebView backgrounds.
+- Fix virtual keyboard inadvertently appearing on node load and remaining active when changing nodes by correctly ordering JS state initialization and establishing a robust blur bridge.
 ## v0.1.4
 ### Added
 - When removing links, remove cursor and restore scroll position.

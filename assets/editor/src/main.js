@@ -98,6 +98,9 @@ window.myceliumEditor = {
       setTimeout(() => editor.focus(), 50);
     }
   },
+  blur: () => {
+    if (document.activeElement) document.activeElement.blur();
+  },
   undo: () => { undo(editor) },
   redo: () => { redo(editor) },
   scrollToOffset: (offset) => {
