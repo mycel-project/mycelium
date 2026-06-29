@@ -1,4 +1,3 @@
-import "dart:convert";
 import "package:flutter/foundation.dart";
 import "package:flutter/gestures.dart";
 import "package:flutter/material.dart";
@@ -32,6 +31,8 @@ class MdEditorState extends State<MdEditor> {
   @override
   void initState() {
     super.initState();
+    focusNode.addListener(_onFlutterFocusChanged);
+
     vm = context.read<MdEditorViewModel>();
 
     markdownController.value = TextEditingValue(
@@ -125,6 +126,7 @@ class MdEditorState extends State<MdEditor> {
 
   @override
   void dispose() {
+    focusNode.removeListener(_onFlutterFocusChanged);
     focusNode.unfocus();
     vm.onContentCommand = null;
     vm.onHistoryCommand = null;
@@ -133,6 +135,16 @@ class MdEditorState extends State<MdEditor> {
     markdownController.dispose();
     focusNode.dispose();
     super.dispose();
+  }
+
+  void _onFlutterFocusChanged() {
+    if (!focusNode.hasFocus) {
+      _webViewController?.clearFocus();
+      _webViewController?.callAsyncJavaScript(
+        functionBody:
+            "if (document.activeElement) document.activeElement.blur();",
+      );
+    }
   }
 
   String? _previousNodeId;
@@ -226,85 +238,100 @@ class MdEditorState extends State<MdEditor> {
                                 borderRadius: BorderRadius.circular(8),
                               )
                             : const BoxDecoration(),
-                        child: InAppWebView(
-                          initialFile: "assets/editor/dist/index.html",
-                          gestureRecognizers:
-                              <Factory<OneSequenceGestureRecognizer>>{
-                                Factory<VerticalDragGestureRecognizer>(
-                                  VerticalDragGestureRecognizer.new,
-                                ),
-                                Factory<LongPressGestureRecognizer>(
-                                  () => LongPressGestureRecognizer(
-                                    duration: const Duration(milliseconds: 250),
+                        child: Focus(
+                          focusNode: focusNode,
+                          child: InAppWebView(
+                            initialFile: "assets/editor/dist/index.html",
+                            gestureRecognizers:
+                                <Factory<OneSequenceGestureRecognizer>>{
+                                  Factory<VerticalDragGestureRecognizer>(
+                                    VerticalDragGestureRecognizer.new,
                                   ),
-                                ),
-                              },
-                          onWebViewCreated: (controller) {
-                            _webViewController = controller;
-
-                            controller.addJavaScriptHandler(
-                              handlerName: 'onTextChange',
-                              callback: (args) {
-                                if (args.isNotEmpty) {
-                                  vm.updateContent(args[0] as String);
-                                }
-                              },
-                            );
-
-                            controller.addJavaScriptHandler(
-                              handlerName: 'onSelectionChange',
-                              callback: (args) {
-                                if (args.isNotEmpty) {
-                                  final data = Map<String, dynamic>.from(
-                                    args[0] as Map,
-                                  );
-                                  vm.onCursorChanged(data['extent'] as int);
-                                  vm.updateSelection(
-                                    TextSelection(
-                                      baseOffset: data['base'] as int,
-                                      extentOffset: data['extent'] as int,
+                                  Factory<LongPressGestureRecognizer>(
+                                    () => LongPressGestureRecognizer(
+                                      duration: const Duration(
+                                        milliseconds: 250,
+                                      ),
                                     ),
-                                  );
-                                }
-                              },
-                            );
-                            controller.addJavaScriptHandler(
-                              handlerName: 'onHistoryChange',
-                              callback: (args) {
-                                if (args.isNotEmpty) {
-                                  final data = Map<String, dynamic>.from(
-                                    args[0] as Map,
-                                  );
-                                  vm.updateHistoryState(
-                                    data['canUndo'] as bool,
-                                    data['canRedo'] as bool,
-                                  );
-                                }
-                              },
-                            );
-                            controller.addJavaScriptHandler(
-                              handlerName: 'onScrollChanged',
-                              callback: (args) {
-                                if (args.isNotEmpty) {
-                                  vm.updateScroll((args[0] as num).toDouble());
-                                }
-                              },
-                            );
-                          },
-                          onLoadStop: (controller, url) async {
-                            final initialText = vm.content;
-                            await controller.callAsyncJavaScript(
-                              functionBody: """
+                                  ),
+                                },
+                            onWebViewCreated: (controller) {
+                              _webViewController = controller;
+
+                              controller.addJavaScriptHandler(
+                                handlerName: 'onEditorFocus',
+                                callback: (args) {
+                                  if (!focusNode.hasFocus) {
+                                    focusNode.requestFocus();
+                                  }
+                                },
+                              );
+                              controller.addJavaScriptHandler(
+                                handlerName: 'onTextChange',
+                                callback: (args) {
+                                  if (args.isNotEmpty) {
+                                    vm.updateContent(args[0] as String);
+                                  }
+                                },
+                              );
+
+                              controller.addJavaScriptHandler(
+                                handlerName: 'onSelectionChange',
+                                callback: (args) {
+                                  if (args.isNotEmpty) {
+                                    final data = Map<String, dynamic>.from(
+                                      args[0] as Map,
+                                    );
+                                    vm.onCursorChanged(data['extent'] as int);
+                                    vm.updateSelection(
+                                      TextSelection(
+                                        baseOffset: data['base'] as int,
+                                        extentOffset: data['extent'] as int,
+                                      ),
+                                    );
+                                  }
+                                },
+                              );
+                              controller.addJavaScriptHandler(
+                                handlerName: 'onHistoryChange',
+                                callback: (args) {
+                                  if (args.isNotEmpty) {
+                                    final data = Map<String, dynamic>.from(
+                                      args[0] as Map,
+                                    );
+                                    vm.updateHistoryState(
+                                      data['canUndo'] as bool,
+                                      data['canRedo'] as bool,
+                                    );
+                                  }
+                                },
+                              );
+                              controller.addJavaScriptHandler(
+                                handlerName: 'onScrollChanged',
+                                callback: (args) {
+                                  if (args.isNotEmpty) {
+                                    vm.updateScroll(
+                                      (args[0] as num).toDouble(),
+                                    );
+                                  }
+                                },
+                              );
+                            },
+                            onLoadStop: (controller, url) async {
+                              final initialText = vm.content;
+                              await controller.callAsyncJavaScript(
+                                functionBody: """
                                 window.myceliumEditor.setMode(isLocked, showKeyboard, false);
                                 window.myceliumEditor.setDoc(content, true);
                               """,
-                              arguments: {
-                                'content': initialText,
-                                'isLocked': _previousLocked ?? false,
-                                'showKeyboard': _previousKeyboard ?? true,
-                              },
-                            );
-                          },
+                                arguments: {
+                                  'content': initialText,
+                                  'isLocked': _previousLocked ?? false,
+                                  'showKeyboard': _previousKeyboard ?? true,
+                                },
+                              );
+                            },
+                          ),
                         ),
                       ),
                     ),

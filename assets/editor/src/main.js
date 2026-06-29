@@ -25,6 +25,10 @@ const updateListener = EditorView.updateListener.of((update) => {
         extent: sel.head
       });
     }
+
+    if (update.focusChanged && update.view.hasFocus) {
+      window.flutter_inappwebview.callHandler('onEditorFocus');
+    }
   }
 });
 

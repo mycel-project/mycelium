@@ -17,6 +17,7 @@
 - Delegate Undo/Redo history management entirely to CodeMirror, replacing the obsolete Flutter `UndoHistoryController`.
 
 ### Fixed
+- Fix mobile keyboard remaining active when opening drawers by natively bridging Flutter's focus tree with CodeMirror's focus state.
 - Hide import buttons when no collection is selected
 - Fix mobile scrolling and gesture conflicts with CodeMirror by enforcing WebView gesture priority and reducing drawer activation zone.
 - Restore functionality of node action buttons (extract creation, delete before/after cursor, remove links) by removing dependency on the obsolete markdown controller.
