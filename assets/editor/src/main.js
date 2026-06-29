@@ -29,12 +29,28 @@ const editor = new EditorView({
   parent: document.getElementById('app')
 })
 
+const scroller = editor.scrollDOM;
+scroller.addEventListener('scroll', () => {
+  if (window.flutter_inappwebview && typeof window.flutter_inappwebview.callHandler === 'function') {
+    const maxScroll = scroller.scrollHeight - scroller.clientHeight;
+    const progress = maxScroll > 0 ? (scroller.scrollTop / maxScroll) : 0;
+    window.flutter_inappwebview.callHandler('onScrollChanged', progress);
+  }
+});
+
 window.myceliumEditor = {  
   setDoc: (text) => {
     editor.dispatch({
       changes: { from: 0, to: editor.state.doc.length, insert: text },
     });
   },
+  scrollToProgress: (progress) => {
+    const maxScroll = scroller.scrollHeight - scroller.clientHeight;
+    scroller.scrollTo({
+      top: maxScroll * progress,
+      behavior: 'auto'
+    });
+  }
 }
 
 window.addEventListener("flutterInAppWebViewPlatformReady",

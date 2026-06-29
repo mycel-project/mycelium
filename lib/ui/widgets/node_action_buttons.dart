@@ -252,13 +252,11 @@ class KeyboardButton extends StatelessWidget {
 class MoreButton extends StatelessWidget {
   final TextEditingController markdownController;
   final Function removeFocusAndCursor;
-  final ScrollController scrollController;
 
   const MoreButton({
     super.key,
     required this.markdownController,
     required this.removeFocusAndCursor,
-    required this.scrollController,
   });
 
   @override
@@ -272,7 +270,6 @@ class MoreButton extends StatelessWidget {
           child: MoreBottomSheet(
             markdownController: markdownController,
             removeFocusAndCursor: removeFocusAndCursor,
-            scrollController: scrollController,
           ),
         );
       },
@@ -283,12 +280,11 @@ class MoreButton extends StatelessWidget {
 class MoreBottomSheet extends StatelessWidget {
   final TextEditingController markdownController;
   final Function removeFocusAndCursor;
-  final ScrollController scrollController;
+
   const MoreBottomSheet({
     super.key,
     required this.markdownController,
     required this.removeFocusAndCursor,
-    required this.scrollController,
   });
 
   @override
@@ -327,16 +323,14 @@ class MoreBottomSheet extends StatelessWidget {
                 ? const Text('Remove link formatting in selection')
                 : const Text('Remove all link formatting'),
             onTap: () async {
-              final double ratio =
-                  scrollController.offset /
-                  scrollController.position.maxScrollExtent;
+              final double ratio = vm.content.isEmpty
+                  ? 0
+                  : vm.scrollPositionStore.offset / vm.content.length;
               await vm.removeLinks(vm.content);
               if (!context.mounted) return;
               Navigator.pop(context);
               WidgetsBinding.instance.addPostFrameCallback((_) {
-                scrollController.jumpTo(
-                  ratio * scrollController.position.maxScrollExtent,
-                );
+                vm.updateScroll(ratio);
               });
               removeFocusAndCursor();
             },

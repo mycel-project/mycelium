@@ -42,32 +42,6 @@ class MdEditorState extends State<MdEditor> {
     markdownController.addListener(_onSelectionChanged);
     markdownController.addListener(_onCursorChanged);
 
-    // vm.onContentCommand = (content, cursor) {
-    //   if (!mounted) return;
-    //   markdownController.value = TextEditingValue(
-    //     text: content,
-    //     selection: TextSelection.collapsed(
-    //       offset: (cursor ?? 0).clamp(0, content.length),
-    //     ),
-    //   );
-
-    //   if (cursor != null && content.isNotEmpty) {
-    //     WidgetsBinding.instance.addPostFrameCallback((_) {
-    //       if (!mounted || !scrollController.hasClients) return;
-    //       final cursorOffset =
-    //           cursor *
-    //           scrollController.position.maxScrollExtent /
-    //           content.length;
-    //       scrollController.animateTo(
-    //         cursorOffset,
-    //         duration: const Duration(milliseconds: 300),
-    //         curve: Curves.easeOut,
-    //       );
-    //     });
-    //   }
-
-    // };
-
     vm.onContentCommand = (content, cursor) {
       if (!mounted || _webViewController == null) return;
       _webViewController!.callAsyncJavaScript(
@@ -76,31 +50,24 @@ class MdEditorState extends State<MdEditor> {
       );
     };
 
-    scrollController.addListener(() {
-      if (!scrollController.hasClients) return;
-      final progress =
-          scrollController.offset / scrollController.position.maxScrollExtent;
-      vm.updateScroll(progress);
-    });
-
     vm.goScrollTop = () {
-      if (scrollController.hasClients) {
-        scrollController.jumpTo(0);
-        vm.updateScroll(0);
-      }
+      vm.updateScroll(0);
+      if (!mounted || _webViewController == null) return;
+      _webViewController!.callAsyncJavaScript(
+        functionBody: "window.myceliumEditor.scrollToProgress(0);",
+      );
     };
 
     void onScrollPositionChanged() async {
       if (vm.isUpdatingPosition) return;
-      if (!mounted || !scrollController.hasClients) return;
-      final position =
-          vm.scrollPositionStore.offset *
-          scrollController.position.maxScrollExtent /
-          vm.content.length;
-      scrollController.animateTo(
-        position,
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeOut,
+      if (!mounted || _webViewController == null) return;
+
+      final double progress = vm.content.isEmpty
+          ? 0
+          : vm.scrollPositionStore.offset / vm.content.length;
+      _webViewController!.callAsyncJavaScript(
+        functionBody: "window.myceliumEditor.scrollToProgress(progress);",
+        arguments: {'progress': progress},
       );
     }
 
@@ -111,8 +78,6 @@ class MdEditorState extends State<MdEditor> {
     if (vm.isUpdatingCursor || _isRemovingFocus) return;
     vm.onCursorChanged(markdownController.selection.baseOffset);
   }
-
-  final ScrollController scrollController = ScrollController();
 
   bool _isRemovingFocus = false; // avoid stack overflow
   void removeFocusAndCursor() {
@@ -139,7 +104,6 @@ class MdEditorState extends State<MdEditor> {
     markdownController.removeListener(_onCursorChanged);
     markdownController.dispose();
     focusNode.dispose();
-    scrollController.dispose();
     super.dispose();
   }
 
@@ -259,6 +223,14 @@ class MdEditorState extends State<MdEditor> {
                                 }
                               },
                             );
+                            controller.addJavaScriptHandler(
+                              handlerName: 'onScrollChanged',
+                              callback: (args) {
+                                if (args.isNotEmpty) {
+                                  vm.updateScroll((args[0] as num).toDouble());
+                                }
+                              },
+                            );
                           },
                           onLoadStop: (controller, url) async {
                             final initialText = vm.content;
@@ -301,7 +273,6 @@ class MdEditorState extends State<MdEditor> {
                                   ),
                                 MoreButton(
                                   markdownController: markdownController,
-                                  scrollController: scrollController,
                                   removeFocusAndCursor: () {
                                     removeFocusAndCursor();
                                   },
