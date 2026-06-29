@@ -244,6 +244,9 @@ class MdEditorState extends State<MdEditor> {
                         child: Focus(
                           focusNode: focusNode,
                           child: InAppWebView(
+                            initialSettings: InAppWebViewSettings(
+                              transparentBackground: true,
+                            ),
                             initialFile: "assets/editor/dist/index.html",
                             gestureRecognizers:
                                 <Factory<OneSequenceGestureRecognizer>>{
