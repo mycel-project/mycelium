@@ -83,6 +83,11 @@ class MdEditorState extends State<MdEditor> {
     if (_isRemovingFocus || vm.hasSelection) return;
     _isRemovingFocus = true;
     focusNode.unfocus();
+    _webViewController?.clearFocus();
+    _webViewController?.callAsyncJavaScript(
+      functionBody:
+          "if (document.activeElement) document.activeElement.blur();",
+    );
     vm.onCursorChanged(null);
     vm.updateSelection(null);
     WidgetsBinding.instance.addPostFrameCallback((_) {
