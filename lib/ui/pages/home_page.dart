@@ -30,7 +30,7 @@ class HomePage extends StatelessWidget {
     final vm = context.watch<HomeViewModel>();
     final apiStore = context.watch<ApiStore>();
     return Scaffold(
-      drawerEdgeDragWidth: 200,
+      drawerEdgeDragWidth: 80,
       appBar: MyAppBar(
         leading: Builder(
           builder: (context) => IconButton(

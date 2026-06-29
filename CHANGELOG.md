@@ -14,6 +14,7 @@
 
 ### Fixed
 - Hide import buttons when no collection is selected
+- Fix mobile scrolling and gesture conflicts with CodeMirror by enforcing WebView gesture priority and reducing drawer activation zone.
 
 ## v0.1.4
 ### Added
