@@ -112,6 +112,8 @@ class MdEditorState extends State<MdEditor> {
   }
 
   String? _previousNodeId;
+  bool? _previousLocked;
+  bool? _previousKeyboard;
 
   bool _isShowingDialog = false;
   @override
@@ -146,9 +148,24 @@ class MdEditorState extends State<MdEditor> {
     final vm = context.watch<MdEditorViewModel>();
     final reviewNodeId = context.watch<ReviewStore>().currentNodeId;
 
-    final readOnly = Device.isDesktop
-        ? vm.isLocked()
-        : vm.isLocked() || (!vm.activeKeyboard && !vm.isCurrentNodeSpore());
+    final isLocked = vm.isLocked();
+    final showKeyboard =
+        Device.isDesktop || vm.activeKeyboard || vm.isCurrentNodeSpore();
+    final requestFocus = showKeyboard && _previousKeyboard == false;
+
+    if (_previousLocked != isLocked || _previousKeyboard != showKeyboard) {
+      _previousLocked = isLocked;
+      _previousKeyboard = showKeyboard;
+      _webViewController?.callAsyncJavaScript(
+        functionBody:
+            "window.myceliumEditor.setMode(isLocked, showKeyboard, requestFocus);",
+        arguments: {
+          'isLocked': isLocked,
+          'showKeyboard': showKeyboard,
+          'requestFocus': requestFocus,
+        },
+      );
+    }
 
     return SafeArea(
       child: Column(
@@ -239,9 +256,15 @@ class MdEditorState extends State<MdEditor> {
                           onLoadStop: (controller, url) async {
                             final initialText = vm.content;
                             await controller.callAsyncJavaScript(
-                              functionBody:
-                                  "window.myceliumEditor.setDoc(content, null, true);",
-                              arguments: {'content': initialText},
+                              functionBody: """
+                                window.myceliumEditor.setMode(isLocked, showKeyboard, false);
+                                window.myceliumEditor.setDoc(content);
+                              """,
+                              arguments: {
+                                'content': initialText,
+                                'isLocked': _previousLocked ?? false,
+                                'showKeyboard': _previousKeyboard ?? true,
+                              },
                             );
                           },
                         ),

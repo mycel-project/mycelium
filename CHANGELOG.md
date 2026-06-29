@@ -1,6 +1,7 @@
 ## Unreleased
 
 ### Added
+- Add virtual keyboard toggle support for CodeMirror using dynamic `inputmode="none"` (maintains cursor visibility without summoning the virtual keyboard).
 - Introduce a global priority coloring system (rainbow spectrum from violet to red) that dynamically colors priority chips and the reprioritization slider based on the priority value.
 - Sanitize base URL and token inputs by automatically stripping spaces, invisible control characters, and (for URLs) trailing slashes, and prefixing with 'http://' if missing.
 - Auto-select the "Default" collection if no active collection is found (e.g. fresh install).
