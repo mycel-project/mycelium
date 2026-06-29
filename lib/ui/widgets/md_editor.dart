@@ -8,6 +8,10 @@ import "package:mycelium/utils/device.dart";
 import "package:mycelium/utils/responsive.dart";
 import "package:mycelium/viewmodels/md_editor_viewmodel.dart";
 import 'package:provider/provider.dart';
+import 'package:flutter_inappwebview/flutter_inappwebview.dart';
+
+import 'package:flutter/services.dart';
+
 
 /// Widget that handles the current node editing and review process.
 class MdEditor extends StatefulWidget {
@@ -22,6 +26,8 @@ class MdEditorState extends State<MdEditor> {
   late MdEditorViewModel vm;
 
   final FocusNode focusNode = FocusNode();
+
+  String? _content;
 
   @override
   void initState() {
@@ -46,25 +52,27 @@ class MdEditorState extends State<MdEditor> {
 
       if (cursor != null && content.isNotEmpty) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (!mounted || !scrollController.hasClients) return;
-            final cursorOffset =
-            cursor *
-            scrollController.position.maxScrollExtent /
-            content.length;
-            scrollController.animateTo(
-              cursorOffset,
-              duration: const Duration(milliseconds: 300),
-              curve: Curves.easeOut,
-            );
+          if (!mounted || !scrollController.hasClients) return;
+          final cursorOffset =
+              cursor *
+              scrollController.position.maxScrollExtent /
+              content.length;
+          scrollController.animateTo(
+            cursorOffset,
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeOut,
+          );
         });
       }
+
+      rootBundle.loadString('assets/editor/dist/index.html').then((html) => setState(() => _content = html));
     };
 
     scrollController.addListener(() {
-        if (!scrollController.hasClients) return;
-        final progress =
-        scrollController.offset / scrollController.position.maxScrollExtent;
-        vm.updateScroll(progress);
+      if (!scrollController.hasClients) return;
+      final progress =
+          scrollController.offset / scrollController.position.maxScrollExtent;
+      vm.updateScroll(progress);
     });
 
     vm.goScrollTop = () {
@@ -78,9 +86,9 @@ class MdEditorState extends State<MdEditor> {
       if (vm.isUpdatingPosition) return;
       if (!mounted || !scrollController.hasClients) return;
       final position =
-      vm.scrollPositionStore.offset *
-      scrollController.position.maxScrollExtent /
-      vm.content.length;
+          vm.scrollPositionStore.offset *
+          scrollController.position.maxScrollExtent /
+          vm.content.length;
       scrollController.animateTo(
         position,
         duration: const Duration(milliseconds: 300),
@@ -106,7 +114,7 @@ class MdEditorState extends State<MdEditor> {
     vm.onCursorChanged(null);
     vm.updateSelection(null);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-        _isRemovingFocus = false;
+      _isRemovingFocus = false;
     });
   }
 
@@ -144,14 +152,15 @@ class MdEditorState extends State<MdEditor> {
     if (vm.showUnsavedChangesDialog && !_isShowingDialog) {
       _isShowingDialog = true;
       WidgetsBinding.instance.addPostFrameCallback((_) async {
-          final result = await ConfirmationDialog.show(
-            context,
-            title: "Discard Changes?",
-            text: "Your changes couldn't be saved. Switching to another node will discard them.",
-            destructive: true,
-          );
-          _isShowingDialog = false;
-          result.confirmed ? vm.confirmDiscardChanges() : vm.cancelNodeChange();
+        final result = await ConfirmationDialog.show(
+          context,
+          title: "Discard Changes?",
+          text:
+              "Your changes couldn't be saved. Switching to another node will discard them.",
+          destructive: true,
+        );
+        _isShowingDialog = false;
+        result.confirmed ? vm.confirmDiscardChanges() : vm.cancelNodeChange();
       });
     }
   }
@@ -162,8 +171,8 @@ class MdEditorState extends State<MdEditor> {
     final reviewNodeId = context.watch<ReviewStore>().currentNodeId;
 
     final readOnly = Device.isDesktop
-    ? vm.isLocked()
-    : vm.isLocked() || (!vm.activeKeyboard && !vm.isCurrentNodeSpore());
+        ? vm.isLocked()
+        : vm.isLocked() || (!vm.activeKeyboard && !vm.isCurrentNodeSpore());
 
     return SafeArea(
       child: Column(
@@ -173,74 +182,38 @@ class MdEditorState extends State<MdEditor> {
               child: ConstrainedBox(
                 constraints: BoxConstraints(
                   maxWidth: Responsive.isDesktop(context)
-                  ? MediaQuery.sizeOf(context).width * 0.5
-                  : double.infinity,
+                      ? MediaQuery.sizeOf(context).width * 0.5
+                      : double.infinity,
                 ),
                 child: Stack(
                   fit: StackFit.expand,
                   children: [
                     Positioned.fill(
                       child: Container(
-                        decoration:
-                        vm.isCurrentNodeSpore()
-                        ?
-                        vm.noClozeField
-                        ?
-                        BoxDecoration(
-                          color: Colors.red.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(8))
-                        :
-                        BoxDecoration(
-                          color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.05),
-                          borderRadius: BorderRadius.circular(8))
-
-                        : vm.dismissState == true
-                        ? BoxDecoration(
-                          color: Colors.grey.withValues(alpha: 0.2),
-                          borderRadius: BorderRadius.circular(8))
-                        : const BoxDecoration(),
-                        child: Scrollbar(
-                          thumbVisibility: true,
-                          interactive: true,
-                          controller: scrollController,
-                          child: SingleChildScrollView(
-                            controller: scrollController,
-                            padding: const EdgeInsets.only(
-                              left: 16,
-                              right: 16,
-                              bottom: 120,
-                            ),
-                            child: Container(
-                              decoration: BoxDecoration(
-                                border: Border(
-                                  bottom: BorderSide(
-                                    color: Colors.grey.withValues(alpha: 0.3),
-                                    width: 0.5,
-                                  ),
-                                ),
-                              ),
-                              child: Padding(
-                                padding: const EdgeInsets.only(top: 8, bottom: 8),
-                                child: TextField(
-                                  key: ValueKey(vm.node?.id),
-                                  focusNode: focusNode,
-                                  readOnly: readOnly,
-                                  showCursor: !vm.isLocked(),
-                                  onTap: vm.isLocked() ? null : vm.editMode,
-                                  maxLines: null,
-                                  expands: false,
-                                  keyboardType: TextInputType.multiline,
-                                  undoController: vm.undoController,
-                                  controller: markdownController,
-                                  onChanged: (value) {
-                                    vm.updateContent(value);
-                                  },
-                                  decoration: const InputDecoration(
-                                    border: InputBorder.none,
-                                  ),
-                                ),
-                              ),
-                            ),
+                        decoration: vm.isCurrentNodeSpore()
+                            ? vm.noClozeField
+                                  ? BoxDecoration(
+                                      color: Colors.red.withValues(alpha: 0.1),
+                                      borderRadius: BorderRadius.circular(8),
+                                    )
+                                  : BoxDecoration(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .primary
+                                          .withValues(alpha: 0.05),
+                                      borderRadius: BorderRadius.circular(8),
+                                    )
+                            : vm.dismissState == true
+                            ? BoxDecoration(
+                                color: Colors.grey.withValues(alpha: 0.2),
+                                borderRadius: BorderRadius.circular(8),
+                              )
+                            : const BoxDecoration(),
+                        child: InAppWebView(
+                          initialData: InAppWebViewInitialData(
+                            data: _content!,
+                            mimeType: 'text/html',
+                            encoding: 'utf-8',
                           ),
                         ),
                       ),
@@ -269,10 +242,10 @@ class MdEditorState extends State<MdEditor> {
                                   markdownController: markdownController,
                                 ),
                                 if (!Device.isDesktop)
-                                KeyboardButton(
-                                  vm: vm,
-                                  removeFocusAndCursor: removeFocusAndCursor,
-                                ),
+                                  KeyboardButton(
+                                    vm: vm,
+                                    removeFocusAndCursor: removeFocusAndCursor,
+                                  ),
                                 MoreButton(
                                   markdownController: markdownController,
                                   scrollController: scrollController,
@@ -294,8 +267,8 @@ class MdEditorState extends State<MdEditor> {
           ConstrainedBox(
             constraints: BoxConstraints(
               maxWidth: Responsive.isDesktop(context)
-              ? MediaQuery.sizeOf(context).width * 0.5
-              : double.infinity,
+                  ? MediaQuery.sizeOf(context).width * 0.5
+                  : double.infinity,
             ),
             child: ReviewActionBar(
               vm: vm,
