@@ -137,7 +137,9 @@ class MdEditorViewModel extends ChangeNotifier {
       goScrollTop?.call();
     }
     setNoClozeField(false);
-    loadNode(nodeStore.currentNode);
+
+    // We let JS CodeMirror handle cursor natively if the node didn't change
+    loadNode(nodeStore.currentNode, cursor: null);
   }
 
   void updateScroll(double progress) {
@@ -408,7 +410,7 @@ class MdEditorViewModel extends ChangeNotifier {
     nodeStore.selectNode(node);
   }
 
-  void loadNode(Node? node, {bool forceReload = false}) {
+  void loadNode(Node? node, {bool forceReload = false, int? cursor}) {
     isAnswerVisible = false;
     if (node != null) {
       this.node = node;
@@ -429,7 +431,10 @@ class MdEditorViewModel extends ChangeNotifier {
         newContent = node.firstFieldValue;
       }
 
-      _applyContent(newContent, clearHistory: true);
+      bool isSameNode =
+          nodeStore.previousNode?.id != null &&
+          node.id == nodeStore.previousNode?.id;
+      _applyContent(newContent, clearHistory: !isSameNode, cursor: cursor);
       notifyListeners();
     } else {
       this.node = null;

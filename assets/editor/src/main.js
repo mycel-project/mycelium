@@ -59,19 +59,38 @@ scroller.addEventListener('scroll', () => {
 
 window.myceliumEditor = {  
   setDoc: (text, clearHistory, cursorPos) => {
+    const scroller = editor.scrollDOM;
+    const prevScroll = scroller.scrollTop;
+
     if (clearHistory) {
       editor.setState(EditorState.create({
         doc: text,
         extensions: myExtensions
       }));
     } else {
-      editor.dispatch({
-        changes: { from: 0, to: editor.state.doc.length, insert: text },
-      });
+      const oldText = editor.state.doc.toString();
+      if (oldText !== text) {
+        let start = 0;
+        while (start < oldText.length && start < text.length && oldText.charCodeAt(start) === text.charCodeAt(start)) {
+          start++;
+        }
+        let endOld = oldText.length - 1;
+        let endNew = text.length - 1;
+        while (endOld >= start && endNew >= start && oldText.charCodeAt(endOld) === text.charCodeAt(endNew)) {
+          endOld--;
+          endNew--;
+        }
+        editor.dispatch({
+          changes: { from: start, to: endOld + 1, insert: text.slice(start, endNew + 1) },
+        });
+      }
     }
+
     if (cursorPos !== undefined && cursorPos !== null && cursorPos >= 0 && cursorPos <= text.length) {
       editor.dispatch({ selection: { anchor: cursorPos, head: cursorPos } });
     }
+
+    scroller.scrollTop = prevScroll;
   },
   // Keyboard/cursor focus
   setMode: (isLocked, showKeyboard, requestFocus) => {
