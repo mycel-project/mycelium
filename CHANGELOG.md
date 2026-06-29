@@ -16,6 +16,7 @@
 ### Fixed
 - Hide import buttons when no collection is selected
 - Fix mobile scrolling and gesture conflicts with CodeMirror by enforcing WebView gesture priority and reducing drawer activation zone.
+- Restore functionality of node action buttons (extract creation, delete before/after cursor, remove links) by removing dependency on the obsolete markdown controller.
 
 ## v0.1.4
 ### Added

@@ -71,34 +71,34 @@ class DismissButton extends StatelessWidget {
       child: FloatingActionButton(
         heroTag: "fab_dismiss",
         onPressed: vm.dismissState == true
-        ? () async => await vm.toggleDismiss()
-        : () async {
-          FocusScope.of(context).unfocus();
-          final result = await ConfirmationDialog.show(
-            context,
-            title: "Confirmation",
-            text:
-            "Have you extracted all the relevant information from this fragment?\n\nIt won’t be shown again in future reviews.",
-          );
-          if (result.confirmed == true) {
-            if (!vm.hasChildren()) {
-              if (!context.mounted) return;
-              final result = await ConfirmationDialog.show(
-                context,
-                title: "No children",
-                text:
-                "This fragment has no children.\n\nOnly confirm if it is not valuable to you, as it will not be shown again in reviews.",
-              );
-              if (!result.confirmed) return;
-            }
-            await vm.toggleDismiss();
-          }
-        },
+            ? () async => await vm.toggleDismiss()
+            : () async {
+                FocusScope.of(context).unfocus();
+                final result = await ConfirmationDialog.show(
+                  context,
+                  title: "Confirmation",
+                  text:
+                      "Have you extracted all the relevant information from this fragment?\n\nIt won’t be shown again in future reviews.",
+                );
+                if (result.confirmed == true) {
+                  if (!vm.hasChildren()) {
+                    if (!context.mounted) return;
+                    final result = await ConfirmationDialog.show(
+                      context,
+                      title: "No children",
+                      text:
+                          "This fragment has no children.\n\nOnly confirm if it is not valuable to you, as it will not be shown again in reviews.",
+                    );
+                    if (!result.confirmed) return;
+                  }
+                  await vm.toggleDismiss();
+                }
+              },
         child: Opacity(
           opacity: vm.dismissState ?? false ? 0.4 : 1.0,
           child: const Icon(Icons.task_alt),
         ),
-      )
+      ),
     );
   }
 }
@@ -113,9 +113,8 @@ class FragmentButton extends StatelessWidget {
   });
 
   Future<Node?> _createFragment(BuildContext context) async {
-    final extract = await vm.createFragment(markdownController.text);
+    final extract = await vm.createFragment(vm.content);
     if (!context.mounted || extract is! Node) return null;
-    markdownController.selection = const TextSelection.collapsed(offset: -1);
     FocusScope.of(context).unfocus();
     return extract;
   }
@@ -175,9 +174,8 @@ class SporeButton extends StatelessWidget {
   });
 
   Future<Node?> _createSpore(BuildContext context) async {
-    final extract = await vm.createSpore(markdownController.text);
+    final extract = await vm.createSpore(vm.content);
     if (!context.mounted || extract is! Node) return null;
-    markdownController.selection = const TextSelection.collapsed(offset: -1);
     FocusScope.of(context).unfocus();
     return extract;
   }
@@ -305,7 +303,7 @@ class MoreBottomSheet extends StatelessWidget {
             leading: const Icon(Icons.backspace),
             title: const Text('Delete all content before cursor'),
             onTap: () async {
-              await vm.deleteBeforeCursor(markdownController.text);
+              await vm.deleteBeforeCursor(vm.content);
               if (!context.mounted) return;
               Navigator.pop(context);
             },
@@ -318,7 +316,7 @@ class MoreBottomSheet extends StatelessWidget {
             ),
             title: const Text('Delete all content after cursor'),
             onTap: () async {
-              await vm.deleteAfterCursor(markdownController.text);
+              await vm.deleteAfterCursor(vm.content);
               if (!context.mounted) return;
               Navigator.pop(context);
             },
@@ -332,7 +330,7 @@ class MoreBottomSheet extends StatelessWidget {
               final double ratio =
                   scrollController.offset /
                   scrollController.position.maxScrollExtent;
-              await vm.removeLinks(markdownController.text);
+              await vm.removeLinks(vm.content);
               if (!context.mounted) return;
               Navigator.pop(context);
               WidgetsBinding.instance.addPostFrameCallback((_) {
