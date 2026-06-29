@@ -28,6 +28,7 @@ class MdEditorState extends State<MdEditor> {
   final FocusNode focusNode = FocusNode();
 
   String? _content;
+  InAppWebViewController? _webViewController;
 
   @override
   void initState() {
@@ -41,32 +42,41 @@ class MdEditorState extends State<MdEditor> {
     markdownController.addListener(_onSelectionChanged);
     markdownController.addListener(_onCursorChanged);
 
-    vm.onContentCommand = (content, cursor) {
-      if (!mounted) return;
-      markdownController.value = TextEditingValue(
-        text: content,
-        selection: TextSelection.collapsed(
-          offset: (cursor ?? 0).clamp(0, content.length),
-        ),
+    // vm.onContentCommand = (content, cursor) {
+    //   if (!mounted) return;
+    //   markdownController.value = TextEditingValue(
+    //     text: content,
+    //     selection: TextSelection.collapsed(
+    //       offset: (cursor ?? 0).clamp(0, content.length),
+    //     ),
+    //   );
+
+    //   if (cursor != null && content.isNotEmpty) {
+    //     WidgetsBinding.instance.addPostFrameCallback((_) {
+    //       if (!mounted || !scrollController.hasClients) return;
+    //       final cursorOffset =
+    //           cursor *
+    //           scrollController.position.maxScrollExtent /
+    //           content.length;
+    //       scrollController.animateTo(
+    //         cursorOffset,
+    //         duration: const Duration(milliseconds: 300),
+    //         curve: Curves.easeOut,
+    //       );
+    //     });
+    //   }
+
+    // };
+
+    vm.onContentCommand = (content, cursor,) {
+      if (!mounted || _webViewController == null) return;
+      _webViewController!.callAsyncJavaScript(
+        functionBody: "window.myceliumEditor.setDoc(content);",
+        arguments: {'content': content},
       );
-
-      if (cursor != null && content.isNotEmpty) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (!mounted || !scrollController.hasClients) return;
-          final cursorOffset =
-              cursor *
-              scrollController.position.maxScrollExtent /
-              content.length;
-          scrollController.animateTo(
-            cursorOffset,
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.easeOut,
-          );
-        });
-      }
-
-      rootBundle.loadString('assets/editor/dist/index.html').then((html) => setState(() => _content = html));
     };
+    
+    rootBundle.loadString('assets/editor/dist/index.html').then((html) => setState(() => _content = html));
 
     scrollController.addListener(() {
       if (!scrollController.hasClients) return;
@@ -215,6 +225,9 @@ class MdEditorState extends State<MdEditor> {
                             mimeType: 'text/html',
                             encoding: 'utf-8',
                           ),
+                          onWebViewCreated: (controller) {
+                            _webViewController = controller;
+                          },
                         ),
                       ),
                     ),

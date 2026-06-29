@@ -14,9 +14,20 @@ const editor = new EditorView({
 window.myceliumEditor = {
   getDoc: () => editor.state.doc.toString(),
   
-  setDoc: (text) => {
+    setDoc: (text) => {//, cursor, resetScroll) => {
+ //   const scrollY = window.scrollY;
     editor.dispatch({
-      changes: { from: 0, to: editor.state.doc.length, insert: text }
-    })
-  }
+      changes: { from: 0, to: editor.state.doc.length, insert: text },
+      //selection: cursor !== undefined && cursor !== null ? { anchor: cursor } : undefined
+    });
+    // if (resetScroll) {
+    //   window.scrollTo(0, 0);
+    // } else {
+    //   window.scrollTo(0, scrollY);
+    //   requestAnimationFrame(() => {
+    //     window.scrollTo(0, scrollY);
+    //     setTimeout(() => window.scrollTo(0, scrollY), 10);
+    //   });
+    //}
+  },
 }
