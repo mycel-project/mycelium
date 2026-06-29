@@ -1,11 +1,12 @@
 import './style.css'
-import { EditorView, basicSetup } from "codemirror"
+import { EditorView, minimalSetup } from "codemirror"
 import { markdown } from "@codemirror/lang-markdown"
 
 const editor = new EditorView({
   doc: "# Mycelium",
   extensions: [
-    basicSetup,
+      minimalSetup,
+      EditorView.lineWrapping,
     markdown(),
   ],
   parent: document.getElementById('app')
