@@ -82,7 +82,7 @@ class MdEditorState extends State<MdEditor> {
       vm.updateScroll(0);
       if (!mounted || _webViewController == null) return;
       _webViewController!.callAsyncJavaScript(
-        functionBody: "window.myceliumEditor.scrollToProgress(0);",
+        functionBody: "window.myceliumEditor.scrollToOffset(0);",
       );
     };
 
@@ -90,12 +90,10 @@ class MdEditorState extends State<MdEditor> {
       if (vm.isUpdatingPosition) return;
       if (!mounted || _webViewController == null) return;
 
-      final double progress = vm.content.isEmpty
-          ? 0
-          : vm.scrollPositionStore.offset / vm.content.length;
+      final int offset = vm.scrollPositionStore.offset;
       _webViewController!.callAsyncJavaScript(
-        functionBody: "window.myceliumEditor.scrollToProgress(progress);",
-        arguments: {'progress': progress},
+        functionBody: "window.myceliumEditor.scrollToOffset(offset);",
+        arguments: {'offset': offset},
       );
     }
 
@@ -315,9 +313,7 @@ class MdEditorState extends State<MdEditor> {
                                 handlerName: 'onScrollChanged',
                                 callback: (args) {
                                   if (args.isNotEmpty) {
-                                    vm.updateScroll(
-                                      (args[0] as num).toDouble(),
-                                    );
+                                    vm.updateScroll((args[0] as num).toInt());
                                   }
                                 },
                               );

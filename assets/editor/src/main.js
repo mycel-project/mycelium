@@ -48,15 +48,6 @@ const editor = new EditorView({
   parent: document.getElementById('app')
 })
 
-const scroller = editor.scrollDOM;
-scroller.addEventListener('scroll', () => {
-  if (window.flutter_inappwebview && typeof window.flutter_inappwebview.callHandler === 'function') {
-    const maxScroll = scroller.scrollHeight - scroller.clientHeight;
-    const progress = maxScroll > 0 ? (scroller.scrollTop / maxScroll) : 0;
-    window.flutter_inappwebview.callHandler('onScrollChanged', progress);
-  }
-});
-
 window.myceliumEditor = {  
   setDoc: (text, clearHistory, cursorPos) => {
     const scroller = editor.scrollDOM;
@@ -109,12 +100,10 @@ window.myceliumEditor = {
   },
   undo: () => { undo(editor) },
   redo: () => { redo(editor) },
-  scrollToProgress: (progress) => {
-    const maxScroll = scroller.scrollHeight - scroller.clientHeight;
-    scroller.scrollTo({
-      top: maxScroll * progress,
-      behavior: 'auto'
-    });
+  scrollToOffset: (offset) => {
+    if (offset >= 0 && offset <= editor.state.doc.length) {
+      editor.dispatch({ effects: EditorView.scrollIntoView(offset, { y: 'start' }) });
+    }
   }
 }
 

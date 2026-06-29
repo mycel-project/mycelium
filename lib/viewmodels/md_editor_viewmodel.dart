@@ -142,10 +142,10 @@ class MdEditorViewModel extends ChangeNotifier {
     loadNode(nodeStore.currentNode, cursor: null);
   }
 
-  void updateScroll(double progress) {
-    if (progress.isNaN || progress.isInfinite) return;
+  void updateScroll(int offset) {
+    if (offset < 0) return;
     isUpdatingPosition = true;
-    scrollPositionStore.update((progress * content.length).toInt());
+    scrollPositionStore.update(offset);
     isUpdatingPosition = false;
   }
 

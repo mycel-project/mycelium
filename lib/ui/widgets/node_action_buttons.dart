@@ -323,15 +323,9 @@ class MoreBottomSheet extends StatelessWidget {
                 ? const Text('Remove link formatting in selection')
                 : const Text('Remove all link formatting'),
             onTap: () async {
-              final double ratio = vm.content.isEmpty
-                  ? 0
-                  : vm.scrollPositionStore.offset / vm.content.length;
               await vm.removeLinks(vm.content);
               if (!context.mounted) return;
               Navigator.pop(context);
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                vm.updateScroll(ratio);
-              });
               removeFocusAndCursor();
             },
           ),
