@@ -58,7 +58,7 @@ scroller.addEventListener('scroll', () => {
 });
 
 window.myceliumEditor = {  
-  setDoc: (text, clearHistory) => {
+  setDoc: (text, clearHistory, cursorPos) => {
     if (clearHistory) {
       editor.setState(EditorState.create({
         doc: text,
@@ -68,6 +68,9 @@ window.myceliumEditor = {
       editor.dispatch({
         changes: { from: 0, to: editor.state.doc.length, insert: text },
       });
+    }
+    if (cursorPos !== undefined && cursorPos !== null && cursorPos >= 0 && cursorPos <= text.length) {
+      editor.dispatch({ selection: { anchor: cursorPos, head: cursorPos } });
     }
   },
   // Keyboard/cursor focus

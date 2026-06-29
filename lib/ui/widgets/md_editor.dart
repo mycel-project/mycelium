@@ -45,8 +45,13 @@ class MdEditorState extends State<MdEditor> {
     vm.onContentCommand = (content, cursor, clearHistory) {
       if (!mounted || _webViewController == null) return;
       _webViewController!.callAsyncJavaScript(
-        functionBody: "window.myceliumEditor.setDoc(content, clearHistory);",
-        arguments: {'content': content, 'clearHistory': clearHistory},
+        functionBody:
+            "window.myceliumEditor.setDoc(content, clearHistory, cursor);",
+        arguments: {
+          'content': content,
+          'clearHistory': clearHistory,
+          'cursor': cursor,
+        },
       );
       if (clearHistory) {
         _webViewController!.callAsyncJavaScript(
