@@ -35,6 +35,7 @@ dependencies:
   mocktail: ^1.0.4
   table_calendar: ^3.2.0
   window_manager: ^0.5.1
+  flutter_inappwebview: ^6.2.0-beta.3
     
   provider: ^6.1.5
   markdown_mycel_fork:
@@ -89,6 +90,7 @@ flutter:
   assets:
     - assets/
     - assets/icons/
+    - assets/editor/dist/
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
