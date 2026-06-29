@@ -3,7 +3,7 @@ import { EditorView, minimalSetup } from "codemirror"
 import { markdown } from "@codemirror/lang-markdown"
 
 const editor = new EditorView({
-  doc: "# Mycelium",
+  doc: "",
   extensions: [
       minimalSetup,
       EditorView.lineWrapping,
@@ -32,3 +32,8 @@ window.myceliumEditor = {
     //}
   },
 }
+
+window.addEventListener("flutterInAppWebViewPlatformReady",
+  function(event) {
+      window.flutter_inappwebview.callHandler('onEditorReady');
+});

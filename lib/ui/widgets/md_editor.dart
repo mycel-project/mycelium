@@ -10,9 +10,6 @@ import "package:mycelium/viewmodels/md_editor_viewmodel.dart";
 import 'package:provider/provider.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 
-import 'package:flutter/services.dart';
-
-
 /// Widget that handles the current node editing and review process.
 class MdEditor extends StatefulWidget {
   const MdEditor({super.key});
@@ -68,15 +65,13 @@ class MdEditorState extends State<MdEditor> {
 
     // };
 
-    vm.onContentCommand = (content, cursor,) {
+    vm.onContentCommand = (content, cursor) {
       if (!mounted || _webViewController == null) return;
       _webViewController!.callAsyncJavaScript(
         functionBody: "window.myceliumEditor.setDoc(content);",
         arguments: {'content': content},
       );
     };
-    
-    rootBundle.loadString('assets/editor/dist/index.html').then((html) => setState(() => _content = html));
 
     scrollController.addListener(() {
       if (!scrollController.hasClients) return;
@@ -220,14 +215,21 @@ class MdEditorState extends State<MdEditor> {
                               )
                             : const BoxDecoration(),
                         child: InAppWebView(
-                          initialData: InAppWebViewInitialData(
-                            data: _content!,
-                            mimeType: 'text/html',
-                            encoding: 'utf-8',
-                          ),
-                          onWebViewCreated: (controller) {
-                            _webViewController = controller;
-                          },
+                          initialFile: "assets/editor/dist/index.html",
+                                                        onWebViewCreated: (controller) {
+                                _webViewController = controller;
+                                // Tu peux garder ou enlever le addJavaScriptHandler('onEditorReady'), 
+                                // on ne va plus s'en servir pour le texte initial.
+                              },
+                              onLoadStop: (controller, url) async {
+                                // La page web a fini de charger, on envoie le vrai texte !
+                                final initialText = vm.content;
+                                await controller.callAsyncJavaScript(
+                                  functionBody: "window.myceliumEditor.setDoc(content, null, true);",
+                                  arguments: {'content': initialText},
+                                );
+                              },
+
                         ),
                       ),
                     ),
