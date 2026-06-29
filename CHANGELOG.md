@@ -11,6 +11,7 @@
 - Redesign API config page UI and improve custom URL handling when switching connection methods.
 - Extract cloze transformation logic into a dedicated `TransformClozeUseCase`.
 - Change default slot value from 0 to 1 across the codebase for consistency with the backend.
+- Refactor CodeMirror synchronization to use real-time listeners (text and cursor/selection) instead of polling.
 
 ### Fixed
 - Hide import buttons when no collection is selected

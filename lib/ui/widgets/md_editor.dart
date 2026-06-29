@@ -232,11 +232,35 @@ class MdEditorState extends State<MdEditor> {
                               },
                           onWebViewCreated: (controller) {
                             _webViewController = controller;
-                            // Tu peux garder ou enlever le addJavaScriptHandler('onEditorReady'),
-                            // on ne va plus s'en servir pour le texte initial.
+
+                            controller.addJavaScriptHandler(
+                              handlerName: 'onTextChange',
+                              callback: (args) {
+                                if (args.isNotEmpty) {
+                                  vm.updateContent(args[0] as String);
+                                }
+                              },
+                            );
+
+                            controller.addJavaScriptHandler(
+                              handlerName: 'onSelectionChange',
+                              callback: (args) {
+                                if (args.isNotEmpty) {
+                                  final data = Map<String, dynamic>.from(
+                                    args[0] as Map,
+                                  );
+                                  vm.onCursorChanged(data['extent'] as int);
+                                  vm.updateSelection(
+                                    TextSelection(
+                                      baseOffset: data['base'] as int,
+                                      extentOffset: data['extent'] as int,
+                                    ),
+                                  );
+                                }
+                              },
+                            );
                           },
                           onLoadStop: (controller, url) async {
-                            // La page web a fini de charger, on envoie le vrai texte !
                             final initialText = vm.content;
                             await controller.callAsyncJavaScript(
                               functionBody:
