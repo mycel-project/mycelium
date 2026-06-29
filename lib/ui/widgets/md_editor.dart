@@ -27,7 +27,6 @@ class MdEditorState extends State<MdEditor> {
 
   final FocusNode focusNode = FocusNode();
 
-  String? _content;
   InAppWebViewController? _webViewController;
 
   @override
