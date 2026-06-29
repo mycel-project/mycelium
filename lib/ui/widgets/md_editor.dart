@@ -41,12 +41,35 @@ class MdEditorState extends State<MdEditor> {
     markdownController.addListener(_onSelectionChanged);
     markdownController.addListener(_onCursorChanged);
 
-    vm.onContentCommand = (content, cursor) {
+    vm.onContentCommand = (content, cursor, clearHistory) {
       if (!mounted || _webViewController == null) return;
       _webViewController!.callAsyncJavaScript(
-        functionBody: "window.myceliumEditor.setDoc(content);",
-        arguments: {'content': content},
+        functionBody: "window.myceliumEditor.setDoc(content, clearHistory);",
+        arguments: {'content': content, 'clearHistory': clearHistory},
       );
+      if (clearHistory) {
+        _webViewController!.callAsyncJavaScript(
+          functionBody:
+              "window.myceliumEditor.setMode(isLocked, showKeyboard, false);",
+          arguments: {
+            'isLocked': _previousLocked ?? false,
+            'showKeyboard': _previousKeyboard ?? true,
+          },
+        );
+      }
+    };
+
+    vm.onHistoryCommand = (isUndo) {
+      if (!mounted || _webViewController == null) return;
+      if (isUndo) {
+        _webViewController!.callAsyncJavaScript(
+          functionBody: "window.myceliumEditor.undo();",
+        );
+      } else {
+        _webViewController!.callAsyncJavaScript(
+          functionBody: "window.myceliumEditor.redo();",
+        );
+      }
     };
 
     vm.goScrollTop = () {
@@ -104,6 +127,7 @@ class MdEditorState extends State<MdEditor> {
   void dispose() {
     focusNode.unfocus();
     vm.onContentCommand = null;
+    vm.onHistoryCommand = null;
     markdownController.removeListener(_onSelectionChanged);
     markdownController.removeListener(_onCursorChanged);
     markdownController.dispose();
@@ -245,6 +269,20 @@ class MdEditorState extends State<MdEditor> {
                               },
                             );
                             controller.addJavaScriptHandler(
+                              handlerName: 'onHistoryChange',
+                              callback: (args) {
+                                if (args.isNotEmpty) {
+                                  final data = Map<String, dynamic>.from(
+                                    args[0] as Map,
+                                  );
+                                  vm.updateHistoryState(
+                                    data['canUndo'] as bool,
+                                    data['canRedo'] as bool,
+                                  );
+                                }
+                              },
+                            );
+                            controller.addJavaScriptHandler(
                               handlerName: 'onScrollChanged',
                               callback: (args) {
                                 if (args.isNotEmpty) {
@@ -258,7 +296,7 @@ class MdEditorState extends State<MdEditor> {
                             await controller.callAsyncJavaScript(
                               functionBody: """
                                 window.myceliumEditor.setMode(isLocked, showKeyboard, false);
-                                window.myceliumEditor.setDoc(content);
+                                window.myceliumEditor.setDoc(content, true);
                               """,
                               arguments: {
                                 'content': initialText,

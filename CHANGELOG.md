@@ -14,6 +14,7 @@
 - Change default slot value from 0 to 1 across the codebase for consistency with the backend.
 - Refactor CodeMirror synchronization to use real-time listeners (text and cursor/selection) instead of polling.
 - Implement robust JavaScript-to-Flutter scroll synchronization for CodeMirror, removing legacy Flutter `ScrollController` dependencies.
+- Delegate Undo/Redo history management entirely to CodeMirror, replacing the obsolete Flutter `UndoHistoryController`.
 
 ### Fixed
 - Hide import buttons when no collection is selected

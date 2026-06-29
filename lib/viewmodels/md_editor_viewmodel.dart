@@ -92,7 +92,6 @@ class MdEditorViewModel extends ChangeNotifier {
     nodeStore.addListener(_onNodeStoreChanged);
     apiStore.addListener(_onApiStoreChanged);
     _onNodeStoreChanged();
-    undoController.addListener(_onUndoStateChanged);
   }
 
   bool _noClozeField = false;
@@ -105,14 +104,20 @@ class MdEditorViewModel extends ChangeNotifier {
 
   bool isUpdatingPosition = false;
 
-  void Function(String content, int? cursor)? onContentCommand;
+  void Function(String content, int? cursor, bool clearHistory)?
+  onContentCommand;
+  void Function(bool isUndo)? onHistoryCommand;
 
   void Function()? goScrollTop;
 
   // To update content from vm
-  void _applyContent(String newContent, {int? cursor}) {
+  void _applyContent(
+    String newContent, {
+    int? cursor,
+    bool clearHistory = false,
+  }) {
     content = newContent;
-    onContentCommand?.call(newContent, cursor);
+    onContentCommand?.call(newContent, cursor, clearHistory);
   }
 
   Future<void> _onNodeStoreChanged() async {
@@ -175,8 +180,6 @@ class MdEditorViewModel extends ChangeNotifier {
   @override
   void dispose() {
     nodeStore.removeListener(_onNodeStoreChanged);
-    undoController.removeListener(_onUndoStateChanged);
-    undoController.dispose();
     super.dispose();
   }
 
@@ -243,16 +246,23 @@ class MdEditorViewModel extends ChangeNotifier {
   }
 
   // Undo
-  final undoController = UndoHistoryController();
   ActionMode historyButtonMode = ActionMode.undo;
 
-  bool get canPerformHistoryAction => historyButtonMode == ActionMode.undo
-      ? undoController.value.canUndo
-      : undoController.value.canRedo;
+  bool _canUndo = false;
+  bool _canRedo = false;
 
-  void performHistoryAction() => historyButtonMode == ActionMode.undo
-      ? undoController.undo()
-      : undoController.redo();
+  bool get canPerformHistoryAction =>
+      historyButtonMode == ActionMode.undo ? _canUndo : _canRedo;
+
+  void performHistoryAction() {
+    onHistoryCommand?.call(historyButtonMode == ActionMode.undo);
+  }
+
+  void updateHistoryState(bool canUndo, bool canRedo) {
+    _canUndo = canUndo;
+    _canRedo = canRedo;
+    notifyListeners();
+  }
 
   void toggleHistoryMode() {
     historyButtonMode = historyButtonMode == ActionMode.undo
@@ -261,8 +271,6 @@ class MdEditorViewModel extends ChangeNotifier {
     HapticFeedback.mediumImpact();
     notifyListeners();
   }
-
-  void _onUndoStateChanged() => notifyListeners();
 
   bool isLocked() {
     return reviewStore.currentNodeId == node?.id &&
@@ -405,7 +413,6 @@ class MdEditorViewModel extends ChangeNotifier {
     if (node != null) {
       this.node = node;
       isDirty = false;
-      undoController.value = UndoHistoryValue.empty;
       isEditing = false;
       String newContent;
       if (isCurrentNodeSpore()) {
@@ -422,11 +429,11 @@ class MdEditorViewModel extends ChangeNotifier {
         newContent = node.firstFieldValue;
       }
 
-      _applyContent(newContent);
+      _applyContent(newContent, clearHistory: true);
       notifyListeners();
     } else {
       this.node = null;
-      _applyContent("");
+      _applyContent("", clearHistory: true);
       notifyListeners();
       isDirty = false;
     }

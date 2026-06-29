@@ -1,6 +1,7 @@
 import './style.css'
 import { EditorView, minimalSetup } from "codemirror"
-import { Compartment } from "@codemirror/state"
+import { EditorState, Compartment } from "@codemirror/state"
+import { undo, redo, history, undoDepth, redoDepth } from "@codemirror/commands"
 import { markdown } from "@codemirror/lang-markdown"
 
 // Keyboard/cursor focus
@@ -11,6 +12,10 @@ const updateListener = EditorView.updateListener.of((update) => {
   if (window.flutter_inappwebview && typeof window.flutter_inappwebview.callHandler === 'function') {
     if (update.docChanged) {
       window.flutter_inappwebview.callHandler('onTextChange', update.state.doc.toString());
+      window.flutter_inappwebview.callHandler('onHistoryChange', {
+        canUndo: undoDepth(update.state) > 0,
+        canRedo: redoDepth(update.state) > 0
+      });
     }
     
     if (update.selectionSet) {
@@ -23,16 +28,19 @@ const updateListener = EditorView.updateListener.of((update) => {
   }
 });
 
-const editor = new EditorView({
-  doc: "",
-  extensions: [
+const myExtensions = [
     minimalSetup,
     EditorView.lineWrapping,
     markdown(),
     updateListener,
     editableCompartment.of(EditorView.editable.of(true)),
-    attributesCompartment.of(EditorView.contentAttributes.of({}))
-  ],
+    attributesCompartment.of(EditorView.contentAttributes.of({})),
+    history()
+]
+
+const editor = new EditorView({
+  doc: "",
+  extensions: myExtensions,
   parent: document.getElementById('app')
 })
 
@@ -46,10 +54,17 @@ scroller.addEventListener('scroll', () => {
 });
 
 window.myceliumEditor = {  
-  setDoc: (text) => {
-    editor.dispatch({
-      changes: { from: 0, to: editor.state.doc.length, insert: text },
-    });
+  setDoc: (text, clearHistory) => {
+    if (clearHistory) {
+      editor.setState(EditorState.create({
+        doc: text,
+        extensions: myExtensions
+      }));
+    } else {
+      editor.dispatch({
+        changes: { from: 0, to: editor.state.doc.length, insert: text },
+      });
+    }
   },
   // Keyboard/cursor focus
   setMode: (isLocked, showKeyboard, requestFocus) => {
@@ -66,7 +81,8 @@ window.myceliumEditor = {
       setTimeout(() => editor.focus(), 50);
     }
   },
-    
+  undo: () => { undo(editor) },
+  redo: () => { redo(editor) },
   scrollToProgress: (progress) => {
     const maxScroll = scroller.scrollHeight - scroller.clientHeight;
     scroller.scrollTo({
