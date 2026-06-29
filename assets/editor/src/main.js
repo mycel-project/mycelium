@@ -12,9 +12,7 @@ const editor = new EditorView({
   parent: document.getElementById('app')
 })
 
-window.myceliumEditor = {
-  getDoc: () => editor.state.doc.toString(),
-  
+window.myceliumEditor = {  
     setDoc: (text) => {//, cursor, resetScroll) => {
  //   const scrollY = window.scrollY;
     editor.dispatch({
