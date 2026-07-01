@@ -13,10 +13,14 @@
     "vite-plugin-singlefile": "^2.3.3"
   },
   "dependencies": {
+    "@babel/runtime": "^8.0.0",
     "@codemirror/lang-markdown": "^6.5.0",
     "@codemirror/language": "^6.12.4",
     "@codemirror/state": "^6.7.0",
     "@codemirror/view": "^6.43.4",
-    "codemirror": "^6.0.2"
+    "@uiw/codemirror-theme-github": "^4.25.10",
+    "codemirror": "^6.0.2",
+    "codemirror-live-markdown": "^0.5.1-alpha.1",
+    "katex": "^0.17.0"
   }
 }

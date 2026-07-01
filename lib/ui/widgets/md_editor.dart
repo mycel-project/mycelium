@@ -317,14 +317,7 @@ class MdEditorState extends State<MdEditor> {
                                   }
                                 },
                               );
-                              controller.addJavaScriptHandler(
-                                handlerName: 'onScrollChanged',
-                                callback: (args) {
-                                  if (args.isNotEmpty) {
-                                    vm.updateScroll((args[0] as num).toInt());
-                                  }
-                                },
-                              );
+
                             },
                             onLoadStop: (controller, url) async {
                               final initialText = vm.content;

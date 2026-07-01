@@ -28,3 +28,8 @@ body, html {
 .cm-editor.cm-focused {
   outline: none;
 }
+
+a {
+    pointer-events: none;
+    cursor: default;
+}

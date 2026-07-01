@@ -2,7 +2,27 @@ import './style.css'
 import { EditorView, minimalSetup } from "codemirror"
 import { EditorState, Compartment } from "@codemirror/state"
 import { undo, redo, history, undoDepth, redoDepth } from "@codemirror/commands"
+import { Table } from '@lezer/markdown';
 import { markdown } from "@codemirror/lang-markdown"
+import katex from "katex"
+import "katex/dist/katex.min.css"
+window.katex = katex
+import {
+  livePreviewPlugin,
+  markdownStylePlugin,
+  editorTheme,
+  mouseSelectingField,
+  collapseOnSelectionFacet,
+    setMouseSelecting,
+    linkPlugin,
+    imageField,
+      mathPlugin,
+  blockMathField,
+  tableField,
+  tableEditorPlugin,
+  codeBlockField,
+} from 'codemirror-live-markdown';
+import { githubLight, githubDark } from '@uiw/codemirror-theme-github';
 
 // Keyboard/cursor focus
 const editableCompartment = new Compartment()
@@ -35,11 +55,24 @@ const updateListener = EditorView.updateListener.of((update) => {
 const myExtensions = [
     minimalSetup,
     EditorView.lineWrapping,
-    markdown(),
+    markdown({ extensions: [Table] }),
     updateListener,
     editableCompartment.of(EditorView.editable.of(true)),
     attributesCompartment.of(EditorView.contentAttributes.of({})),
-    history()
+    history(),
+    collapseOnSelectionFacet.of(true),
+    mouseSelectingField,
+    livePreviewPlugin,
+    markdownStylePlugin,
+    editorTheme,
+    githubLight,
+    imageField(),
+    linkPlugin(),
+    mathPlugin,                      
+    blockMathField,                    
+    tableField,                        
+    tableEditorPlugin(),               
+    codeBlockField({ copyButton: false }),
 ]
 
 const editor = new EditorView({
@@ -47,6 +80,15 @@ const editor = new EditorView({
   extensions: myExtensions,
   parent: document.getElementById('app')
 })
+
+editor.contentDOM.addEventListener('mousedown', () => {
+  editor.dispatch({ effects: setMouseSelecting.of(true) });
+});
+document.addEventListener('mouseup', () => {
+  requestAnimationFrame(() => {
+    editor.dispatch({ effects: setMouseSelecting.of(false) });
+  });
+});
 
 window.myceliumEditor = {  
   setDoc: (text, clearHistory, cursorPos) => {
