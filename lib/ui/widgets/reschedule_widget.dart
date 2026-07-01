@@ -114,18 +114,6 @@ class _RescheduleWidgetState extends State<_RescheduleWidget> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-          // Handle
-          Padding(
-            padding: const EdgeInsets.only(top: 12, bottom: 4),
-            child: Container(
-              width: 36,
-              height: 4,
-              decoration: BoxDecoration(
-                color: cs.onSurface.withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-          ),
 
           // Header
           Padding(
