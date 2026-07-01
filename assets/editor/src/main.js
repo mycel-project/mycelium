@@ -1,5 +1,5 @@
 import './style.css'
-import { EditorView, minimalSetup } from "codemirror"
+import { EditorView } from "codemirror"
 import { EditorState, Compartment } from "@codemirror/state"
 import { undo, redo, history, undoDepth, redoDepth } from "@codemirror/commands"
 import { Table } from '@lezer/markdown';
@@ -23,10 +23,11 @@ import {
   codeBlockField,
 } from 'codemirror-live-markdown';
 import { githubLight, githubDark } from '@uiw/codemirror-theme-github';
+import { customMinimalSetup } from './custom_setup';
 
-// Keyboard/cursor focus
-const editableCompartment = new Compartment()
+const readOnlyCompartment = new Compartment()
 const attributesCompartment = new Compartment()
+const historyCompartment = new Compartment()
 
 const updateListener = EditorView.updateListener.of((update) => {
   if (window.flutter_inappwebview && typeof window.flutter_inappwebview.callHandler === 'function') {
@@ -53,13 +54,14 @@ const updateListener = EditorView.updateListener.of((update) => {
 });
 
 const myExtensions = [
-    minimalSetup,
+    customMinimalSetup,
     EditorView.lineWrapping,
     markdown({ extensions: [Table] }),
     updateListener,
-    editableCompartment.of(EditorView.editable.of(true)),
+    readOnlyCompartment.of(EditorState.readOnly.of(false)),
+    EditorView.editable.of(true),
     attributesCompartment.of(EditorView.contentAttributes.of({})),
-    history(),
+    historyCompartment.of(history()),
     collapseOnSelectionFacet.of(true),
     mouseSelectingField,
     livePreviewPlugin,
@@ -90,32 +92,53 @@ document.addEventListener('mouseup', () => {
   });
 });
 
+editor.contentDOM.addEventListener('touchstart', () => {
+  if (!editor.hasFocus) {
+    editor.focus();
+  }
+}, { passive: true });
+
 window.myceliumEditor = {  
   setDoc: (text, clearHistory, cursorPos) => {
     const scroller = editor.scrollDOM;
     const prevScroll = scroller.scrollTop;
 
+    const oldText = editor.state.doc.toString();
+    if (oldText !== text) {
+      let start = 0;
+      while (start < oldText.length && start < text.length && oldText.charCodeAt(start) === text.charCodeAt(start)) {
+        start++;
+      }
+      let endOld = oldText.length - 1;
+      let endNew = text.length - 1;
+      while (endOld >= start && endNew >= start && oldText.charCodeAt(endOld) === text.charCodeAt(endNew)) {
+        endOld--;
+        endNew--;
+      }
+      editor.dispatch({
+        changes: { from: start, to: endOld + 1, insert: text.slice(start, endNew + 1) },
+      });
+    }
+
     if (clearHistory) {
-      editor.setState(EditorState.create({
-        doc: text,
-        extensions: myExtensions
-      }));
-    } else {
-      const oldText = editor.state.doc.toString();
-      if (oldText !== text) {
-        let start = 0;
-        while (start < oldText.length && start < text.length && oldText.charCodeAt(start) === text.charCodeAt(start)) {
-          start++;
-        }
-        let endOld = oldText.length - 1;
-        let endNew = text.length - 1;
-        while (endOld >= start && endNew >= start && oldText.charCodeAt(endOld) === text.charCodeAt(endNew)) {
-          endOld--;
-          endNew--;
-        }
-        editor.dispatch({
-          changes: { from: start, to: endOld + 1, insert: text.slice(start, endNew + 1) },
-        });
+      editor.dispatch({ effects: historyCompartment.reconfigure([]) });
+      editor.dispatch({ effects: historyCompartment.reconfigure(history()) });
+      
+      // If no explicit cursor is provided but we are changing node, 
+      // explicitly reset the CodeMirror selection to the start of the new document!
+      if (cursorPos === undefined || cursorPos === null) {
+        editor.dispatch({ selection: { anchor: 0, head: 0 } });
+      }
+      
+      // Also clear any native browser selection to forcefully dismiss Android's Action Mode toolbar
+      const nativeSel = window.getSelection();
+      if (nativeSel) {
+        nativeSel.removeAllRanges();
+      }
+
+      // Explicitly notify Flutter that history is now empty
+      if (window.flutter_inappwebview && typeof window.flutter_inappwebview.callHandler === 'function') {
+        window.flutter_inappwebview.callHandler('onHistoryChange', { canUndo: false, canRedo: false });
       }
     }
 
@@ -129,9 +152,9 @@ window.myceliumEditor = {
   setMode: (isLocked, showKeyboard, requestFocus) => {
     editor.dispatch({
       effects: [
-        editableCompartment.reconfigure(EditorView.editable.of(!isLocked)),
+        readOnlyCompartment.reconfigure(EditorState.readOnly.of(isLocked)),
         attributesCompartment.reconfigure(EditorView.contentAttributes.of(
-          (!showKeyboard && !isLocked) ? { inputmode: "none" } : {}
+          (!showKeyboard || isLocked) ? { inputmode: "none" } : {}
         ))
       ]
     });
