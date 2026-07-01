@@ -112,7 +112,8 @@ class MdEditorState extends State<MdEditor> {
     focusNode.unfocus();
     _webViewController?.clearFocus();
     _webViewController?.callAsyncJavaScript(
-      functionBody: "window.myceliumEditor.blur();",
+      functionBody:
+          "window.myceliumEditor.blur(); window.myceliumEditor.clearSelection();",
     );
     WidgetsBinding.instance.addPostFrameCallback((_) {
       vm.onCursorChanged(null);

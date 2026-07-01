@@ -166,6 +166,13 @@ window.myceliumEditor = {
   blur: () => {
     if (document.activeElement) document.activeElement.blur();
   },
+  clearSelection: () => {
+    editor.dispatch({ selection: { anchor: 0, head: 0 } });
+    const nativeSel = window.getSelection();
+    if (nativeSel) {
+      nativeSel.removeAllRanges();
+    }
+  },
   undo: () => { undo(editor) },
   redo: () => { redo(editor) },
   scrollToOffset: (offset, margin = 0) => {

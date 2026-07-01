@@ -239,7 +239,7 @@ class KeyboardButton extends StatelessWidget {
     return FloatingActionButton(
       heroTag: "fab_keyboard",
       onPressed: () {
-        if (vm.activeKeyboard) removeFocusAndCursor();
+        if (vm.activeKeyboard) FocusScope.of(context).unfocus();
         vm.toggleKeyboard();
       },
       child: vm.activeKeyboard

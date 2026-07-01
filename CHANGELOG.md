@@ -17,6 +17,8 @@
 - Delegate Undo/Redo history management entirely to CodeMirror, replacing the obsolete Flutter `UndoHistoryController`.
 
 ### Fixed
+- Restore original keyboard button behavior to solely act as a toggle for virtual keyboard displayability (`inputmode`) without forcing CodeMirror focus or destroying the user's selection when toggled off.
+- Enforce explicit clearing of both CodeMirror and native browser selections when switching nodes or explicitly blurring the editor, regardless of the virtual keyboard's state.
 - Fix missing margin when scrolling via outline navigation.
 - Keep Markdown elements collapsed when making a text selection to prevent UI jumping and stabilize native Android text selection handles.
 - Fix mobile keyboard remaining active when opening drawers by natively bridging Flutter's focus tree with CodeMirror's focus state.
