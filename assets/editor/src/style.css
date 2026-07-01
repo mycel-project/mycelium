@@ -33,3 +33,7 @@ a {
     pointer-events: none;
     cursor: default;
 }
+
+.cm-content {
+  padding-bottom: 128px !important;
+}
