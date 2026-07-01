@@ -92,8 +92,8 @@ class MdEditorState extends State<MdEditor> {
 
       final int offset = vm.scrollPositionStore.offset;
       _webViewController!.callAsyncJavaScript(
-        functionBody: "window.myceliumEditor.scrollToOffset(offset);",
-        arguments: {'offset': offset},
+        functionBody: "window.myceliumEditor.scrollToOffset(offset, margin);",
+        arguments: {'offset': offset, 'margin': 32},
       );
     }
 
@@ -317,7 +317,6 @@ class MdEditorState extends State<MdEditor> {
                                   }
                                 },
                               );
-
                             },
                             onLoadStop: (controller, url) async {
                               final initialText = vm.content;

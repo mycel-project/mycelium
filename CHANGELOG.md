@@ -17,6 +17,8 @@
 - Delegate Undo/Redo history management entirely to CodeMirror, replacing the obsolete Flutter `UndoHistoryController`.
 
 ### Fixed
+- Fix missing margin when scrolling via outline navigation.
+- Keep Markdown elements collapsed when making a text selection to prevent UI jumping and stabilize native Android text selection handles.
 - Fix mobile keyboard remaining active when opening drawers by natively bridging Flutter's focus tree with CodeMirror's focus state.
 - Hide import buttons when no collection is selected
 - Fix mobile scrolling and gesture conflicts with CodeMirror by enforcing WebView gesture priority and reducing drawer activation zone.

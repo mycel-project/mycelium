@@ -168,9 +168,9 @@ window.myceliumEditor = {
   },
   undo: () => { undo(editor) },
   redo: () => { redo(editor) },
-  scrollToOffset: (offset) => {
+  scrollToOffset: (offset, margin = 0) => {
     if (offset >= 0 && offset <= editor.state.doc.length) {
-      editor.dispatch({ effects: EditorView.scrollIntoView(offset, { y: 'start' }) });
+      editor.dispatch({ effects: EditorView.scrollIntoView(offset, { y: 'start', yMargin: margin }) });
     }
   }
 }
