@@ -147,34 +147,34 @@ class _DrawerHeader extends StatelessWidget {
     );
   }
 
-  Widget _iconButton(BuildContext context, IconData icon, VoidCallback onTap) {
-    return Material(
-      color: Colors.transparent,
-      shape: const CircleBorder(),
-      clipBehavior: Clip.antiAlias,
-      child: Ink(
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surfaceContainerHighest,
-          shape: BoxShape.circle,
-        ),
-        child: InkResponse(
-          onTap: onTap,
-          radius: 18,
-          splashColor: Theme.of(
-            context,
-          ).colorScheme.primary.withValues(alpha: 0.2),
-          highlightShape: BoxShape.circle,
-          child: SizedBox(
-            width: 40,
-            height: 40,
-            child: Icon(
-              icon,
-              size: 18,
-              color: Theme.of(context).iconTheme.color,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
+  // Widget _iconButton(BuildContext context, IconData icon, VoidCallback onTap) {
+  //   return Material(
+  //     color: Colors.transparent,
+  //     shape: const CircleBorder(),
+  //     clipBehavior: Clip.antiAlias,
+  //     child: Ink(
+  //       decoration: BoxDecoration(
+  //         color: Theme.of(context).colorScheme.surfaceContainerHighest,
+  //         shape: BoxShape.circle,
+  //       ),
+  //       child: InkResponse(
+  //         onTap: onTap,
+  //         radius: 18,
+  //         splashColor: Theme.of(
+  //           context,
+  //         ).colorScheme.primary.withValues(alpha: 0.2),
+  //         highlightShape: BoxShape.circle,
+  //         child: SizedBox(
+  //           width: 40,
+  //           height: 40,
+  //           child: Icon(
+  //             icon,
+  //             size: 18,
+  //             color: Theme.of(context).iconTheme.color,
+  //           ),
+  //         ),
+  //       ),
+  //     ),
+  //   );
+  // }
 }
