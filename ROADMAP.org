@@ -1,13 +1,14 @@
 * Mycelium Roadmap
-Coming soon...
-(draft)
+WIP...
 ** Now
-- [X] Fix spore formatting
-- [X] Remove import without collection
-- [X] Simplify/make robust the API config page
-- [X] Add colors for priorities
+- [ ] Enhance import 
+  - [ ] Add loading screen/state when importing
+  - [ ] Import from local files
 - [ ] Refactor ViewModels for better layer separation
+- [ ] Add username in API config page
 ** Next
-- [ ] Use CodeMirror for Markdown rendering
-- [ ] Import from local files
+- [ ] Support for multi-spores
+- [ ] Correct aggresive toasting
+- [ ] Build for MacOS
 ** Later
+...

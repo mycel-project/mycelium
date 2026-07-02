@@ -1,33 +1,28 @@
 ## Unreleased
 
+## v0.1.5
+This update introduces a total refactor of the Markdown rendering engine, switching from a custom one to CodeMirror with live rendering and support for more elements. It also introduces other changes detailed below.
+
 ### Added
-- Add virtual keyboard toggle support for CodeMirror using dynamic `inputmode="none"` (maintains cursor visibility without summoning the virtual keyboard).
 - Introduce a global priority coloring system (rainbow spectrum from violet to red) that dynamically colors priority chips and the reprioritization slider based on the priority value.
 - Sanitize base URL and token inputs by automatically stripping spaces, invisible control characters, and (for URLs) trailing slashes, and prefixing with 'http://' if missing.
 - Auto-select the "Default" collection if no active collection is found (e.g. fresh install).
-- Track current slot during reviews.
-- Target specific cloze slots in the UI based on the current review slot.
+- Track current slot during reviews (to prepare for multi-spore nodes).
+- AI instructions skills for better consistency
 
 ### Refactored
+- Refactored Markdown rendering logic by using CodeMirror with package `live-markdown-rendering`
 - Redesign API config page UI and improve custom URL handling when switching connection methods.
-- Extract cloze transformation logic into a dedicated `TransformClozeUseCase`.
-- Change default slot value from 0 to 1 across the codebase for consistency with the backend.
-- Refactor CodeMirror synchronization to use real-time listeners (text and cursor/selection) instead of polling.
+- Change default slot value from 0 to 1 across the codebase for consistency with Mycel.
 - Implement robust JavaScript-to-Flutter scroll synchronization for CodeMirror, removing legacy Flutter `ScrollController` dependencies.
 - Delegate Undo/Redo history management entirely to CodeMirror, replacing the obsolete Flutter `UndoHistoryController`.
 
 ### Fixed
-- Restore original keyboard button behavior to solely act as a toggle for virtual keyboard displayability (`inputmode`) without forcing CodeMirror focus or destroying the user's selection when toggled off.
-- Enforce explicit clearing of both CodeMirror and native browser selections when switching nodes or explicitly blurring the editor, regardless of the virtual keyboard's state.
-- Fix missing margin when scrolling via outline navigation.
-- Keep Markdown elements collapsed when making a text selection to prevent UI jumping and stabilize native Android text selection handles.
-- Fix mobile keyboard remaining active when opening drawers by natively bridging Flutter's focus tree with CodeMirror's focus state.
+- Fix spore cloze fields that were displaying the slot number rather than spore content
 - Hide import buttons when no collection is selected
-- Fix mobile scrolling and gesture conflicts with CodeMirror by enforcing WebView gesture priority and reducing drawer activation zone.
-- Restore functionality of node action buttons (extract creation, delete before/after cursor, remove links) by removing dependency on the obsolete markdown controller.
+- Fix mobile keyboard remaining active when opening drawers by natively bridging Flutter's focus tree with CodeMirror's focus state.
 - Fix outline navigation layout shifting and inaccuracies by synchronizing scroll position using exact absolute character offsets instead of relative scroll percentages.
-- Fix missing background colors (spore, invalid cloze, dismissed node) in CodeMirror by enforcing transparent HTML bodies and InAppWebView backgrounds.
-- Fix virtual keyboard inadvertently appearing on node load and remaining active when changing nodes by correctly ordering JS state initialization and establishing a robust blur bridge.
+
 ## v0.1.4
 ### Added
 - When removing links, remove cursor and restore scroll position.
