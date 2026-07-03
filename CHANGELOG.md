@@ -1,7 +1,10 @@
 ## Unreleased
 
 ## v0.1.5
-This update introduces a total refactor of the Markdown rendering engine, switching from a custom one to CodeMirror with live rendering and support for more elements. It also introduces other changes detailed below.
+This update introduces a total refactor of the Markdown rendering engine, switching from a custom one to CodeMirror with live rendering and support for more elements. It also temporarily removes Linux support but introduces a web build for Mycelium, along with other changes detailed below.
+
+### BREAKING
+- Remove Linux build. Web views are too inconsistent in the Flutter ecosystem for Linux but it evolves quickly. Linux users can still access Mycelium through the web build.
 
 ### Added
 - Introduce a global priority coloring system (rainbow spectrum from violet to red) that dynamically colors priority chips and the reprioritization slider based on the priority value.
