@@ -6,7 +6,7 @@ import 'package:mycelium/core/stores/node_store.dart';
 import 'package:mycelium/ui/widgets/confirmation_dialog.dart';
 import 'package:mycelium/ui/widgets/input_dialog.dart';
 import 'package:mycelium/ui/widgets/node_tree.dart';
-import 'package:mycelium/utils/device.dart';
+import 'package:mycelium/utils/responsive.dart';
 import 'package:mycelium/viewmodels/home_viewmodel.dart';
 import 'package:provider/provider.dart';
 
@@ -29,7 +29,7 @@ class LeftDrawer extends StatelessWidget {
                 formatSpore: (content) => vm.hideSpore(content),
                 nodes: vm.getNodes(),
                 isSpore: (node) => node.type == "spore",
-                popOnClick: !Device.isDesktop ? true : false,
+                popOnClick: Responsive.isMobile(context),
                 clickCallback: (String value) => vm.navigateTo(value),
                 secondaryAction: (String nodeId, Offset position) async {
                   final screenWidth = MediaQuery.of(context).size.width;

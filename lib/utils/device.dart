@@ -1,11 +1,16 @@
-import 'dart:io';
+import 'package:flutter/foundation.dart';
 
 class Device {
+  static bool get isWeb => kIsWeb;
+
   static bool get isDesktop =>
-  Platform.isWindows || Platform.isMacOS || Platform.isLinux;
+    !kIsWeb && (defaultTargetPlatform == TargetPlatform.windows ||
+                defaultTargetPlatform == TargetPlatform.macOS ||
+                defaultTargetPlatform == TargetPlatform.linux);
 
   static bool get isMobile =>
-  Platform.isAndroid || Platform.isIOS;
+    !kIsWeb && (defaultTargetPlatform == TargetPlatform.android ||
+                defaultTargetPlatform == TargetPlatform.iOS);
 
-  static bool get isTablet => isMobile; 
+  static bool get isTablet => isMobile;
 }
