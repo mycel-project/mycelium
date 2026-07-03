@@ -96,6 +96,31 @@ class AboutPage extends StatelessWidget {
                       ),
                     ),
                   ),
+
+                  const SizedBox(height: 6),
+
+                  TextButton.icon(
+                    onPressed: () {
+                      launchUrl(
+                        Uri.parse(
+                          "https://mycel-project.com/docs/mycelium/",
+                        ),
+                      );
+                    },
+                    icon: Icon(
+                      Icons.open_in_new,
+                      size: 18,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                    label: Text(
+                      "See Mycelium Manual",
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.primary,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+
                 ],
               )
             ],
