@@ -15,6 +15,7 @@ class ApiViewModel extends ChangeNotifier {
   final ApiStore apiStore;
   final AppStore appStore;
   bool isChecking = false;
+  int _checkGeneration = 0;
 
   String? _mycelVersion;
   bool? _compatible;
@@ -24,6 +25,7 @@ class ApiViewModel extends ChangeNotifier {
   String? get mycelVersion => _mycelVersion;
   bool? get mycelCompatible => _compatible;
   String get myceliumVersion => appStore.version;
+  String errorMessage = "";
 
   ApiViewModel(
     this.updateApiUrlUseCase,
@@ -52,14 +54,17 @@ class ApiViewModel extends ChangeNotifier {
     }
   }
 
-  Future<ConnectionStatus> checkReachability() async {
+  Future<ConnectionStatus?> checkReachability() async {
+    final gen = ++_checkGeneration;
     isChecking = true;
     notifyListeners();
     final result = await checkApiUseCase.execute();
+    if (gen != _checkGeneration) return null;
     _mycelVersion = result.mycelVersion;
     _compatible = result.compatible;
     isChecking = false;
     notifyListeners();
+    errorMessage = result.message ?? "";
     return result.status;
   }
 }

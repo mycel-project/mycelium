@@ -100,16 +100,16 @@ class _ApiConfigPageState extends State<ApiConfigPage> {
                       SegmentedButton<ApiMode>(
                         style: ButtonStyle(
                           backgroundColor:
-                              MaterialStateProperty.resolveWith<Color?>(
-                                (Set<MaterialState> states) {
-                                  if (states.contains(MaterialState.selected)) {
-                                    return Theme.of(
-                                      context,
-                                    ).colorScheme.primary.withOpacity(0.1);
-                                  }
-                                  return null;
-                                },
-                              ),
+                              MaterialStateProperty.resolveWith<Color?>((
+                                Set<MaterialState> states,
+                              ) {
+                                if (states.contains(MaterialState.selected)) {
+                                  return Theme.of(
+                                    context,
+                                  ).colorScheme.primary.withOpacity(0.1);
+                                }
+                                return null;
+                              }),
                         ),
                         segments: const [
                           ButtonSegment(
@@ -241,8 +241,7 @@ class _ApiConfigPageState extends State<ApiConfigPage> {
                           else
                             Icon(
                               switch (store.status) {
-                                ConnectionStatus.unknown =>
-                                Icons.circle,
+                                ConnectionStatus.unknown => Icons.circle,
                                 ConnectionStatus.connected => Icons.check,
                                 ConnectionStatus.unreachable => Icons.cancel,
                                 ConnectionStatus.degraded => Icons.warning,
@@ -310,6 +309,20 @@ class _ApiConfigPageState extends State<ApiConfigPage> {
                           ),
                         ],
                       ],
+                      vm.errorMessage != ""
+                          ? Column(
+                              children: [
+                                const SizedBox(height: 32),
+                                Center(
+                                  child: Text(
+                                    vm.errorMessage,
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(color: Colors.orange),
+                                  ),
+                                ),
+                              ],
+                            )
+                          : const SizedBox(height: 0),
                       const SizedBox(height: 36),
                       if (store.status == ConnectionStatus.connected)
                         ElevatedButton(

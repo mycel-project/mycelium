@@ -1,5 +1,9 @@
 ## Unreleased
 
+### Refactored
+- Refactor health check flow: route `/health` and `/version` through `ApiClient` for unified connection status tracking. Add request sequencing in `ApiClient._guard()` to ignore stale HTTP responses. Add staleness guard in `CheckApiUseCase` to prevent outdated health-check results from corrupting `ApiStore`. Add generation counter in `ApiViewModel` to protect local state from stale callbacks.
+- Display API error message on config page when connection check fails.
+
 ## v0.1.5
 This update introduces a total refactor of the Markdown rendering engine, switching from a custom one to CodeMirror with live rendering and support for more elements. It also temporarily removes Linux support but introduces a web build for Mycelium, along with other changes detailed below.
 

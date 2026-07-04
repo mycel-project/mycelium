@@ -7,6 +7,7 @@ class ApiClient {
   final ApiService _api;
   final NotificationBus _notificationBus;
   final ApiStore _apiStore;
+  int _lastRequestId = 0;
 
   ApiClient(this._api, this._notificationBus, this._apiStore);
 
@@ -32,7 +33,9 @@ class ApiClient {
   }
 
   Future<ApiResult<String>> _guard(Future<ApiResult<String>> request) async {
+    final requestId = ++_lastRequestId;
     final result = await request;
+    if (requestId != _lastRequestId) return result;
     _updateConnectionStatus(result);
     if (result is ApiError && result is! DomainError) {
       switch (result.type) {
@@ -78,6 +81,10 @@ class ApiClient {
     }
     return result;
   }
+
+  Future<ApiResult<String>> health() => _guard(_api.get("/health"));
+
+  Future<ApiResult<String>> version() => _guard(_api.get("/version"));
 
   Future<ApiResult<String>> get(
     String path, {
