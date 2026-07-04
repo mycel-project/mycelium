@@ -36,18 +36,19 @@ class ApiClient {
     Future<ApiResult<String>> request, {
     bool silent = false,
   }) async {
+    final requestId = ++_lastRequestId;
+    final result = await request;
+    if (requestId != _lastRequestId) return result;
+    if (silent) return result;
+    _updateConnectionStatus(result);
     if (_apiStore.baseUrl.isEmpty) {
+      _notificationBus.showError("Please configure Mycel URL.");
       return ApiError(
         "empty_url",
         message: "Please configure Mycel base URL.",
         type: "network",
       );
     }
-    final requestId = ++_lastRequestId;
-    final result = await request;
-    if (requestId != _lastRequestId) return result;
-    if (silent) return result;
-    _updateConnectionStatus(result);
     if (result is ApiError && result is! DomainError) {
       switch (result.type) {
         case "network":

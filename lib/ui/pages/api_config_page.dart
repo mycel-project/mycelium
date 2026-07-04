@@ -26,12 +26,19 @@ class _ApiConfigPageState extends State<ApiConfigPage> {
   void initState() {
     super.initState();
     final vm = context.read<ApiViewModel>();
-    urlController = TextEditingController(text: vm.baseUrl);
-    tokenController = TextEditingController(text: vm.token);
-
+    vm.errorMessage = "";
     _mode = (vm.baseUrl == "https://api.mycelcloud.com" || vm.baseUrl.isEmpty)
         ? ApiMode.cloud
         : ApiMode.local;
+    if (_mode == ApiMode.cloud && vm.baseUrl != "https://api.mycelcloud.com") {
+      vm.setUrl("https://api.mycelcloud.com");
+    }
+    urlController = TextEditingController(
+      text: _mode == ApiMode.cloud && vm.baseUrl.isEmpty
+          ? "https://api.mycelcloud.com"
+          : vm.baseUrl,
+    );
+    tokenController = TextEditingController(text: vm.token);
   }
 
   @override
@@ -131,7 +138,7 @@ class _ApiConfigPageState extends State<ApiConfigPage> {
                           setState(() {
                             _mode = newMode;
                           });
-
+                          vm.errorMessage = "";
                           if (_mode == ApiMode.cloud) {
                             if (urlController.text !=
                                 "https://api.mycelcloud.com") {

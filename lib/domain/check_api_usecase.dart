@@ -102,7 +102,7 @@ class CheckApiUseCase {
             status = ConnectionStatus.unreachable;
             message = usedUrl.isNotEmpty
                 ? "No Mycel instance reachable at '$usedUrl'."
-                : "Please entre a URL.";
+                : "Please enter a URL.";
           case "version":
           case "auth":
             status = ConnectionStatus.degraded;
