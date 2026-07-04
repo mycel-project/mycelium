@@ -12,7 +12,6 @@ import 'package:mycelium/core/stores/scroll_position_store.dart';
 import 'package:mycelium/core/stores/user_store.dart';
 import 'package:mycelium/domain/check_app_update_usecase.dart';
 import 'package:mycelium/domain/init_api_usecase.dart';
-import 'package:mycelium/ui/pages/api_config_page.dart';
 import 'package:mycelium/ui/widgets/window_initializer.dart';
 import 'package:mycelium/utils/device.dart';
 import 'package:mycelium/viewmodels/about_viewmodel.dart';
@@ -71,8 +70,6 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final apiStore = context.watch<ApiStore>();
-    final isEmptyUrl = apiStore.baseUrl.isEmpty;
     return ToastificationWrapper(
       config: const ToastificationConfig(
         alignment: Alignment.bottomLeft,
@@ -84,7 +81,9 @@ class MyApp extends StatelessWidget {
           pageTransitionsTheme: const PageTransitionsTheme(
             builders: {
               TargetPlatform.android: ZoomPageTransitionsBuilder(),
+              TargetPlatform.iOS: FadeUpwardsPageTransitionsBuilder(),
               TargetPlatform.linux: FadeUpwardsPageTransitionsBuilder(),
+              TargetPlatform.macOS: FadeUpwardsPageTransitionsBuilder(),
               TargetPlatform.windows: FadeUpwardsPageTransitionsBuilder(),
             },
           ),
@@ -111,14 +110,8 @@ class MyApp extends StatelessWidget {
         ),
         home: MyceliumNotificationListener(
           child: Device.isDesktop
-              ? WindowInitializer(
-                  child: isEmptyUrl
-                      ? ApiConfigPage()
-                      : const HomePage(),
-                )
-              : (isEmptyUrl
-                    ? ApiConfigPage()
-                    : const HomePage()),
+              ? WindowInitializer(child: const HomePage())
+              : const HomePage(),
         ),
       ),
     );

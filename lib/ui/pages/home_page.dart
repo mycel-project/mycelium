@@ -28,7 +28,6 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final vm = context.watch<HomeViewModel>();
-    final apiStore = context.watch<ApiStore>();
     return Scaffold(
       drawerEdgeDragWidth: 80,
       appBar: MyAppBar(
@@ -183,7 +182,7 @@ class HomePage extends StatelessWidget {
                   )
                 : context.watch<NodeStore>().currentNode != null
                 ? const MdEditor()
-                : apiStore.status != ConnectionStatus.connected
+                : context.watch<ApiStore>().status != ConnectionStatus.connected
                 ? ApiNotReachableWidget()
                 : context.watch<CollectionStore>().currentCollection == null
                 ? NoCollectionWidget()
