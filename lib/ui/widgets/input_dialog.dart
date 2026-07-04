@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pointer_interceptor/pointer_interceptor.dart';
 
 Future<String?> showInputDialog({
   required BuildContext context,
@@ -11,11 +12,13 @@ Future<String?> showInputDialog({
   return showDialog<String>(
     context: context,
     barrierDismissible: true,
-    builder: (context) => _InputDialog(
-      controller: controller,
-      title: title,
-      placeholder: placeholder,
-      keyboardType: keyboardType,
+    builder: (context) => PointerInterceptor(
+      child: _InputDialog(
+        controller: controller,
+        title: title,
+        placeholder: placeholder,
+        keyboardType: keyboardType,
+      ),
     ),
   );
 }
@@ -23,7 +26,8 @@ Future<String?> showInputDialog({
 Future<String?> showInputDialogWithRetry({
   required BuildContext context,
   required String title,
-  required Future<bool> Function(String) onSubmit, // The callback must return true if the action has been effectuated.
+  required Future<bool> Function(String)
+  onSubmit, // The callback must return true if the action has been effectuated.
   String? placeholder,
   String? initialValue,
   TextInputType keyboardType = TextInputType.text,

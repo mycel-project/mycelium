@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pointer_interceptor/pointer_interceptor.dart';
 
 class ConfirmationOption {
   final String label;
@@ -45,22 +46,24 @@ class ConfirmationDialog extends StatefulWidget {
       barrierLabel: "Confirmation",
       transitionDuration: const Duration(milliseconds: 180),
       pageBuilder: (context, anim1, anim2) {
-        return Material(
-          color: Colors.black54,
-          child: GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onTap: () => Navigator.pop(
-              context,
-              ConfirmationResult(confirmed: false, options: {}),
-            ),
-            child: Center(
-              child: GestureDetector(
-                onTap: () {},
-                child: ConfirmationDialog(
-                  title: title,
-                  text: text,
-                  destructive: destructive,
-                  options: options,
+        return PointerInterceptor(
+          child: Material(
+            color: Colors.black54,
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: () => Navigator.pop(
+                context,
+                ConfirmationResult(confirmed: false, options: {}),
+              ),
+              child: Center(
+                child: GestureDetector(
+                  onTap: () {},
+                  child: ConfirmationDialog(
+                    title: title,
+                    text: text,
+                    destructive: destructive,
+                    options: options,
+                  ),
                 ),
               ),
             ),
@@ -104,13 +107,16 @@ class _ConfirmationDialogState extends State<ConfirmationDialog> {
           Text(widget.text),
           if (widget.options.isNotEmpty) ...[
             const SizedBox(height: 12),
-            ...widget.options.map((option) => CheckboxListTile(
-              dense: true,
-              contentPadding: EdgeInsets.zero,
-              title: Text(option.label),
-              value: _values[option.key],
-              onChanged: (val) => setState(() => _values[option.key] = val ?? false),
-            )),
+            ...widget.options.map(
+              (option) => CheckboxListTile(
+                dense: true,
+                contentPadding: EdgeInsets.zero,
+                title: Text(option.label),
+                value: _values[option.key],
+                onChanged: (val) =>
+                    setState(() => _values[option.key] = val ?? false),
+              ),
+            ),
           ],
         ],
       ),
