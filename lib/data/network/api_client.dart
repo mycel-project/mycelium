@@ -1,15 +1,39 @@
 import 'package:mycelium/core/notifications/notification_bus.dart';
+import 'package:mycelium/core/stores/api_store.dart';
 import 'package:mycelium/data/network/api_service.dart';
 import 'package:mycelium/data/api_result.dart';
 
 class ApiClient {
   final ApiService _api;
   final NotificationBus _notificationBus;
+  final ApiStore _apiStore;
 
-  ApiClient(this._api, this._notificationBus);
+  ApiClient(this._api, this._notificationBus, this._apiStore);
+
+  void _updateConnectionStatus(ApiResult result) {
+    switch (result) {
+      case ApiSuccess():
+      case DomainError():
+        _apiStore.setConnected();
+      case ApiError(:final type, :final statusCode):
+        switch (type) {
+          case "network":
+            _apiStore.setUnreachable();
+          case "auth":
+          case "version":
+          case "invalid_response":
+            _apiStore.setUnreachable();
+          case null when statusCode != null && statusCode >= 500:
+            _apiStore.setDegraded();
+          default:
+            _apiStore.setConnected();
+        }
+    }
+  }
 
   Future<ApiResult<String>> _guard(Future<ApiResult<String>> request) async {
     final result = await request;
+    _updateConnectionStatus(result);
     if (result is ApiError && result is! DomainError) {
       switch (result.type) {
         case "network":

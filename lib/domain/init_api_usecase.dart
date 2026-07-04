@@ -1,8 +1,8 @@
 import 'package:mycelium/core/stores/api_store.dart';
 import 'package:mycelium/data/local/api_preferences.dart';
 import 'package:mycelium/data/local/token_preferences.dart';
-import 'package:mycelium/domain/api_status.dart';
 import 'package:mycelium/domain/check_api_usecase.dart';
+import 'package:mycelium/domain/connection_status.dart';
 import 'package:mycelium/domain/init_data_usecase.dart';
 
 class InitApiUseCase {
@@ -35,8 +35,8 @@ class InitApiUseCase {
   Future<void> execute() async {
     await initApiUrl();
     if (apiStore.baseUrl.isEmpty) return;
-    await checkApiUseCase.execute();
-    if (apiStore.status == ApiStatus.reachable) {
+    final result = await checkApiUseCase.execute();
+    if (result.status == ConnectionStatus.connected) {
       await initDataUseCase.execute();
     }
   }

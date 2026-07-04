@@ -1,13 +1,12 @@
 import 'package:pub_semver/pub_semver.dart';
-import 'package:mycelium/domain/api_compatibility.dart';
 
 class CompatibilityChecker {
-  ApiCompatibility check(
+  bool? check(
     String frontendVersion,
     String backendVersion,
     Map<String, dynamic> compatibilityMatrix,
   ) {
-    if (frontendVersion == "dev") return ApiCompatibility.compatible;
+    if (frontendVersion == "dev") return true;
     try {
       final frontend = Version.parse(frontendVersion.replaceAll(RegExp(r'-(alpha|beta|rc).*'), ''));
       final backend = Version.parse(backendVersion.replaceAll(RegExp(r'-(alpha|beta|rc).*'), ''));
@@ -17,13 +16,11 @@ class CompatibilityChecker {
         final backendConstraint = VersionConstraint.parse(
           entry.value["mycel"]["compatible"],
         );
-        return backendConstraint.allows(backend)
-            ? ApiCompatibility.compatible
-            : ApiCompatibility.incompatible;
+        return backendConstraint.allows(backend) ? true : false;
       }
-      return ApiCompatibility.error;
+      return null;
     } catch (e) {
-      return ApiCompatibility.error;
+      return null;
     }
   }
 }

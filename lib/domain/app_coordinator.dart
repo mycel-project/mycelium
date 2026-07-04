@@ -1,14 +1,11 @@
-import 'package:mycelium/core/notifications/notification_bus.dart';
 import 'package:mycelium/core/stores/api_store.dart';
 import 'package:mycelium/core/stores/collection_store.dart';
 import 'package:mycelium/core/stores/navigation_store.dart';
 import 'package:mycelium/core/stores/node_store.dart';
 import 'package:mycelium/data/repositories/node_repository.dart';
-import 'package:mycelium/domain/api_status.dart';
+import 'package:mycelium/domain/connection_status.dart';
 import 'package:mycelium/domain/init_data_usecase.dart';
-import 'package:mycelium/domain/api_compatibility.dart';
 
-/// Coordinates cross-cutting reactions to app-level state changes, such as invalidating caches, fetching global data if init in main has failed ... without notifying
 class AppCoordinator {
   final CollectionStore _collectionStore;
   final NodeRepository _nodeRepository;
@@ -17,7 +14,6 @@ class AppCoordinator {
   final ApiStore _apiStore;
   final InitDataUseCase _initDataUseCase;
   bool _isDataInitialized = false;
-  final NotificationBus _notificationBus;
 
   AppCoordinator(
     this._collectionStore,
@@ -26,31 +22,15 @@ class AppCoordinator {
     this._navigationStore,
     this._apiStore,
     this._initDataUseCase,
-    this._notificationBus,
   ) {
     _collectionStore.addListener(_onCollectionChanged);
     _apiStore.addListener(_onApiStatusChanged);
   }
 
   void _onApiStatusChanged() async {
-    if (_apiStore.status == ApiStatus.reachable && !_isDataInitialized) {
+    if (_apiStore.status == ConnectionStatus.connected && !_isDataInitialized) {
       await _initDataUseCase.execute();
       _isDataInitialized = true;
-    }
-
-    if (_apiStore.status == ApiStatus.reachable) {
-      switch (_apiStore.apiCompatibility) {
-        case ApiCompatibility.incompatible:
-        _notificationBus.showWarning(
-          "Incompatible Mycel version. Check the API Configuration page.",
-        );
-        case ApiCompatibility.error:
-        _notificationBus.showWarning(
-          "Could not check Mycel compatibility with current Mycelium version.",
-        );
-        default:
-        break;
-      }
     }
   }
 

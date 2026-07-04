@@ -3,8 +3,8 @@ import 'package:mocktail/mocktail.dart';
 import 'package:mycelium/core/stores/api_store.dart';
 import 'package:mycelium/data/local/api_preferences.dart';
 import 'package:mycelium/data/local/token_preferences.dart';
-import 'package:mycelium/domain/api_status.dart';
 import 'package:mycelium/domain/check_api_usecase.dart';
+import 'package:mycelium/domain/connection_status.dart';
 import 'package:mycelium/domain/init_api_usecase.dart';
 import 'package:mycelium/domain/init_data_usecase.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -67,8 +67,7 @@ void main() {
       test('api reachable → initData called', () async {
           when(() => apiPreferences.getBaseUrl()).thenAnswer((_) async => 'https://myapi.com');
           when(() => apiStore.baseUrl).thenReturn('https://myapi.com');
-          when(() => apiStore.status).thenReturn(ApiStatus.reachable);
-          when(() => checkApiUseCase.execute()).thenAnswer((_) async => ApiStatus.reachable);
+          when(() => checkApiUseCase.execute()).thenAnswer((_) async => CheckApiResult(status: ConnectionStatus.connected));
           when(() => initDataUseCase.execute()).thenAnswer((_) async {});
 
           await sut.execute();
@@ -76,11 +75,10 @@ void main() {
           verify(() => initDataUseCase.execute()).called(1);
       });
 
-      test('api non reachable → initData not called', () async {
+      test('api not reachable → initData not called', () async {
           when(() => apiPreferences.getBaseUrl()).thenAnswer((_) async => 'https://myapi.com');
           when(() => apiStore.baseUrl).thenReturn('https://myapi.com');
-          when(() => apiStore.status).thenReturn(ApiStatus.unreachable);
-          when(() => checkApiUseCase.execute()).thenAnswer((_) async => ApiStatus.reachable);
+          when(() => checkApiUseCase.execute()).thenAnswer((_) async => CheckApiResult(status: ConnectionStatus.unreachable));
 
           await sut.execute();
 

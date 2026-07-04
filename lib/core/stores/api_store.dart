@@ -1,36 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:mycelium/domain/api_compatibility.dart';
-import 'package:mycelium/domain/api_status.dart';
+import 'package:mycelium/domain/connection_status.dart';
 
 class ApiStore extends ChangeNotifier {
   String _baseUrl = "https://api.mycelcloud.com";
   String _token = "";
-  ApiStatus apiStatus = ApiStatus.unknown;
-  ApiCompatibility apiCompatibility = ApiCompatibility.unchecked;
+  ConnectionStatus connectionStatus = ConnectionStatus.unknown;
 
   String get baseUrl => _baseUrl;
   String get token => _token;
-  ApiStatus get status => apiStatus;
-  ApiCompatibility get compatibility => apiCompatibility;
-
-  String? _version;
-
-  String? get version => _version;
-  
-  set version(String? version) {
-    _version = version;
-    notifyListeners();
-  }
+  ConnectionStatus get status => connectionStatus;
 
   void setBaseUrl(String url) {
     _baseUrl = url;
-    resetCompatibility();
-    version = null;
-    if (url == "") {
-      setEmpty();
-    } else {
-      setUnknown();
-    }
     notifyListeners();
   }
 
@@ -39,25 +20,27 @@ class ApiStore extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setStatus(ApiStatus status) {
-    if (apiStatus == status) return;
-    apiStatus = status;
+  void setConnected() {
+    if (connectionStatus == ConnectionStatus.connected) return;
+    connectionStatus = ConnectionStatus.connected;
     notifyListeners();
   }
 
-  void setReachable() => setStatus(ApiStatus.reachable);
-  void setUnreachable() => setStatus(ApiStatus.unreachable);
-  void setUnknown() => setStatus(ApiStatus.unknown);
-  void setEmpty() => setStatus(ApiStatus.emptyUrl);
-
-  void setCompatibility(ApiCompatibility compatibility) {
-    if (apiCompatibility == compatibility) return;
-    apiCompatibility = compatibility;
+  void setUnreachable() {
+    if (connectionStatus == ConnectionStatus.unreachable) return;
+    connectionStatus = ConnectionStatus.unreachable;
     notifyListeners();
   }
 
-  void setCompatible() => setCompatibility(ApiCompatibility.compatible);
-  void setIncompatible() => setCompatibility(ApiCompatibility.incompatible);
-  void setCompatibilityError() => setCompatibility(ApiCompatibility.error);
-  void resetCompatibility() => setCompatibility(ApiCompatibility.unchecked);
+  void setDegraded() {
+    if (connectionStatus == ConnectionStatus.degraded) return;
+    connectionStatus = ConnectionStatus.degraded;
+    notifyListeners();
+  }
+
+  void setUnknown() {
+    if (connectionStatus == ConnectionStatus.unknown) return;
+    connectionStatus = ConnectionStatus.unknown;
+    notifyListeners();
+  }
 }

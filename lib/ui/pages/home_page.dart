@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mycelium/core/stores/api_store.dart';
 import 'package:mycelium/core/stores/collection_store.dart';
 import 'package:mycelium/core/stores/node_store.dart';
-import 'package:mycelium/domain/api_status.dart';
+import 'package:mycelium/domain/connection_status.dart';
 import 'package:mycelium/ui/pages/about_page.dart';
 import 'package:mycelium/ui/pages/api_config_page.dart';
 import 'package:mycelium/ui/pages/collections_page.dart';
@@ -183,7 +183,7 @@ class HomePage extends StatelessWidget {
                   )
                 : context.watch<NodeStore>().currentNode != null
                 ? const MdEditor()
-                : apiStore.apiStatus != ApiStatus.reachable
+                : apiStore.status != ConnectionStatus.connected
                 ? ApiNotReachableWidget()
                 : context.watch<CollectionStore>().currentCollection == null
                 ? NoCollectionWidget()

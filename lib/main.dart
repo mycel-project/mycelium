@@ -10,7 +10,6 @@ import 'package:mycelium/core/stores/node_store.dart';
 import 'package:mycelium/core/stores/review_store.dart';
 import 'package:mycelium/core/stores/scroll_position_store.dart';
 import 'package:mycelium/core/stores/user_store.dart';
-import 'package:mycelium/domain/api_status.dart';
 import 'package:mycelium/domain/check_app_update_usecase.dart';
 import 'package:mycelium/domain/init_api_usecase.dart';
 import 'package:mycelium/ui/pages/api_config_page.dart';
@@ -42,8 +41,6 @@ void main() async {
   sl<CheckAppUpdateUseCase>().execute();
   sl<InitApiUseCase>().execute();
 
-  final emptyApi = sl<ApiStore>().status;
-
   runApp(
     MultiProvider(
       providers: [
@@ -64,17 +61,18 @@ void main() async {
         ChangeNotifierProvider(create: (_) => sl<AppStore>()),
         ChangeNotifierProvider(create: (_) => sl<ScrollPositionStore>()),
       ],
-      child: MyApp(emptyApi: emptyApi),
+      child: const MyApp(),
     ),
   );
 }
 
 class MyApp extends StatelessWidget {
-  final ApiStatus emptyApi;
-  const MyApp({super.key, required this.emptyApi});
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final apiStore = context.watch<ApiStore>();
+    final isEmptyUrl = apiStore.baseUrl.isEmpty;
     return ToastificationWrapper(
       config: const ToastificationConfig(
         alignment: Alignment.bottomLeft,
@@ -114,11 +112,11 @@ class MyApp extends StatelessWidget {
         home: MyceliumNotificationListener(
           child: Device.isDesktop
               ? WindowInitializer(
-                  child: emptyApi == ApiStatus.emptyUrl
+                  child: isEmptyUrl
                       ? ApiConfigPage()
                       : const HomePage(),
                 )
-              : (emptyApi == ApiStatus.emptyUrl
+              : (isEmptyUrl
                     ? ApiConfigPage()
                     : const HomePage()),
         ),

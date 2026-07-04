@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'package:mycelium/core/stores/api_store.dart';
 import 'package:mycelium/core/stores/user_store.dart';
-import 'package:mycelium/domain/api_status.dart';
 import 'package:mycelium/domain/check_api_usecase.dart';
+import 'package:mycelium/domain/connection_status.dart';
 
 class ApiHealthMonitor {
   final CheckApiUseCase checkApiUseCase;
@@ -16,7 +16,7 @@ class ApiHealthMonitor {
   }
 
   void _onApiStoreChanged() {
-    if (apiStore.apiStatus == ApiStatus.unreachable) {
+    if (apiStore.status == ConnectionStatus.unreachable) {
       _start();
     } else {
       _stop();
@@ -24,7 +24,7 @@ class ApiHealthMonitor {
   }
 
   void _onUserStoreChanged() {
-    if (apiStore.apiStatus == ApiStatus.unreachable) {
+    if (apiStore.status == ConnectionStatus.unreachable) {
       _stop();
       _start();
     }

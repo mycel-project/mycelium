@@ -91,9 +91,7 @@ class ApiService {
     http.Response response;
     try {
       response = await call();
-      apiStore.setReachable();
     } on TimeoutException {
-      apiStore.setUnreachable();
       networkLogger.add(
         NetworkLog(
           method: method,
@@ -105,7 +103,6 @@ class ApiService {
       );
       return ApiError("timeout", statusCode: 408, type: "network");
     } on SocketException {
-      apiStore.setUnreachable();
       networkLogger.add(
         NetworkLog(
           method: method,
@@ -138,7 +135,17 @@ class ApiService {
       ),
     );
 
-    if (!isError) return ApiSuccess(response.body);        
+    if (!isError) {
+      try {
+        jsonDecode(response.body);
+      } catch (_) {
+        return ApiError("invalid_response",
+            statusCode: response.statusCode,
+            message: "Response is not valid JSON",
+            type: "invalid_response");
+      }
+      return ApiSuccess(response.body);
+    }        
     String? errorType;
     String? errorCode;
     String? errorMessage;
@@ -151,6 +158,7 @@ class ApiService {
     } catch (_) {
       errorCode = "http_error";
       errorMessage = response.body;
+      errorType = "invalid_response";
     }
 
     if (errorType == "domain") {

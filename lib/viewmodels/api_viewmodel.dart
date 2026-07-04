@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:mycelium/core/stores/api_store.dart';
 import 'package:mycelium/core/stores/app_store.dart';
-import 'package:mycelium/domain/api_compatibility.dart';
-import 'package:mycelium/domain/api_status.dart';
 import 'package:mycelium/domain/check_api_usecase.dart';
+import 'package:mycelium/domain/connection_status.dart';
 import 'package:mycelium/domain/init_data_usecase.dart';
 import 'package:mycelium/domain/update_api_usecase.dart';
 import 'package:mycelium/domain/update_token_usecase.dart';
@@ -17,10 +16,13 @@ class ApiViewModel extends ChangeNotifier {
   final AppStore appStore;
   bool isChecking = false;
 
+  String? _mycelVersion;
+  bool? _compatible;
+
   String get baseUrl => apiStore.baseUrl;
   String get token => apiStore.token;
-  String? get mycelVersion => apiStore.version;
-  ApiCompatibility get mycelCompatibility => apiStore.compatibility;
+  String? get mycelVersion => _mycelVersion;
+  bool? get mycelCompatible => _compatible;
   String get myceliumVersion => appStore.version;
 
   ApiViewModel(
@@ -36,7 +38,7 @@ class ApiViewModel extends ChangeNotifier {
     await updateApiUrlUseCase.execute(newUrl);
     notifyListeners();
     final status = await checkReachability();
-    if (status == ApiStatus.reachable) {
+    if (status == ConnectionStatus.connected) {
       initDataUseCase.execute();
     }
   }
@@ -45,17 +47,19 @@ class ApiViewModel extends ChangeNotifier {
     await updateTokenUseCase.execute(newToken);
     notifyListeners();
     final status = await checkReachability();
-    if (status == ApiStatus.reachable) {
+    if (status == ConnectionStatus.connected) {
       initDataUseCase.execute();
     }
   }
 
-  Future<ApiStatus> checkReachability() async {
+  Future<ConnectionStatus> checkReachability() async {
     isChecking = true;
     notifyListeners();
-    final status = await checkApiUseCase.execute();
+    final result = await checkApiUseCase.execute();
+    _mycelVersion = result.mycelVersion;
+    _compatible = result.compatible;
     isChecking = false;
     notifyListeners();
-    return status;
+    return result.status;
   }
 }

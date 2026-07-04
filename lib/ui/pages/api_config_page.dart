@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mycelium/core/stores/api_store.dart';
-import 'package:mycelium/domain/api_compatibility.dart';
-import 'package:mycelium/domain/api_status.dart';
+import 'package:mycelium/domain/connection_status.dart';
 import 'package:mycelium/ui/pages/home_page.dart';
 import 'package:mycelium/ui/widgets/app_bar.dart';
 import 'package:mycelium/viewmodels/api_viewmodel.dart';
@@ -101,16 +100,16 @@ class _ApiConfigPageState extends State<ApiConfigPage> {
                       SegmentedButton<ApiMode>(
                         style: ButtonStyle(
                           backgroundColor:
-                              MaterialStateProperty.resolveWith<Color?>((
-                                Set<MaterialState> states,
-                              ) {
-                                if (states.contains(MaterialState.selected)) {
-                                  return Theme.of(
-                                    context,
-                                  ).colorScheme.primary.withOpacity(0.1);
-                                }
-                                return null;
-                              }),
+                              MaterialStateProperty.resolveWith<Color?>(
+                                (Set<MaterialState> states) {
+                                  if (states.contains(MaterialState.selected)) {
+                                    return Theme.of(
+                                      context,
+                                    ).colorScheme.primary.withOpacity(0.1);
+                                  }
+                                  return null;
+                                },
+                              ),
                         ),
                         segments: const [
                           ButtonSegment(
@@ -179,22 +178,26 @@ class _ApiConfigPageState extends State<ApiConfigPage> {
                           textAlign: TextAlign.center,
                         ),
                         const SizedBox(height: 16),
-                        TextField(
-                          controller: tokenController,
-                          decoration: InputDecoration(
-                            labelText: "MycelCloud Token",
-                            hintText: "Find it on mycelcloud.com",
-                            suffixIcon: IconButton(
-                              icon: const Icon(
-                                Icons.arrow_circle_right_outlined,
+                        ConstrainedBox(
+                          constraints: const BoxConstraints(maxWidth: 500),
+                          child: TextField(
+                            controller: tokenController,
+                            decoration: InputDecoration(
+                              labelText: "MycelCloud Token",
+                              hintText: "Find it on mycelcloud.com",
+                              border: const OutlineInputBorder(),
+                              suffixIcon: IconButton(
+                                icon: const Icon(
+                                  Icons.arrow_circle_right_outlined,
+                                ),
+                                onPressed: () async {
+                                  vm.setToken(tokenController.text);
+                                  FocusScope.of(context).unfocus();
+                                },
                               ),
-                              onPressed: () async {
-                                vm.setToken(tokenController.text);
-                                FocusScope.of(context).unfocus();
-                              },
                             ),
+                            onSubmitted: (value) => vm.setToken(value),
                           ),
-                          onSubmitted: (value) => vm.setToken(value),
                         ),
                       ] else ...[
                         const Text(
@@ -202,22 +205,26 @@ class _ApiConfigPageState extends State<ApiConfigPage> {
                           textAlign: TextAlign.center,
                         ),
                         const SizedBox(height: 16),
-                        TextField(
-                          controller: urlController,
-                          decoration: InputDecoration(
-                            labelText: "API Base URL",
-                            hintText: "http://192.168.1.132:8000",
-                            suffixIcon: IconButton(
-                              icon: const Icon(
-                                Icons.arrow_circle_right_outlined,
+                        ConstrainedBox(
+                          constraints: const BoxConstraints(maxWidth: 500),
+                          child: TextField(
+                            controller: urlController,
+                            decoration: InputDecoration(
+                              labelText: "API Base URL",
+                              hintText: "http://192.168.1.132:8000",
+                              border: const OutlineInputBorder(),
+                              suffixIcon: IconButton(
+                                icon: const Icon(
+                                  Icons.arrow_circle_right_outlined,
+                                ),
+                                onPressed: () async {
+                                  vm.setUrl(urlController.text);
+                                  FocusScope.of(context).unfocus();
+                                },
                               ),
-                              onPressed: () async {
-                                vm.setUrl(urlController.text);
-                                FocusScope.of(context).unfocus();
-                              },
                             ),
+                            onSubmitted: (value) => vm.setUrl(value),
                           ),
-                          onSubmitted: (value) => vm.setUrl(value),
                         ),
                       ],
                       const SizedBox(height: 32),
@@ -233,17 +240,18 @@ class _ApiConfigPageState extends State<ApiConfigPage> {
                             )
                           else
                             Icon(
-                              switch (store.apiStatus) {
-                                ApiStatus.unknown ||
-                                ApiStatus.emptyUrl => Icons.circle,
-                                ApiStatus.reachable => Icons.check,
-                                ApiStatus.unreachable => Icons.cancel,
+                              switch (store.status) {
+                                ConnectionStatus.unknown =>
+                                Icons.circle,
+                                ConnectionStatus.connected => Icons.check,
+                                ConnectionStatus.unreachable => Icons.cancel,
+                                ConnectionStatus.degraded => Icons.warning,
                               },
-                              color: switch (store.apiStatus) {
-                                ApiStatus.unknown ||
-                                ApiStatus.emptyUrl => Colors.grey,
-                                ApiStatus.reachable => Colors.green,
-                                ApiStatus.unreachable => Colors.red,
+                              color: switch (store.status) {
+                                ConnectionStatus.unknown => Colors.grey,
+                                ConnectionStatus.connected => Colors.green,
+                                ConnectionStatus.unreachable => Colors.red,
+                                ConnectionStatus.degraded => Colors.orange,
                               },
                             ),
                         ],
@@ -256,8 +264,7 @@ class _ApiConfigPageState extends State<ApiConfigPage> {
                             color: Theme.of(context).colorScheme.primary,
                           ),
                         ),
-                        if (vm.mycelCompatibility ==
-                            ApiCompatibility.error) ...[
+                        if (vm.mycelCompatible == null) ...[
                           const SizedBox(height: 8),
                           const Text(
                             "Could not check Mycel compatibility. Please retry or report this error.",
@@ -265,8 +272,7 @@ class _ApiConfigPageState extends State<ApiConfigPage> {
                             style: TextStyle(color: Colors.red),
                           ),
                         ],
-                        if (vm.mycelCompatibility ==
-                            ApiCompatibility.incompatible) ...[
+                        if (vm.mycelCompatible == false) ...[
                           const SizedBox(height: 8),
                           Text.rich(
                             TextSpan(
@@ -305,7 +311,7 @@ class _ApiConfigPageState extends State<ApiConfigPage> {
                         ],
                       ],
                       const SizedBox(height: 36),
-                      if (store.apiStatus == ApiStatus.reachable)
+                      if (store.status == ConnectionStatus.connected)
                         ElevatedButton(
                           onPressed: () {
                             Navigator.pushAndRemoveUntil(

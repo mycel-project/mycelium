@@ -1,8 +1,7 @@
 import "package:flutter/material.dart";
 import "package:mycelium/core/stores/api_store.dart";
-import "package:mycelium/domain/api_compatibility.dart";
-import "package:mycelium/domain/api_status.dart";
 import "package:mycelium/domain/check_api_usecase.dart";
+import "package:mycelium/domain/connection_status.dart";
 import "package:mycelium/ui/pages/network_debug_page.dart";
 import "package:mycelium/utils/device.dart";
 import "package:provider/provider.dart";
@@ -83,21 +82,21 @@ with SingleTickerProviderStateMixin {
             turns: _rotationController..repeat(),
             child: Image.asset("assets/full.png", height: 32),
           )
-          : apiStore.apiStatus == ApiStatus.reachable &&
-          apiStore.compatibility == ApiCompatibility.compatible
+          : apiStore.status == ConnectionStatus.connected
           ? Image.asset("assets/full.png", height: 32)
           : Icon(
             size: 16,
-            switch (apiStore.apiStatus) {
-              ApiStatus.unknown || ApiStatus.emptyUrl => Icons.circle,
-              ApiStatus.unreachable => Icons.error,
+            switch (apiStore.status) {
+              ConnectionStatus.unknown => Icons.circle,
+              ConnectionStatus.unreachable => Icons.error,
+              ConnectionStatus.degraded => Icons.error,
               _ => Icons.circle,
             },
-            color: switch (apiStore.apiStatus) {
-              ApiStatus.unknown || ApiStatus.emptyUrl => Colors.grey,
-              ApiStatus.unreachable => Colors.red,
-              ApiStatus.reachable =>
-              Colors.orange, // reachable but not compatible
+            color: switch (apiStore.status) {
+              ConnectionStatus.unknown => Colors.grey,
+              ConnectionStatus.unreachable => Colors.red,
+              ConnectionStatus.degraded => Colors.orange,
+              _ => Colors.grey,
             },
           ),
         ),

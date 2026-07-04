@@ -14,7 +14,7 @@ import 'package:mycelium/data/models/outline_entry.dart';
 import 'package:mycelium/data/repositories/node_repository.dart';
 import 'package:mycelium/data/repositories/review_repository.dart';
 import 'package:mycelium/data/services/node_service.dart';
-import 'package:mycelium/domain/api_status.dart';
+import 'package:mycelium/domain/connection_status.dart';
 import 'package:mycelium/domain/cloze_mode.dart';
 import 'package:mycelium/domain/create_extract_usecase.dart';
 import 'package:mycelium/domain/get_outline_usecase.dart';
@@ -186,7 +186,7 @@ class MdEditorViewModel extends ChangeNotifier {
   }
 
   void _onApiStoreChanged() {
-    if (apiStore.status == ApiStatus.reachable) {
+    if (apiStore.status == ConnectionStatus.connected) {
       _autosave = defaultAutoSave;
       tryAutoSave();
     } else {
