@@ -1,5 +1,7 @@
 import 'package:get_it/get_it.dart';
 import 'package:mycelium/core/debug/network_logger.dart';
+import 'package:mycelium/core/editor/editor_backend.dart';
+import 'package:mycelium/core/editor/in_app_webview_backend.dart';
 import 'package:mycelium/core/notifications/notification_bus.dart';
 import 'package:mycelium/core/stores/api_store.dart';
 import 'package:mycelium/core/stores/app_store.dart';
@@ -91,6 +93,9 @@ Future<void> setup() async {
   sl.registerSingleton(NavigationStore());
   sl.registerSingleton(ScrollPositionStore());
 
+  // Editor
+  sl.registerLazySingleton<EditorBackend>(() => InAppWebViewBackend());
+
   // Use cases/coords
   sl.registerSingleton(InitUserUseCase(sl(), sl(), sl(), sl()));
   sl.registerSingleton(SelectUserUseCase(sl(), sl()));
@@ -118,9 +123,7 @@ Future<void> setup() async {
   sl.registerSingleton(GetOutlineUseCase(sl(), sl()));
   sl.registerSingleton(SplitNodeUseCase(sl(), sl()));
   sl.registerSingleton(RefreshCurrentNodeUseCase(sl(), sl(), sl()));
-  sl.registerSingleton(
-    AppCoordinator(sl(), sl(), sl(), sl(), sl(), sl()),
-  );
+  sl.registerSingleton(AppCoordinator(sl(), sl(), sl(), sl(), sl(), sl()));
 
   // Misc
   sl.registerSingleton(ApiHealthMonitor(sl(), sl(), sl()));

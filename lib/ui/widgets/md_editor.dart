@@ -1,6 +1,10 @@
+import "dart:async";
+
 import "package:flutter/foundation.dart";
-import "package:flutter/gestures.dart";
 import "package:flutter/material.dart";
+import "package:mycelium/core/editor/editor_backend.dart";
+import "package:mycelium/core/editor/editor_command.dart";
+import "package:mycelium/core/editor/editor_event.dart";
 import "package:mycelium/core/stores/review_store.dart";
 import "package:mycelium/ui/widgets/confirmation_dialog.dart";
 import "package:mycelium/ui/widgets/node_action_buttons.dart";
@@ -9,7 +13,6 @@ import "package:mycelium/utils/device.dart";
 import "package:mycelium/utils/responsive.dart";
 import "package:mycelium/viewmodels/md_editor_viewmodel.dart";
 import 'package:provider/provider.dart';
-import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 
 /// Widget that handles the current node editing and review process.
 class MdEditor extends StatefulWidget {
@@ -21,86 +24,66 @@ class MdEditor extends StatefulWidget {
 
 class MdEditorState extends State<MdEditor> {
   late MdEditorViewModel vm;
+  late final EditorBackend _backend;
 
   final FocusNode focusNode = FocusNode();
 
-  InAppWebViewController? _webViewController;
+  StreamSubscription<EditorCommand>? _vmCommandSub;
+  StreamSubscription<EditorEvent>? _backendEventSub;
 
   @override
   void initState() {
     super.initState();
+    _backend = context.read<EditorBackend>();
+    vm = context.read<MdEditorViewModel>();
     focusNode.addListener(_onFlutterFocusChanged);
 
-    vm = context.read<MdEditorViewModel>();
+    _vmCommandSub = vm.commands.listen((cmd) {
+      if (!mounted) return;
+      _backend.handleCommand(cmd);
+    });
 
-    vm.onContentCommand = (content, cursor, clearHistory) {
-      if (!mounted || _webViewController == null) return;
-      _webViewController!.callAsyncJavaScript(
-        functionBody:
-            "window.myceliumEditor.setDoc(content, clearHistory, cursor);",
-        arguments: {
-          'content': content,
-          'clearHistory': clearHistory,
-          'cursor': cursor,
-        },
-      );
-      if (clearHistory) {
-        _webViewController!.callAsyncJavaScript(
-          functionBody:
-              "window.myceliumEditor.setMode(isLocked, showKeyboard, false);",
-          arguments: {
-            'isLocked': _previousLocked ?? false,
-            'showKeyboard': _previousKeyboard ?? false,
-          },
-        );
-      }
-    };
+    _backendEventSub = _backend.events.listen(_onBackendEvent);
 
-    vm.onHistoryCommand = (isUndo) {
-      if (!mounted || _webViewController == null) return;
-      if (isUndo) {
-        _webViewController!.callAsyncJavaScript(
-          functionBody: "window.myceliumEditor.undo();",
-        );
-      } else {
-        _webViewController!.callAsyncJavaScript(
-          functionBody: "window.myceliumEditor.redo();",
-        );
-      }
-    };
-
-    vm.goScrollTop = () {
-      vm.updateScroll(0);
-      if (!mounted || _webViewController == null) return;
-      _webViewController!.callAsyncJavaScript(
-        functionBody: "window.myceliumEditor.scrollToOffset(0);",
-      );
-    };
-
-    void onScrollPositionChanged() async {
-      if (vm.isUpdatingPosition) return;
-      if (!mounted || _webViewController == null) return;
-
-      final int offset = vm.scrollPositionStore.offset;
-      _webViewController!.callAsyncJavaScript(
-        functionBody: "window.myceliumEditor.scrollToOffset(offset, margin);",
-        arguments: {'offset': offset, 'margin': 32},
-      );
-    }
-
-    vm.scrollPositionStore.addListener(onScrollPositionChanged);
+    vm.scrollPositionStore.addListener(_onScrollPositionChanged);
   }
 
-  bool _isRemovingFocus = false; // avoid stack overflow
+  void _onBackendEvent(EditorEvent event) {
+    if (!mounted) return;
+    switch (event) {
+      case EditorReady():
+        _backend.handleCommand(SetDoc(vm.content, clearHistory: true));
+        _backend.handleCommand(
+          SetMode(
+            vm.isLocked(),
+            Device.isDesktop || vm.activeKeyboard || vm.isCurrentNodeSpore(),
+          ),
+        );
+      case TextChanged(:final content):
+        vm.updateContent(content);
+      case SelectionChanged(:final base, :final extent):
+        debugPrint(
+          "[MD_EDITOR] SelectionChanged: base=$base extent=$extent hasFocus=${focusNode.hasFocus}",
+        );
+        vm.onCursorChanged(extent);
+        vm.updateSelection(
+          TextSelection(baseOffset: base, extentOffset: extent),
+        );
+      case HistoryChanged(:final canUndo, :final canRedo):
+        vm.updateHistoryState(canUndo, canRedo);
+      case EditorFocused():
+        if (!focusNode.hasFocus) {
+          focusNode.requestFocus();
+        }
+    }
+  }
+
+  bool _isRemovingFocus = false;
   void removeFocusAndCursor({bool force = false}) {
     if (_isRemovingFocus || (!force && vm.hasSelection)) return;
     _isRemovingFocus = true;
     focusNode.unfocus();
-    _webViewController?.clearFocus();
-    _webViewController?.callAsyncJavaScript(
-      functionBody:
-          "window.myceliumEditor.blur(); window.myceliumEditor.clearSelection();",
-    );
+    _backend.handleCommand(const Blur());
     WidgetsBinding.instance.addPostFrameCallback((_) {
       vm.onCursorChanged(null);
       vm.updateSelection(null);
@@ -108,24 +91,26 @@ class MdEditorState extends State<MdEditor> {
     });
   }
 
+  void _onScrollPositionChanged() {
+    if (vm.isUpdatingPosition) return;
+    if (!mounted) return;
+    _backend.handleCommand(ScrollTo(vm.scrollPositionStore.offset, margin: 32));
+  }
 
   @override
   void dispose() {
+    _vmCommandSub?.cancel();
+    _backendEventSub?.cancel();
+    vm.scrollPositionStore.removeListener(_onScrollPositionChanged);
     focusNode.removeListener(_onFlutterFocusChanged);
     focusNode.unfocus();
-    vm.onContentCommand = null;
-    vm.onHistoryCommand = null;
     focusNode.dispose();
     super.dispose();
   }
 
   void _onFlutterFocusChanged() {
     if (!focusNode.hasFocus) {
-      _webViewController?.clearFocus();
-      _webViewController?.callAsyncJavaScript(
-        functionBody:
-            "if (document.activeElement) document.activeElement.blur();",
-      );
+      _backend.handleCommand(const Blur());
     }
   }
 
@@ -164,32 +149,58 @@ class MdEditorState extends State<MdEditor> {
 
   @override
   Widget build(BuildContext context) {
-    final vm = context.watch<MdEditorViewModel>();
+    final currentVm = context.watch<MdEditorViewModel>();
     final reviewNodeId = context.watch<ReviewStore>().currentNodeId;
 
-    final isLocked = vm.isLocked();
+    final isLocked = currentVm.isLocked();
     final showKeyboard =
-        Device.isDesktop || vm.activeKeyboard || vm.isCurrentNodeSpore();
+        Device.isDesktop ||
+        currentVm.activeKeyboard ||
+        currentVm.isCurrentNodeSpore();
 
-    final activeKeyboardChanged = _previousActiveKeyboard != vm.activeKeyboard;
-    final requestFocus = vm.activeKeyboard && activeKeyboardChanged;
+    final activeKeyboardChanged =
+        _previousActiveKeyboard != currentVm.activeKeyboard;
+    final requestFocus = currentVm.activeKeyboard && activeKeyboardChanged;
 
     if (_previousLocked != isLocked ||
         _previousKeyboard != showKeyboard ||
         activeKeyboardChanged) {
       _previousLocked = isLocked;
       _previousKeyboard = showKeyboard;
-      _previousActiveKeyboard = vm.activeKeyboard;
-      _webViewController?.callAsyncJavaScript(
-        functionBody:
-            "window.myceliumEditor.setMode(isLocked, showKeyboard, requestFocus);",
-        arguments: {
-          'isLocked': isLocked,
-          'showKeyboard': showKeyboard,
-          'requestFocus': requestFocus,
-        },
+      _previousActiveKeyboard = currentVm.activeKeyboard;
+      _backend.handleCommand(
+        SetMode(isLocked, showKeyboard, requestFocus: requestFocus),
       );
     }
+
+    final actionButtons = Center(
+      child: ConstrainedBox(
+        constraints: BoxConstraints(
+          maxWidth: Device.isDesktop ? 300 : double.infinity,
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            if (!currentVm.isCurrentNodeSpore()) ...[
+              if (!Device.isDesktop) HistoryButton(vm: currentVm),
+              DismissButton(vm: currentVm),
+              FragmentButton(vm: currentVm),
+              SporeButton(vm: currentVm),
+              if (!Device.isDesktop)
+                KeyboardButton(
+                  vm: currentVm,
+                  removeFocusAndCursor: removeFocusAndCursor,
+                ),
+              MoreButton(
+                removeFocusAndCursor: () {
+                  removeFocusAndCursor();
+                },
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
 
     return SafeArea(
       child: Column(
@@ -207,8 +218,8 @@ class MdEditorState extends State<MdEditor> {
                   children: [
                     Positioned.fill(
                       child: Container(
-                        decoration: vm.isCurrentNodeSpore()
-                            ? vm.noClozeField
+                        decoration: currentVm.isCurrentNodeSpore()
+                            ? currentVm.noClozeField
                                   ? BoxDecoration(
                                       color: Colors.red.withValues(alpha: 0.1),
                                       borderRadius: BorderRadius.circular(8),
@@ -220,7 +231,7 @@ class MdEditorState extends State<MdEditor> {
                                           .withValues(alpha: 0.05),
                                       borderRadius: BorderRadius.circular(8),
                                     )
-                            : vm.dismissState == true
+                            : currentVm.dismissState == true
                             ? BoxDecoration(
                                 color: Colors.grey.withValues(alpha: 0.2),
                                 borderRadius: BorderRadius.circular(8),
@@ -228,136 +239,23 @@ class MdEditorState extends State<MdEditor> {
                             : const BoxDecoration(),
                         child: Focus(
                           focusNode: focusNode,
-                          child: InAppWebView(
-                            initialSettings: InAppWebViewSettings(
-                              transparentBackground: true,
-                            ),
-                            initialFile: "assets/editor/dist/index.html",
-                            gestureRecognizers:
-                                <Factory<OneSequenceGestureRecognizer>>{
-                                  Factory<VerticalDragGestureRecognizer>(
-                                    VerticalDragGestureRecognizer.new,
-                                  ),
-                                  Factory<LongPressGestureRecognizer>(
-                                    () => LongPressGestureRecognizer(
-                                      duration: const Duration(
-                                        milliseconds: 250,
-                                      ),
-                                    ),
-                                  ),
-                                },
-                            onWebViewCreated: (controller) {
-                              _webViewController = controller;
-
-                              controller.addJavaScriptHandler(
-                                handlerName: 'onEditorFocus',
-                                callback: (args) {
-                                  if (!focusNode.hasFocus) {
-                                    focusNode.requestFocus();
-                                  }
-                                },
-                              );
-                              controller.addJavaScriptHandler(
-                                handlerName: 'onTextChange',
-                                callback: (args) {
-                                  if (args.isNotEmpty) {
-                                    vm.updateContent(args[0] as String);
-                                  }
-                                },
-                              );
-
-                              controller.addJavaScriptHandler(
-                                handlerName: 'onSelectionChange',
-                                callback: (args) {
-                                  if (args.isNotEmpty) {
-                                    final data = Map<String, dynamic>.from(
-                                      args[0] as Map,
-                                    );
-                                    vm.onCursorChanged(data['extent'] as int);
-                                    vm.updateSelection(
-                                      TextSelection(
-                                        baseOffset: data['base'] as int,
-                                        extentOffset: data['extent'] as int,
-                                      ),
-                                    );
-                                  }
-                                },
-                              );
-                              controller.addJavaScriptHandler(
-                                handlerName: 'onHistoryChange',
-                                callback: (args) {
-                                  if (args.isNotEmpty) {
-                                    final data = Map<String, dynamic>.from(
-                                      args[0] as Map,
-                                    );
-                                    vm.updateHistoryState(
-                                      data['canUndo'] as bool,
-                                      data['canRedo'] as bool,
-                                    );
-                                  }
-                                },
-                              );
-                            },
-                            onLoadStop: (controller, url) async {
-                              final initialText = vm.content;
-                              await controller.callAsyncJavaScript(
-                                functionBody: """
-                                window.myceliumEditor.setDoc(content, true);
-                                window.myceliumEditor.setMode(isLocked, showKeyboard, false);
-                              """,
-                                arguments: {
-                                  'content': initialText,
-                                  'isLocked': isLocked,
-                                  'showKeyboard': showKeyboard,
-                                },
-                              );
-                            },
-                          ),
+                          child: _backend.buildWidget(context),
                         ),
                       ),
                     ),
-                    Positioned(
-                      bottom: 16,
-                      left: 8,
-                      right: 8,
-                      child: Center(
-                        child: ConstrainedBox(
-                          constraints: BoxConstraints(
-                            maxWidth: Device.isDesktop ? 300 : double.infinity,
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              if (!vm.isCurrentNodeSpore()) ...[
-                                if (!Device.isDesktop) HistoryButton(vm: vm),
-                                DismissButton(vm: vm),
-                                FragmentButton(
-                                  vm: vm,
-                                ),
-                                SporeButton(
-                                  vm: vm,
-                                ),
-                                if (!Device.isDesktop)
-                                  KeyboardButton(
-                                    vm: vm,
-                                    removeFocusAndCursor: removeFocusAndCursor,
-                                  ),
-                                MoreButton(
-                                  removeFocusAndCursor: () {
-                                    removeFocusAndCursor();
-                                  },
-                                ),
-                              ],
-                            ],
-                          ),
-                        ),
+                    if (!kIsWeb)
+                      Positioned(
+                        bottom: 16,
+                        left: 8,
+                        right: 8,
+                        child: actionButtons,
                       ),
-                    ),
                   ],
                 ),
               ),
             ),
           ),
+          if (kIsWeb) actionButtons,
           ConstrainedBox(
             constraints: BoxConstraints(
               maxWidth: Responsive.isDesktop(context)
@@ -365,7 +263,7 @@ class MdEditorState extends State<MdEditor> {
                   : double.infinity,
             ),
             child: ReviewActionBar(
-              vm: vm,
+              vm: currentVm,
               focusNode: focusNode,
               reviewNodeId: reviewNodeId,
             ),

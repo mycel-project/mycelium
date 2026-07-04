@@ -4,6 +4,9 @@
 - Fix notification system deadlock: use a queue-based bus and StatefulWidget listener with try/catch to prevent toast failures from blocking all future notifications.
 
 ### Refactored
+- Extract EditorBackend abstraction with sealed command/event classes for Stream-based editor communication. Replace InAppWebView inline widget with Provider-injected backend.
+- Adapt editor action buttons layout for web (kIsWeb): move outside Stack to avoid HtmlElementView DOM overlay.
+- Use evaluateJavascript instead of callAsyncJavaScript for cross-platform WebView JS execution.
 - Reword home widget when no Mycel instance is connected.
 - Display API error message on config page when connection check fails.
 - Auto-check API reachability on config page open; reset error message on mode switch.

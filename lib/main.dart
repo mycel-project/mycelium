@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mycelium/core/debug/network_logger.dart';
+import 'package:mycelium/core/editor/editor_backend.dart';
 import 'package:mycelium/core/injection.dart';
 import 'package:mycelium/core/notifications/notification_listener.dart';
 import 'package:mycelium/core/stores/api_store.dart';
@@ -57,6 +58,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => sl<AboutViewModel>()),
         ChangeNotifierProvider(create: (_) => sl<AppStore>()),
         ChangeNotifierProvider(create: (_) => sl<ScrollPositionStore>()),
+        Provider(create: (_) => sl<EditorBackend>()),
       ],
       child: const MyApp(),
     ),

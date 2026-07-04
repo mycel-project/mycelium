@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:mycelium/core/editor/editor_command.dart';
 import 'package:mycelium/core/notifications/notification_bus.dart';
 import 'package:mycelium/core/stores/api_store.dart';
 import 'package:mycelium/core/stores/collection_store.dart';
@@ -104,11 +105,8 @@ class MdEditorViewModel extends ChangeNotifier {
 
   bool isUpdatingPosition = false;
 
-  void Function(String content, int? cursor, bool clearHistory)?
-  onContentCommand;
-  void Function(bool isUndo)? onHistoryCommand;
-
-  void Function()? goScrollTop;
+  final _commands = StreamController<EditorCommand>.broadcast();
+  Stream<EditorCommand> get commands => _commands.stream;
 
   // To update content from vm
   void _applyContent(
@@ -117,7 +115,9 @@ class MdEditorViewModel extends ChangeNotifier {
     bool clearHistory = false,
   }) {
     content = newContent;
-    onContentCommand?.call(newContent, cursor, clearHistory);
+    _commands.add(
+      SetDoc(newContent, cursor: cursor, clearHistory: clearHistory),
+    );
   }
 
   Future<void> _onNodeStoreChanged() async {
@@ -134,7 +134,8 @@ class MdEditorViewModel extends ChangeNotifier {
     }
     if (nodeStore.previousNode?.id == null ||
         nodeStore.currentNode?.id != nodeStore.previousNode?.id) {
-      goScrollTop?.call();
+      updateScroll(0);
+      _commands.add(const ScrollTo(0));
     }
     setNoClozeField(false);
 
@@ -153,7 +154,8 @@ class MdEditorViewModel extends ChangeNotifier {
     _showUnsavedChangesDialog = false;
     _pendingNode = null;
     isDirty = false;
-    goScrollTop?.call();
+    updateScroll(0);
+    _commands.add(const ScrollTo(0));
     setNoClozeField(false);
     loadNode(nodeStore.currentNode);
     notifyListeners();
@@ -182,6 +184,7 @@ class MdEditorViewModel extends ChangeNotifier {
   @override
   void dispose() {
     nodeStore.removeListener(_onNodeStoreChanged);
+    _commands.close();
     super.dispose();
   }
 
@@ -257,7 +260,9 @@ class MdEditorViewModel extends ChangeNotifier {
       historyButtonMode == ActionMode.undo ? _canUndo : _canRedo;
 
   void performHistoryAction() {
-    onHistoryCommand?.call(historyButtonMode == ActionMode.undo);
+    _commands.add(
+      historyButtonMode == ActionMode.undo ? const Undo() : const Redo(),
+    );
   }
 
   void updateHistoryState(bool canUndo, bool canRedo) {
