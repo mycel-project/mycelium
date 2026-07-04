@@ -2,6 +2,7 @@
 
 ### Fixed
 - Fix notification system deadlock: use a queue-based bus and StatefulWidget listener with try/catch to prevent toast failures from blocking all future notifications.
+- Wrap dialogs with PointerInterceptor to restore clickability over iframe on web.
 
 ### Refactored
 - Extract EditorBackend abstraction with sealed command/event classes for Stream-based editor communication. Replace InAppWebView inline widget with Provider-injected backend.
