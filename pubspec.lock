@@ -328,15 +328,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "6.1.0"
-  markdown_mycel_fork:
-    dependency: "direct main"
-    description:
-      path: "."
-      ref: HEAD
-      resolved-ref: "46d517876671dbd4b0edc38f6ad7ae1bc2cc0766"
-      url: "https://github.com/mycel-project/markdown-mycel-fork"
-    source: git
-    version: "7.4.0"
   matcher:
     dependency: transitive
     description:

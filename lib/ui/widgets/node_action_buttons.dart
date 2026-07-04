@@ -105,11 +105,9 @@ class DismissButton extends StatelessWidget {
 
 class FragmentButton extends StatelessWidget {
   final MdEditorViewModel vm;
-  final TextEditingController markdownController;
   const FragmentButton({
     super.key,
     required this.vm,
-    required this.markdownController,
   });
 
   Future<Node?> _createFragment(BuildContext context) async {
@@ -166,11 +164,9 @@ class FragmentButton extends StatelessWidget {
 
 class SporeButton extends StatelessWidget {
   final MdEditorViewModel vm;
-  final TextEditingController markdownController;
   const SporeButton({
     super.key,
     required this.vm,
-    required this.markdownController,
   });
 
   Future<Node?> _createSpore(BuildContext context) async {
@@ -250,12 +246,10 @@ class KeyboardButton extends StatelessWidget {
 }
 
 class MoreButton extends StatelessWidget {
-  final TextEditingController markdownController;
   final Function removeFocusAndCursor;
 
   const MoreButton({
     super.key,
-    required this.markdownController,
     required this.removeFocusAndCursor,
   });
 
@@ -268,7 +262,6 @@ class MoreButton extends StatelessWidget {
         showAdaptiveSheet(
           context: context,
           child: MoreBottomSheet(
-            markdownController: markdownController,
             removeFocusAndCursor: removeFocusAndCursor,
           ),
         );
@@ -278,12 +271,10 @@ class MoreButton extends StatelessWidget {
 }
 
 class MoreBottomSheet extends StatelessWidget {
-  final TextEditingController markdownController;
   final Function removeFocusAndCursor;
 
   const MoreBottomSheet({
     super.key,
-    required this.markdownController,
     required this.removeFocusAndCursor,
   });
 

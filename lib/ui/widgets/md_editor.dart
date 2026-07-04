@@ -2,7 +2,6 @@ import "package:flutter/foundation.dart";
 import "package:flutter/gestures.dart";
 import "package:flutter/material.dart";
 import "package:mycelium/core/stores/review_store.dart";
-import "package:mycelium/ui/controllers/markdown_controller.dart";
 import "package:mycelium/ui/widgets/confirmation_dialog.dart";
 import "package:mycelium/ui/widgets/node_action_buttons.dart";
 import "package:mycelium/ui/widgets/review_action_bar.dart";
@@ -21,7 +20,6 @@ class MdEditor extends StatefulWidget {
 }
 
 class MdEditorState extends State<MdEditor> {
-  late final MarkdownController markdownController = MarkdownController();
   late MdEditorViewModel vm;
 
   final FocusNode focusNode = FocusNode();
@@ -34,13 +32,6 @@ class MdEditorState extends State<MdEditor> {
     focusNode.addListener(_onFlutterFocusChanged);
 
     vm = context.read<MdEditorViewModel>();
-
-    markdownController.value = TextEditingValue(
-      text: vm.content,
-      selection: const TextSelection.collapsed(offset: 0),
-    );
-    markdownController.addListener(_onSelectionChanged);
-    markdownController.addListener(_onCursorChanged);
 
     vm.onContentCommand = (content, cursor, clearHistory) {
       if (!mounted || _webViewController == null) return;
@@ -100,11 +91,6 @@ class MdEditorState extends State<MdEditor> {
     vm.scrollPositionStore.addListener(onScrollPositionChanged);
   }
 
-  void _onCursorChanged() {
-    if (vm.isUpdatingCursor || _isRemovingFocus) return;
-    vm.onCursorChanged(markdownController.selection.baseOffset);
-  }
-
   bool _isRemovingFocus = false; // avoid stack overflow
   void removeFocusAndCursor({bool force = false}) {
     if (_isRemovingFocus || (!force && vm.hasSelection)) return;
@@ -122,10 +108,6 @@ class MdEditorState extends State<MdEditor> {
     });
   }
 
-  void _onSelectionChanged() {
-    if (vm.isUpdatingSelection) return;
-    vm.updateSelection(markdownController.selection);
-  }
 
   @override
   void dispose() {
@@ -133,9 +115,6 @@ class MdEditorState extends State<MdEditor> {
     focusNode.unfocus();
     vm.onContentCommand = null;
     vm.onHistoryCommand = null;
-    markdownController.removeListener(_onSelectionChanged);
-    markdownController.removeListener(_onCursorChanged);
-    markdownController.dispose();
     focusNode.dispose();
     super.dispose();
   }
@@ -354,11 +333,9 @@ class MdEditorState extends State<MdEditor> {
                                 DismissButton(vm: vm),
                                 FragmentButton(
                                   vm: vm,
-                                  markdownController: markdownController,
                                 ),
                                 SporeButton(
                                   vm: vm,
-                                  markdownController: markdownController,
                                 ),
                                 if (!Device.isDesktop)
                                   KeyboardButton(
@@ -366,7 +343,6 @@ class MdEditorState extends State<MdEditor> {
                                     removeFocusAndCursor: removeFocusAndCursor,
                                   ),
                                 MoreButton(
-                                  markdownController: markdownController,
                                   removeFocusAndCursor: () {
                                     removeFocusAndCursor();
                                   },

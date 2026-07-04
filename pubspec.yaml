@@ -38,9 +38,6 @@ dependencies:
   flutter_inappwebview: ^6.2.0-beta.3
     
   provider: ^6.1.5
-  markdown_mycel_fork:
-    git:
-      url: https://github.com/mycel-project/markdown-mycel-fork
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
