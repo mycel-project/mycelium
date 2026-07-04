@@ -3,47 +3,41 @@ import 'package:mycelium/core/notifications/notification.dart';
 import 'package:mycelium/data/api_result.dart';
 
 class NotificationBus extends ChangeNotifier {
-  MyceliumNotification? current;
+  final List<MyceliumNotification> _queue = [];
 
   void show(String description, NotificationType type, {String? title}) {
-    current = MyceliumNotification(description, type, title: title);
+    _queue.add(MyceliumNotification(description, type, title: title));
     notifyListeners();
   }
 
   void showError(String message, [ApiError? error]) {
-    current = MyceliumNotification(
-      error != null ? "$message: ${error.code}" : message,
-      NotificationType.error,
+    _queue.add(
+      MyceliumNotification(
+        error != null ? "$message: ${error.code}" : message,
+        NotificationType.error,
+      ),
     );
     notifyListeners();
   }
 
   void showWarning(String message) {
-    current = MyceliumNotification(
-      message,
-      NotificationType.warning,
-    );
+    _queue.add(MyceliumNotification(message, NotificationType.warning));
     notifyListeners();
   }
 
   void showInfo(String message) {
-    current = MyceliumNotification(
-      message,
-      NotificationType.info,
-    );
+    _queue.add(MyceliumNotification(message, NotificationType.info));
     notifyListeners();
   }
 
   void showSuccess(String message) {
-    current = MyceliumNotification(
-      message,
-      NotificationType.success,
-    );
+    _queue.add(MyceliumNotification(message, NotificationType.success));
     notifyListeners();
   }
 
-  void clear() {
-    current = null;
-    notifyListeners();
+  List<MyceliumNotification> drainAll() {
+    final pending = List<MyceliumNotification>.from(_queue);
+    _queue.clear();
+    return pending;
   }
 }

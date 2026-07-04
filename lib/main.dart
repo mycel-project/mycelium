@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mycelium/core/debug/network_logger.dart';
 import 'package:mycelium/core/injection.dart';
-import 'package:mycelium/core/notifications/notification_bus.dart';
 import 'package:mycelium/core/notifications/notification_listener.dart';
 import 'package:mycelium/core/stores/api_store.dart';
 import 'package:mycelium/core/stores/app_store.dart';
@@ -52,7 +51,6 @@ void main() async {
         ChangeNotifierProvider(create: (_) => sl<NodeStore>()),
         ChangeNotifierProvider(create: (_) => sl<ReviewStore>()),
         ChangeNotifierProvider(create: (_) => sl<NetworkLogger>()),
-        ChangeNotifierProvider(create: (_) => sl<NotificationBus>()),
         ChangeNotifierProvider(create: (_) => sl<UserStore>()),
         ChangeNotifierProvider(create: (_) => sl<SettingViewModel>()),
         ChangeNotifierProvider(create: (_) => sl<DeletedNodesViewModel>()),

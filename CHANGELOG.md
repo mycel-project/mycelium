@@ -1,5 +1,8 @@
 ## Unreleased
 
+### Fixed
+- Fix notification system deadlock: use a queue-based bus and StatefulWidget listener with try/catch to prevent toast failures from blocking all future notifications.
+
 ### Refactored
 - Reword home widget when no Mycel instance is connected.
 - Display API error message on config page when connection check fails.
