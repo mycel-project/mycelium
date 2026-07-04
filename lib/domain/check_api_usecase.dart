@@ -34,10 +34,10 @@ class CheckApiUseCase {
     this.appService,
   );
 
-  Future<CheckApiResult> execute() async {
+  Future<CheckApiResult> execute({bool silent = true}) async {
     final usedUrl = apiStore.baseUrl;
     final usedToken = apiStore.token;
-    final healthResult = await apiClient.health();
+    final healthResult = await apiClient.health(silent: silent);
 
     ConnectionStatus status = ConnectionStatus.unknown;
     String? message;

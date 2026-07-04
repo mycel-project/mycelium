@@ -1,8 +1,12 @@
 ## Unreleased
 
 ### Refactored
-- Refactor health check flow: route `/health` and `/version` through `ApiClient` for unified connection status tracking. Add request sequencing in `ApiClient._guard()` to ignore stale HTTP responses. Add staleness guard in `CheckApiUseCase` to prevent outdated health-check results from corrupting `ApiStore`. Add generation counter in `ApiViewModel` to protect local state from stale callbacks.
+- Reword home widget when no Mycel instance is connected.
 - Display API error message on config page when connection check fails.
+- Auto-check API reachability on config page open; reset error message on mode switch.
+- Catch empty base URL in ApiClient._guard() with user-friendly message instead of raw HTTP error.
+- Add `silent` parameter to CheckApiUseCase.execute() to control notifications; dot widget uses `silent: false` for voluntary clicks.
+- Refactor health check flow: route `/health` and `/version` through `ApiClient` for unified connection status tracking. Add request sequencing in `ApiClient._guard()` to ignore stale HTTP responses. Add staleness guard in `CheckApiUseCase` to prevent outdated health-check results from corrupting `ApiStore`. Add generation counter in `ApiViewModel` to protect local state from stale callbacks.
 
 ## v0.1.5
 This update introduces a total refactor of the Markdown rendering engine, switching from a custom one to CodeMirror with live rendering and support for more elements. It also temporarily removes Linux support but introduces a web build for Mycelium, along with other changes detailed below.

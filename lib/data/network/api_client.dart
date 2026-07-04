@@ -19,11 +19,11 @@ class ApiClient {
       case ApiError(:final type, :final statusCode):
         switch (type) {
           case "network":
+          case "invalid_response":
             _apiStore.setUnreachable();
           case "auth":
           case "version":
-          case "invalid_response":
-            _apiStore.setUnreachable();
+            _apiStore.setDegraded();
           case null when statusCode != null && statusCode >= 500:
             _apiStore.setDegraded();
           default:
@@ -32,10 +32,21 @@ class ApiClient {
     }
   }
 
-  Future<ApiResult<String>> _guard(Future<ApiResult<String>> request) async {
+  Future<ApiResult<String>> _guard(
+    Future<ApiResult<String>> request, {
+    bool silent = false,
+  }) async {
+    if (_apiStore.baseUrl.isEmpty) {
+      return ApiError(
+        "empty_url",
+        message: "Please configure Mycel base URL.",
+        type: "network",
+      );
+    }
     final requestId = ++_lastRequestId;
     final result = await request;
     if (requestId != _lastRequestId) return result;
+    if (silent) return result;
     _updateConnectionStatus(result);
     if (result is ApiError && result is! DomainError) {
       switch (result.type) {
@@ -82,9 +93,11 @@ class ApiClient {
     return result;
   }
 
-  Future<ApiResult<String>> health() => _guard(_api.get("/health"));
+  Future<ApiResult<String>> health({bool silent = true}) =>
+      _guard(_api.get("/health"), silent: silent);
 
-  Future<ApiResult<String>> version() => _guard(_api.get("/version"));
+  Future<ApiResult<String>> version({bool silent = true}) =>
+      _guard(_api.get("/version"), silent: silent);
 
   Future<ApiResult<String>> get(
     String path, {

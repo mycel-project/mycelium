@@ -15,7 +15,7 @@ class ApiStatusDotWidget extends StatefulWidget {
 }
 
 class _ApiStatusDotWidgetState extends State<ApiStatusDotWidget>
-with SingleTickerProviderStateMixin {
+    with SingleTickerProviderStateMixin {
   late AnimationController _rotationController;
   bool _isChecking = false;
 
@@ -38,8 +38,8 @@ with SingleTickerProviderStateMixin {
     setState(() => _isChecking = true);
     _rotationController.repeat();
     await Future.wait([
-        sl<CheckApiUseCase>().execute(),
-        Future.delayed(const Duration(milliseconds: 500)),
+      sl<CheckApiUseCase>().execute(silent: false),
+      Future.delayed(const Duration(milliseconds: 500)),
     ]);
     if (mounted) {
       _rotationController.stop();
@@ -67,38 +67,36 @@ with SingleTickerProviderStateMixin {
 
     return Tooltip(
       message: Device.isDesktop
-      ? 'Reload connection (right-click for debug page)'
-      : 'Reload connection (hold for debug page)',
+          ? 'Reload connection (right-click for debug page)'
+          : 'Reload connection (hold for debug page)',
       child: GestureDetector(
         onSecondaryTap: Device.isDesktop ? goDebug : null,
         child: IconButton(
           onPressed: _onPressed,
-          onLongPress: Device.isMobile
-          ? goDebug
-          : null,
+          onLongPress: Device.isMobile ? goDebug : null,
           splashRadius: 20,
           icon: _isChecking
-          ? RotationTransition(
-            turns: _rotationController..repeat(),
-            child: Image.asset("assets/full.png", height: 32),
-          )
-          : apiStore.status == ConnectionStatus.connected
-          ? Image.asset("assets/full.png", height: 32)
-          : Icon(
-            size: 16,
-            switch (apiStore.status) {
-              ConnectionStatus.unknown => Icons.circle,
-              ConnectionStatus.unreachable => Icons.error,
-              ConnectionStatus.degraded => Icons.error,
-              _ => Icons.circle,
-            },
-            color: switch (apiStore.status) {
-              ConnectionStatus.unknown => Colors.grey,
-              ConnectionStatus.unreachable => Colors.red,
-              ConnectionStatus.degraded => Colors.orange,
-              _ => Colors.grey,
-            },
-          ),
+              ? RotationTransition(
+                  turns: _rotationController..repeat(),
+                  child: Image.asset("assets/full.png", height: 32),
+                )
+              : apiStore.status == ConnectionStatus.connected
+              ? Image.asset("assets/full.png", height: 32)
+              : Icon(
+                  size: 16,
+                  switch (apiStore.status) {
+                    ConnectionStatus.unknown => Icons.circle,
+                    ConnectionStatus.unreachable => Icons.error,
+                    ConnectionStatus.degraded => Icons.error,
+                    _ => Icons.circle,
+                  },
+                  color: switch (apiStore.status) {
+                    ConnectionStatus.unknown => Colors.grey,
+                    ConnectionStatus.unreachable => Colors.red,
+                    ConnectionStatus.degraded => Colors.orange,
+                    _ => Colors.grey,
+                  },
+                ),
         ),
       ),
     );
