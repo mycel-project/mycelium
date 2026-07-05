@@ -14,7 +14,7 @@ class ApiService {
   ApiService(
     this.apiStore,
     this.networkLogger, {
-    this.timeout = const Duration(seconds: 5),
+    this.timeout = const Duration(seconds: 10),
   });
 
   Uri _uri(String path, {Map<String, String>? queryParams}) => Uri.parse(
