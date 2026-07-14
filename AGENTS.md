@@ -49,6 +49,7 @@ The flow is: page → ViewModel → (Use cases →) → Repository
 # What NOT to do
 - Don't implement learning logic independently — delegate to Mycel
 - Don't break the layer architecture
+- Don't commit unless explicitly asked to
 
 # Commits
 - Follow Conventional Commits: feat/fix/refactor/chore: short description (english).
