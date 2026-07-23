@@ -23,6 +23,9 @@ class ApiStore extends ChangeNotifier {
   }
 
   void setBaseUrl(String url) {
+    while (url.endsWith('/')) {
+      url = url.substring(0, url.length - 1);
+    }
     _baseUrl = url;
     resetCompatibility();
     version = null;
