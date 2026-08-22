@@ -308,17 +308,31 @@ class MdEditorViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  int Function()? _getBase;
-  int Function()? _getExtent;
+  int? Function()? _getBase;
+  int? Function()? _getExtent;
 
   TextSelection? get selection {
     if (!hasSelection || _getBase == null || _getExtent == null) return null;
-    return TextSelection(baseOffset: _getBase!(), extentOffset: _getExtent!());
+    final base = _getBase!();
+    final extent = _getExtent!();
+    if (base == null || extent == null) return null;
+    return TextSelection(baseOffset: base, extentOffset: extent);
   }
 
-  void onSelectionChanged(int Function() getBase, int Function() getExtent, bool hasSel) {
+  void onSelectionChanged(int? Function() getBase, int? Function() getExtent, bool hasSel) {
     _getBase = getBase;
     _getExtent = getExtent;
+
+    // if no more selection
+    if (getExtent() == null) {
+      if (hasSelection) {
+        hasSelection = false;
+        notifyListeners();
+      }
+      return;
+    }
+
+    // if new selection
     if (hasSelection != hasSel) {
       hasSelection = hasSel;
       notifyListeners();

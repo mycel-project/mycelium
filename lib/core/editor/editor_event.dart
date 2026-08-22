@@ -9,11 +9,12 @@ class TextChanged extends EditorEvent {
 }
 
 class SelectionChanged extends EditorEvent {
-  final int Function() getBase;
-  final int Function() getExtent;
+  final int? Function() getBase;
+  final int? Function() getExtent;
   final bool hasSelection;
 
-  const SelectionChanged(this.getBase, this.getExtent, {required this.hasSelection});
+  const SelectionChanged(this.getBase, this.getExtent,
+      {this.hasSelection = false});
 }
 
 class EditorFocused extends EditorEvent {
