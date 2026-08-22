@@ -59,6 +59,7 @@ import 'package:mycelium/viewmodels/home_viewmodel.dart';
 import 'package:mycelium/viewmodels/launch_review_button_viewmodel.dart';
 import 'package:mycelium/viewmodels/md_editor_viewmodel.dart';
 import 'package:mycelium/viewmodels/settings_viewmodel.dart';
+import 'package:mycelium/core/editor/live_markdown_backend.dart';
 
 final sl = GetIt.instance;
 
@@ -92,6 +93,9 @@ Future<void> setup() async {
   sl.registerSingleton(NavigationStore());
   sl.registerSingleton(ScrollPositionStore());
 
+  // Editor
+  sl.registerLazySingleton<EditorBackend>(() => LiveMarkdownBackend());
+  
   // Use cases/coords
   sl.registerSingleton(InitUserUseCase(sl(), sl(), sl(), sl()));
   sl.registerSingleton(SelectUserUseCase(sl(), sl()));

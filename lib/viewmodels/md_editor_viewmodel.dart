@@ -116,7 +116,7 @@ class MdEditorViewModel extends ChangeNotifier {
   }) {
     content = newContent;
     _commands.add(
-      SetDoc(newContent, cursor: cursor, clearHistory: clearHistory),
+      SetDoc(newContent, cursor: cursor),
     );
   }
 

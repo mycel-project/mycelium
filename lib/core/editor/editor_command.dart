@@ -5,17 +5,15 @@ sealed class EditorCommand {
 class SetDoc extends EditorCommand {
   final String content;
   final int? cursor;
-  final bool clearHistory;
 
-  const SetDoc(this.content, {this.cursor, this.clearHistory = false});
+  const SetDoc(this.content, {this.cursor});
 }
 
 class SetMode extends EditorCommand {
-  final bool isLocked;
-  final bool showKeyboard;
+  final bool readOnly;
   final bool requestFocus;
 
-  const SetMode(this.isLocked, this.showKeyboard, {this.requestFocus = false});
+  const SetMode(this.readOnly, {this.requestFocus = false});
 }
 
 class Undo extends EditorCommand {
@@ -28,9 +26,8 @@ class Redo extends EditorCommand {
 
 class ScrollTo extends EditorCommand {
   final int offset;
-  final int margin;
 
-  const ScrollTo(this.offset, {this.margin = 0});
+  const ScrollTo(this.offset);
 }
 
 class Blur extends EditorCommand {

@@ -38,12 +38,14 @@ class MdEditorState extends State<MdEditor> {
     vm = context.read<MdEditorViewModel>();
     focusNode.addListener(_onFlutterFocusChanged);
 
-    _vmCommandSub = vm.commands.listen((cmd) {
+    // commands comming from vm
+    _vmCommandSub = vm.commands.listen((cmd) { 
       if (!mounted) return;
       _backend.handleCommand(cmd);
     });
 
-    _backendEventSub = _backend.events.listen(_onBackendEvent);
+    // Listen for flutter_live_markdown hooks
+    _backendEventSub = _backend.events.listen(_onBackendEvent); 
 
     vm.scrollPositionStore.addListener(_onScrollPositionChanged);
   }
@@ -51,18 +53,6 @@ class MdEditorState extends State<MdEditor> {
   void _onBackendEvent(EditorEvent event) {
     if (!mounted) return;
     switch (event) {
-      case EditorReady():
-        // TODO(migration): don't expose onReady in flutter_live_markdown.
-        //   The mycelium backend should infer "ready" from the widget lifecycle
-        //   (e.g., postFrameCallback in buildWidget()), not from a package
-        //   callback. See LiveMarkdownBackend.
-        _backend.handleCommand(SetDoc(vm.content, clearHistory: true));
-        _backend.handleCommand(
-          SetMode(
-            vm.isLocked(),
-            Device.isDesktop || vm.activeKeyboard || vm.isCurrentNodeSpore(),
-          ),
-        );
       case TextChanged(:final content):
         vm.updateContent(content);
       case SelectionChanged(:final base, :final extent):
@@ -98,7 +88,7 @@ class MdEditorState extends State<MdEditor> {
   void _onScrollPositionChanged() {
     if (vm.isUpdatingPosition) return;
     if (!mounted) return;
-    _backend.handleCommand(ScrollTo(vm.scrollPositionStore.offset, margin: 32));
+    _backend.handleCommand(ScrollTo(vm.scrollPositionStore.offset));
   }
 
   @override
@@ -173,7 +163,7 @@ class MdEditorState extends State<MdEditor> {
       _previousKeyboard = showKeyboard;
       _previousActiveKeyboard = currentVm.activeKeyboard;
       _backend.handleCommand(
-        SetMode(isLocked, showKeyboard, requestFocus: requestFocus),
+        SetMode(isLocked, requestFocus: requestFocus),
       );
     }
 

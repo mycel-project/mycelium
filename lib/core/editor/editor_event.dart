@@ -15,21 +15,13 @@ class SelectionChanged extends EditorEvent {
   const SelectionChanged(this.base, this.extent);
 }
 
+class EditorFocused extends EditorEvent {
+  const EditorFocused();
+}
+
 class HistoryChanged extends EditorEvent {
   final bool canUndo;
   final bool canRedo;
 
   const HistoryChanged(this.canUndo, this.canRedo);
-}
-
-class EditorFocused extends EditorEvent {
-  const EditorFocused();
-}
-
-class EditorReady extends EditorEvent {
-  const EditorReady();
-
-  // TODO(migration): flutter_live_markdown should NOT expose onReady.
-  //   The mycelium backend inferes "ready" from the widget lifecycle
-  //   (e.g., postFrameCallback in buildWidget()).
 }
