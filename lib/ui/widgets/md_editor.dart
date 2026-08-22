@@ -53,16 +53,10 @@ class MdEditorState extends State<MdEditor> {
   void _onBackendEvent(EditorEvent event) {
     if (!mounted) return;
     switch (event) {
-      case TextChanged(:final content):
-        vm.updateContent(content);
-      case SelectionChanged(:final base, :final extent):
-        debugPrint(
-          "[MD_EDITOR] SelectionChanged: base=$base extent=$extent hasFocus=${focusNode.hasFocus}",
-        );
-        vm.onCursorChanged(extent);
-        vm.updateSelection(
-          TextSelection(baseOffset: base, extentOffset: extent),
-        );
+      case TextChanged(:final getText):
+        vm.updateContentLazy(getText);
+      case SelectionChanged(:final getBase, :final getExtent, :final hasSelection):
+        vm.onSelectionChanged(getBase, getExtent, hasSelection);
       case HistoryChanged(:final canUndo, :final canRedo):
         vm.updateHistoryState(canUndo, canRedo);
       case EditorFocused():
@@ -79,8 +73,7 @@ class MdEditorState extends State<MdEditor> {
     focusNode.unfocus();
     _backend.handleCommand(const Blur());
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      vm.onCursorChanged(null);
-      vm.updateSelection(null);
+      vm.onSelectionChanged(() => 0, () => 0, false);
       _isRemovingFocus = false;
     });
   }

@@ -3,16 +3,17 @@ sealed class EditorEvent {
 }
 
 class TextChanged extends EditorEvent {
-  final String content;
+  final String Function() getText;
 
-  const TextChanged(this.content);
+  const TextChanged(this.getText);
 }
 
 class SelectionChanged extends EditorEvent {
-  final int base;
-  final int extent;
+  final int Function() getBase;
+  final int Function() getExtent;
+  final bool hasSelection;
 
-  const SelectionChanged(this.base, this.extent);
+  const SelectionChanged(this.getBase, this.getExtent, {required this.hasSelection});
 }
 
 class EditorFocused extends EditorEvent {

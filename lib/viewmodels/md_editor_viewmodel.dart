@@ -59,11 +59,11 @@ class MdEditorViewModel extends ChangeNotifier {
   bool hasSelection = false;
 
   final NodeUseCase nodeUseCase;
-  TextSelection? selection;
 
   ApiStore apiStore;
 
-  int? cursorPosition;
+  int? get cursorPosition => _getExtent?.call();
+  bool get hasCursor => cursorPosition != null;
 
   final ReviewRepository reviewRepository;
 
@@ -197,7 +197,14 @@ class MdEditorViewModel extends ChangeNotifier {
     }
   }
 
-  String content = "";
+  String _content = "";
+  String Function()? _contentGetter;
+
+  String get content => _contentGetter != null ? _contentGetter!() : _content;
+  set content(String value) {
+    _content = value;
+    _contentGetter = null;
+  }
   bool isDirty = false;
 
   bool _handleReviewError(ApiError error, String context) {
@@ -266,6 +273,7 @@ class MdEditorViewModel extends ChangeNotifier {
   }
 
   void updateHistoryState(bool canUndo, bool canRedo) {
+    if (_canUndo == canUndo && _canRedo == canRedo) return; // rebuild only when history changes
     _canUndo = canUndo;
     _canRedo = canRedo;
     notifyListeners();
@@ -299,21 +307,21 @@ class MdEditorViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void onCursorChanged(int? position) {
-    _isUpdatingCursor = true;
-    cursorPosition = (position == null || position < 0) ? null : position;
-    notifyListeners();
-    _isUpdatingCursor = false;
+  int Function()? _getBase;
+  int Function()? _getExtent;
+
+  TextSelection? get selection {
+    if (!hasSelection || _getBase == null || _getExtent == null) return null;
+    return TextSelection(baseOffset: _getBase!(), extentOffset: _getExtent!());
   }
 
-  bool get hasCursor => cursorPosition != null;
-
-  void updateSelection(TextSelection? newSelection) {
-    _isUpdatingSelection = true;
-    selection = newSelection;
-    hasSelection = newSelection != null && !newSelection.isCollapsed;
-    notifyListeners();
-    _isUpdatingSelection = false;
+  void onSelectionChanged(int Function() getBase, int Function() getExtent, bool hasSel) {
+    _getBase = getBase;
+    _getExtent = getExtent;
+    if (hasSelection != hasSel) {
+      hasSelection = hasSel;
+      notifyListeners();
+    }
   }
 
   Future<void> deleteNode() async {
@@ -469,8 +477,8 @@ class MdEditorViewModel extends ChangeNotifier {
     await saveContent();
   }
 
-  void updateContent(String value) {
-    content = value;
+  void updateContentLazy(String Function() getText) {
+    _contentGetter = getText;
     isDirty = true;
     tryAutoSave();
   }

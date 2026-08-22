@@ -13,12 +13,16 @@ class LiveMarkdownBackend implements EditorBackend {
   // flutter_live_markdown -> Mycelium. Translate package hook to EditorEvent that md_editor can recognize (and handle in _onBackendEvent).
   LiveMarkdownBackend() {
     _controller.onChange = () {
-      _eventStream.add(TextChanged(_controller.text));
+      _eventStream.add(TextChanged(() => _controller.text));
     };
     
     _controller.onSelectionChange = () {
       _eventStream.add(
-        SelectionChanged(_controller.selectionStart, _controller.selectionEnd),
+        SelectionChanged(
+          () => _controller.selectionStart, 
+          () => _controller.selectionEnd,
+          hasSelection: _controller.hasSelection,
+        ),
       );
     };
 
