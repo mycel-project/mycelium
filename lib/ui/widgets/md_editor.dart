@@ -44,6 +44,9 @@ class MdEditorState extends State<MdEditor> {
       _backend.handleCommand(cmd);
     });
 
+    // Synchronize backend with ViewModel state on mount to prevent race conditions where SetDoc is fired before the widget mounts
+    _backend.handleCommand(SetDoc(vm.content));
+
     // Listen for flutter_live_markdown hooks
     _backendEventSub = _backend.events.listen(_onBackendEvent); 
 
