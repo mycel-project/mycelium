@@ -67,7 +67,8 @@ class MdEditorViewModel extends ChangeNotifier {
 
   final ReviewRepository reviewRepository;
 
-  MdEditorViewModel( // CodeSmell
+  MdEditorViewModel(
+    // CodeSmell
     this.nodeService,
     this.nodeStore,
     this.reviewStore,
@@ -383,7 +384,7 @@ class MdEditorViewModel extends ChangeNotifier {
     );
     switch (result) {
       case ApiSuccess(:final data):
-        // need to change in node store ?
+        // nodeStore.selectNode(data); // uncomment to show changed immediatly in left tree. But rebuild everything.
         node = data;
         notifyListeners();
       case DomainError error:
