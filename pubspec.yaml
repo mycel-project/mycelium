@@ -35,8 +35,10 @@ dependencies:
   mocktail: ^1.0.4
   table_calendar: ^3.2.0
   window_manager: ^0.5.1
-  flutter_inappwebview: ^6.2.0-beta.3
-    
+  flutter_live_markdown:
+    git:
+      url: https://github.com/paul-in/flutter_live_markdown.git
+      ref: main
   provider: ^6.1.5
 
   # The following adds the Cupertino Icons font to your application.
@@ -88,7 +90,6 @@ flutter:
   assets:
     - assets/
     - assets/icons/
-    - assets/editor/dist/
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in

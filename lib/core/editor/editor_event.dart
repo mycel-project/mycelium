@@ -28,4 +28,8 @@ class EditorFocused extends EditorEvent {
 
 class EditorReady extends EditorEvent {
   const EditorReady();
+
+  // TODO(migration): flutter_live_markdown should NOT expose onReady.
+  //   The mycelium backend inferes "ready" from the widget lifecycle
+  //   (e.g., postFrameCallback in buildWidget()).
 }

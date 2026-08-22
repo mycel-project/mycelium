@@ -1,10 +1,15 @@
 ## Unreleased
+This update introduces another refactor of the Markdown engine (flutter_live_markdown), as WebView was not viable for full cross-platform compatibility. It reintroduces Linux support alongside web support.
+
+### Added
+- Use flutter_live_markdown package to render markdown.
 
 ### Fixed
 - Fix notification system deadlock: use a queue-based bus and StatefulWidget listener with try/catch to prevent toast failures from blocking all future notifications.
 - Wrap dialogs with PointerInterceptor to restore clickability over iframe on web.
 
 ### Refactored
+- Remove flutter in_app_webview
 - Extract EditorBackend abstraction with sealed command/event classes for Stream-based editor communication. Replace InAppWebView inline widget with Provider-injected backend.
 - Adapt editor action buttons layout for web (kIsWeb): move outside Stack to avoid HtmlElementView DOM overlay.
 - Use evaluateJavascript instead of callAsyncJavaScript for cross-platform WebView JS execution.

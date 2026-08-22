@@ -52,6 +52,10 @@ class MdEditorState extends State<MdEditor> {
     if (!mounted) return;
     switch (event) {
       case EditorReady():
+        // TODO(migration): don't expose onReady in flutter_live_markdown.
+        //   The mycelium backend should infer "ready" from the widget lifecycle
+        //   (e.g., postFrameCallback in buildWidget()), not from a package
+        //   callback. See LiveMarkdownBackend.
         _backend.handleCommand(SetDoc(vm.content, clearHistory: true));
         _backend.handleCommand(
           SetMode(
