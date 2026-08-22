@@ -67,7 +67,7 @@ class MdEditorViewModel extends ChangeNotifier {
 
   final ReviewRepository reviewRepository;
 
-  MdEditorViewModel(
+  MdEditorViewModel( // CodeSmell
     this.nodeService,
     this.nodeStore,
     this.reviewStore,
@@ -112,7 +112,7 @@ class MdEditorViewModel extends ChangeNotifier {
   void _applyContent(
     String newContent, {
     int? cursor,
-    bool clearHistory = false,
+    bool clearHistory = false, // deactivate for now as flutter_live_markdown can't do otherwise
   }) {
     content = newContent;
     _commands.add(
