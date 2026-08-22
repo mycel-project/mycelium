@@ -162,7 +162,7 @@ class MdEditorState extends State<MdEditor> {
         SetMode(isLocked, requestFocus: requestFocus),
       );
     }
-
+    
     final actionButtons = Center(
       child: ConstrainedBox(
         constraints: BoxConstraints(
@@ -177,10 +177,10 @@ class MdEditorState extends State<MdEditor> {
               FragmentButton(vm: currentVm),
               SporeButton(vm: currentVm),
               if (!Device.isDesktop)
-                KeyboardButton(
-                  vm: currentVm,
-                  removeFocusAndCursor: removeFocusAndCursor,
-                ),
+              KeyboardButton(
+                vm: currentVm,
+                removeFocusAndCursor: removeFocusAndCursor,
+              ),
               MoreButton(
                 removeFocusAndCursor: () {
                   removeFocusAndCursor();
@@ -233,19 +233,17 @@ class MdEditorState extends State<MdEditor> {
                         ),
                       ),
                     ),
-                    if (!kIsWeb)
-                      Positioned(
-                        bottom: 16,
-                        left: 8,
-                        right: 8,
-                        child: actionButtons,
-                      ),
+                    Positioned(
+                      bottom: 16,
+                      left: 8,
+                      right: 8,
+                      child: actionButtons,
+                    ),
                   ],
                 ),
               ),
             ),
           ),
-          if (kIsWeb) actionButtons,
           ConstrainedBox(
             constraints: BoxConstraints(
               maxWidth: Responsive.isDesktop(context)
