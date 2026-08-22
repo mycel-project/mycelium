@@ -182,6 +182,7 @@ class MdEditorState extends State<MdEditor> {
                 removeFocusAndCursor: removeFocusAndCursor,
               ),
               MoreButton(
+                vm: vm,
                 removeFocusAndCursor: () {
                   removeFocusAndCursor();
                 },

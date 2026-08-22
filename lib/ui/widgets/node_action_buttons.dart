@@ -246,10 +246,12 @@ class KeyboardButton extends StatelessWidget {
 }
 
 class MoreButton extends StatelessWidget {
-  final Function removeFocusAndCursor;
+  final MdEditorViewModel vm;
+  final VoidCallback removeFocusAndCursor;
 
   const MoreButton({
     super.key,
+    required this.vm,
     required this.removeFocusAndCursor,
   });
 
@@ -259,71 +261,28 @@ class MoreButton extends StatelessWidget {
       heroTag: "fab_more",
       child: const Icon(Icons.more_vert),
       onPressed: () {
+        // Snapshot of the state when the menu is opened
+        final currentCursor = vm.cursorPosition;
+        final currentSelection = vm.selection;
+        final content = vm.content;
+        final hasSel = vm.hasSelection;
+        
         showAdaptiveSheet(
           context: context,
           child: MoreBottomSheet(
-            removeFocusAndCursor: removeFocusAndCursor,
-          ),
-        );
-      },
-    );
-  }
-}
-
-class MoreBottomSheet extends StatelessWidget {
-  final Function removeFocusAndCursor;
-
-  const MoreBottomSheet({
-    super.key,
-    required this.removeFocusAndCursor,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final vm = context.watch<MdEditorViewModel>();
-    return SafeArea(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          ListTile(
-            enabled: vm.hasCursor,
-            leading: const Icon(Icons.backspace),
-            title: const Text('Delete all content before cursor'),
-            onTap: () async {
-              await vm.deleteBeforeCursor(vm.content);
-              if (!context.mounted) return;
-              Navigator.pop(context);
+            hasSelection: hasSel,
+            onDeleteBeforeCursor: currentCursor == null ? null : () async {
+              await vm.deleteBeforeCursor(content, currentCursor);
             },
-          ),
-          ListTile(
-            enabled: vm.hasCursor,
-            leading: Transform.flip(
-              flipX: true,
-              child: const Icon(Icons.backspace),
-            ),
-            title: const Text('Delete all content after cursor'),
-            onTap: () async {
-              await vm.deleteAfterCursor(vm.content);
-              if (!context.mounted) return;
-              Navigator.pop(context);
+            onDeleteAfterCursor: currentCursor == null ? null : () async {
+              await vm.deleteAfterCursor(content, currentCursor);
             },
-          ),
-          ListTile(
-            leading: const Icon(Icons.link_off),
-            title: vm.hasSelection
-                ? const Text('Remove link formatting in selection')
-                : const Text('Remove all link formatting'),
-            onTap: () async {
-              await vm.removeLinks(vm.content);
-              if (!context.mounted) return;
-              Navigator.pop(context);
+            onRemoveLinks: () async {
+              final sel = hasSel ? currentSelection : null;
+              await vm.removeLinks(content, sel);
               removeFocusAndCursor();
             },
-          ),
-          ListTile(
-            leading: const Icon(Icons.splitscreen),
-            title: const Text('Split fragment'),
-            onTap: () async {
+            onSplitFragment: () async {
               List<OutlineEntry>? outline = await vm.getCurrentOutline();
               if (!context.mounted) return;
               await showHeadingSplitter(
@@ -333,11 +292,89 @@ class MoreBottomSheet extends StatelessWidget {
                   final result = await vm.splitNode(level);
                   if (result == true) {
                     await vm.refreshCurrentNode();
-                    if (!context.mounted) return;
-                    Navigator.pop(context);
                   }
                 },
               );
+            },
+            onDeleteFragment: () async {
+              final result = await ConfirmationDialog.show(
+                context,
+                title: "Delete confirmation",
+                text: "Delete this fragment and all its children?",
+                destructive: true,
+              );
+              if (result.confirmed == true) await vm.deleteNode();
+            },
+          ),
+        );
+      },
+    );
+  }
+}
+
+class MoreBottomSheet extends StatelessWidget {
+  final bool hasSelection; 
+  final Future<void> Function()? onDeleteBeforeCursor;
+  final Future<void> Function()? onDeleteAfterCursor;
+  final Future<void> Function() onRemoveLinks;
+  final Future<void> Function() onSplitFragment;
+  final Future<void> Function() onDeleteFragment;
+
+  const MoreBottomSheet({
+    super.key,
+    required this.hasSelection,
+    this.onDeleteBeforeCursor,
+    this.onDeleteAfterCursor,
+    required this.onRemoveLinks,
+    required this.onSplitFragment,
+    required this.onDeleteFragment,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ListTile(
+            enabled: onDeleteBeforeCursor != null,
+            leading: const Icon(Icons.backspace),
+            title: const Text('Delete all content before cursor'),
+            onTap: onDeleteBeforeCursor == null ? null : () async {
+              await onDeleteBeforeCursor!();
+              if (!context.mounted) return;
+              Navigator.pop(context);
+            },
+          ),
+          ListTile(
+            enabled: onDeleteAfterCursor != null,
+            leading: Transform.flip(
+              flipX: true,
+              child: const Icon(Icons.backspace),
+            ),
+            title: const Text('Delete all content after cursor'),
+            onTap: onDeleteAfterCursor == null ? null : () async {
+              await onDeleteAfterCursor!();
+              if (!context.mounted) return;
+              Navigator.pop(context);
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.link_off),
+            title: hasSelection
+                ? const Text('Remove link formatting in selection')
+                : const Text('Remove all link formatting'),
+            onTap: () async {
+              await onRemoveLinks();
+              if (!context.mounted) return;
+              Navigator.pop(context);
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.splitscreen),
+            title: const Text('Split fragment'),
+            onTap: () async {
+              await onSplitFragment();
               if (!context.mounted) return;
               Navigator.pop(context);
             },
@@ -346,13 +383,7 @@ class MoreBottomSheet extends StatelessWidget {
             leading: const Icon(Icons.delete),
             title: const Text('Delete this fragment'),
             onTap: () async {
-              final result = await ConfirmationDialog.show(
-                context,
-                title: "Delete confirmation",
-                text: "Delete this fragment and all its children?",
-                destructive: true,
-              );
-              if (result.confirmed == true) await vm.deleteNode();
+              await onDeleteFragment();
               if (!context.mounted) return;
               Navigator.pop(context);
             },

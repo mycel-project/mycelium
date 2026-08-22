@@ -375,13 +375,12 @@ class MdEditorViewModel extends ChangeNotifier {
     return await createExtract("spore", currentContent);
   }
 
-  Future<void> removeLinks(String currentContent) async {
+  Future<void> removeLinks(String currentContent, TextSelection? selection) async {
     final node = this.node;
     if (node == null) return;
-    final sel = hasSelection ? selection : null;
     content = currentContent;
     await saveContent();
-    final result = await removeLinksUseCase.execute(node, currentContent, sel);
+    final result = await removeLinksUseCase.execute(node, currentContent, selection);
     if (result) notifyListeners();
   }
 
@@ -472,21 +471,17 @@ class MdEditorViewModel extends ChangeNotifier {
     }
   }
 
-  Future<void> deleteBeforeCursor(String currentContent) async {
-    final pos = cursorPosition;
-    if (pos == null) return;
-    final newContent = currentContent.substring(pos);
+  Future<void> deleteBeforeCursor(String currentContent, int cursor) async {
+    final newContent = currentContent.substring(cursor);
     _applyContent(newContent, cursor: 0);
     content = newContent;
     isDirty = true;
     await saveContent();
   }
 
-  Future<void> deleteAfterCursor(String currentContent) async {
-    final pos = cursorPosition;
-    if (pos == null) return;
-    final newContent = currentContent.substring(0, pos);
-    _applyContent(newContent, cursor: pos);
+  Future<void> deleteAfterCursor(String currentContent, int cursor) async {
+    final newContent = currentContent.substring(0, cursor);
+    _applyContent(newContent, cursor: cursor);
     content = newContent;
     isDirty = true;
     await saveContent();
