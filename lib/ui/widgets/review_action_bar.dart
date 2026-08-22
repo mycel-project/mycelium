@@ -11,7 +11,7 @@ class ReviewActionBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (reviewNodeId != vm.node?.id) return const SizedBox.shrink();
+    if (reviewNodeId != vm.node?.id || reviewNodeId == null) return const SizedBox.shrink();
 
     if (vm.isCurrentNodeSpore()) {
       if (vm.isAnswerVisible) {
