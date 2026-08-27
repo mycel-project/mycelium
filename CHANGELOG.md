@@ -1,8 +1,8 @@
 ## Unreleased
-This update introduces another refactor of the Markdown engine (flutter_live_markdown), as WebView was not viable for full cross-platform compatibility. It reintroduces Linux support alongside web support.
+This update introduces another refactor of the Markdown engine (live_markdown_editor), as WebView was not viable for full cross-platform compatibility. It reintroduces Linux support alongside web support.
 
 ### Added
-- Use flutter_live_markdown package to render markdown.
+- Use live_markdown_editor package to render markdown.
 
 ### Fixed
 - Fix notification system deadlock: use a queue-based bus and StatefulWidget listener with try/catch to prevent toast failures from blocking all future notifications.

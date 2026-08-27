@@ -26,8 +26,6 @@ class MdEditorState extends State<MdEditor> {
   late MdEditorViewModel vm;
   late final EditorBackend _backend;
 
-  final FocusNode focusNode = FocusNode();
-
   StreamSubscription<EditorCommand>? _vmCommandSub;
   StreamSubscription<EditorEvent>? _backendEventSub;
 
@@ -36,10 +34,9 @@ class MdEditorState extends State<MdEditor> {
     super.initState();
     _backend = context.read<EditorBackend>();
     vm = context.read<MdEditorViewModel>();
-    focusNode.addListener(_onFlutterFocusChanged);
 
     // commands comming from vm
-    _vmCommandSub = vm.commands.listen((cmd) { 
+    _vmCommandSub = vm.commands.listen((cmd) {
       if (!mounted) return;
       _backend.handleCommand(cmd);
     });
@@ -48,7 +45,7 @@ class MdEditorState extends State<MdEditor> {
     _backend.handleCommand(SetDoc(vm.content));
 
     // Listen for flutter_live_markdown hooks
-    _backendEventSub = _backend.events.listen(_onBackendEvent); 
+    _backendEventSub = _backend.events.listen(_onBackendEvent);
 
     vm.scrollPositionStore.addListener(_onScrollPositionChanged);
   }
@@ -58,14 +55,16 @@ class MdEditorState extends State<MdEditor> {
     switch (event) {
       case TextChanged(:final getText):
         vm.updateContentLazy(getText);
-      case SelectionChanged(:final getBase, :final getExtent, :final hasSelection):
+      case SelectionChanged(
+        :final getBase,
+        :final getExtent,
+        :final hasSelection,
+      ):
         vm.onSelectionChanged(getBase, getExtent, hasSelection);
       case HistoryChanged(:final canUndo, :final canRedo):
         vm.updateHistoryState(canUndo, canRedo);
       case EditorFocused():
-        if (!focusNode.hasFocus) {
-          focusNode.requestFocus();
-        }
+        break;
     }
   }
 
@@ -73,7 +72,6 @@ class MdEditorState extends State<MdEditor> {
   void removeFocusAndCursor({bool force = false}) {
     if (_isRemovingFocus || (!force && vm.hasSelection)) return;
     _isRemovingFocus = true;
-    focusNode.unfocus();
     _backend.handleCommand(const Blur());
     WidgetsBinding.instance.addPostFrameCallback((_) {
       vm.onSelectionChanged(() => 0, () => 0, false);
@@ -92,18 +90,8 @@ class MdEditorState extends State<MdEditor> {
     _vmCommandSub?.cancel();
     _backendEventSub?.cancel();
     vm.scrollPositionStore.removeListener(_onScrollPositionChanged);
-    focusNode.removeListener(_onFlutterFocusChanged);
-    focusNode.unfocus();
-    focusNode.dispose();
     super.dispose();
   }
-
-  void _onFlutterFocusChanged() {
-    if (!focusNode.hasFocus) {
-      _backend.handleCommand(const Blur());
-    }
-  }
-
   String? _previousNodeId;
   bool? _previousLocked;
   bool? _previousKeyboard;
@@ -158,11 +146,12 @@ class MdEditorState extends State<MdEditor> {
       _previousLocked = isLocked;
       _previousKeyboard = showKeyboard;
       _previousActiveKeyboard = currentVm.activeKeyboard;
-      _backend.handleCommand(
-        SetMode(isLocked, requestFocus: requestFocus),
-      );
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        _backend.handleCommand(SetMode(isLocked, requestFocus: requestFocus));
+      });
     }
-    
+
     final actionButtons = Center(
       child: ConstrainedBox(
         constraints: BoxConstraints(
@@ -177,10 +166,10 @@ class MdEditorState extends State<MdEditor> {
               FragmentButton(vm: currentVm),
               SporeButton(vm: currentVm),
               if (!Device.isDesktop)
-              KeyboardButton(
-                vm: currentVm,
-                removeFocusAndCursor: removeFocusAndCursor,
-              ),
+                KeyboardButton(
+                  vm: currentVm,
+                  removeFocusAndCursor: removeFocusAndCursor,
+                ),
               MoreButton(
                 vm: vm,
                 removeFocusAndCursor: () {
@@ -228,10 +217,7 @@ class MdEditorState extends State<MdEditor> {
                                 borderRadius: BorderRadius.circular(8),
                               )
                             : const BoxDecoration(),
-                        child: Focus(
-                          focusNode: focusNode,
-                          child: _backend.buildWidget(context),
-                        ),
+                        child: _backend.buildWidget(context),
                       ),
                     ),
                     Positioned(
@@ -253,7 +239,6 @@ class MdEditorState extends State<MdEditor> {
             ),
             child: ReviewActionBar(
               vm: currentVm,
-              focusNode: focusNode,
               reviewNodeId: reviewNodeId,
             ),
           ),
