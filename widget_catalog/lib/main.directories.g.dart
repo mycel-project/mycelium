@@ -24,8 +24,21 @@ final directories = <_widgetbook.WidgetbookNode>[
             name: 'AdaptativeScaffold',
             useCases: [
               _widgetbook.WidgetbookUseCase(
-                name: 'Default',
+                name: 'Desktop',
                 builder: _widget_catalog_main.adaptativeScaffold,
+              ),
+              _widgetbook.WidgetbookUseCase(
+                name: 'Mobile',
+                builder: _widget_catalog_main.adaptativeScaffoldMobile,
+              ),
+            ],
+          ),
+          _widgetbook.WidgetbookComponent(
+            name: 'EditorLayout',
+            useCases: [
+              _widgetbook.WidgetbookUseCase(
+                name: 'Default',
+                builder: _widget_catalog_main.editorLayout,
               ),
             ],
           ),
