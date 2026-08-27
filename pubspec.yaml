@@ -36,7 +36,7 @@ dependencies:
   table_calendar: ^3.2.0
   window_manager: ^0.5.1
   flutter_live_markdown:
-  live_markdown_editor: ^0.2.0
+  live_markdown_editor: ^0.5.3
   provider: ^6.1.5
 
   # The following adds the Cupertino Icons font to your application.

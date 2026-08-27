@@ -6,11 +6,15 @@
 
 #include "generated_plugin_registrant.h"
 
+#include <native_adaptive_toolbox/native_adaptive_toolbox_plugin.h>
 #include <screen_retriever_linux/screen_retriever_linux_plugin.h>
 #include <url_launcher_linux/url_launcher_plugin.h>
 #include <window_manager/window_manager_plugin.h>
 
 void fl_register_plugins(FlPluginRegistry* registry) {
+  g_autoptr(FlPluginRegistrar) native_adaptive_toolbox_registrar =
+      fl_plugin_registry_get_registrar_for_plugin(registry, "NativeAdaptiveToolboxPlugin");
+  native_adaptive_toolbox_plugin_register_with_registrar(native_adaptive_toolbox_registrar);
   g_autoptr(FlPluginRegistrar) screen_retriever_linux_registrar =
       fl_plugin_registry_get_registrar_for_plugin(registry, "ScreenRetrieverLinuxPlugin");
   screen_retriever_linux_plugin_register_with_registrar(screen_retriever_linux_registrar);
