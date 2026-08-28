@@ -49,6 +49,7 @@ List<AdaptativeElement> adaptativeElements = [
     tooltip: "nav",
     onTap: () {},
     desktopPosition: DesktopPosition.topBarLeft,
+    mobilePosition: MobilePosition.bottomPanel
   ),
 ];
 

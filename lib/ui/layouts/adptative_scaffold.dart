@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mycelium/utils/device.dart';
+import 'package:sliding_up_panel/sliding_up_panel.dart';
 
 class ActivityAction {
   final IconData icon;
@@ -15,7 +16,7 @@ class ActivityAction {
 
 enum DesktopPosition { topBarLeft, topBarRight } // add burger if need space
 
-enum MobilePosition { burger, appBarRight }
+enum MobilePosition { burger, appBarRight, bottomPanel }
 
 class AdaptativeElement {
   final IconData icon;
@@ -118,6 +119,80 @@ class AdaptativeScaffoldState extends State<AdaptativeScaffold> {
           ),
         )
         .toList();
+  }
+
+  Widget _buildMobileBody(BuildContext context) {
+    final bottomPanelElements =
+        widget.adaptativeElements
+            ?.where((e) => e.mobilePosition == MobilePosition.bottomPanel)
+            .toList() ??
+        [];
+
+    if (bottomPanelElements.isEmpty) return widget.body;
+
+    final bottomPadding = MediaQuery.of(context).padding.bottom;
+    final keyboardOpen = MediaQuery.of(context).viewInsets.bottom > 0;
+    const collapsedHeight = 32.0;
+    const expandedHeight = 80.0;
+    final handleBar = Center(
+      child: Container(
+        width: 36,
+        height: 5,
+        decoration: BoxDecoration(
+          color: Colors.grey.withValues(alpha: 0.5),
+          borderRadius: BorderRadius.circular(10),
+        ),
+      ),
+    );
+
+    return SlidingUpPanel(
+      minHeight: keyboardOpen ? 0 : collapsedHeight + bottomPadding,
+      maxHeight: keyboardOpen ? 0 : expandedHeight + bottomPadding,
+      borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+      color: Theme.of(context).cardColor,
+      boxShadow: const [
+        BoxShadow(
+          color: Colors.black12,
+          blurRadius: 10.0,
+          offset: Offset(0, -3),
+        ),
+      ],
+      collapsed: Container(
+        decoration: BoxDecoration(
+          color: Theme.of(context).cardColor,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+        ),
+        child: Column(
+          children: [
+            const SizedBox(height: 14),
+            handleBar,
+          ],
+        ),
+      ),
+      panel: Column(
+        children: [
+          SizedBox(
+            height: collapsedHeight,
+            child: Center(child: handleBar),
+          ),
+          Expanded(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                for (final e in bottomPanelElements)
+                  IconButton(
+                    icon: Icon(e.icon),
+                    tooltip: e.tooltip,
+                    onPressed: e.onTap,
+                  ),
+              ],
+            ),
+          ),
+          SizedBox(height: bottomPadding),
+        ],
+      ),
+      body: widget.body,
+    );
   }
 
   @override
@@ -434,7 +509,7 @@ class AdaptativeScaffoldState extends State<AdaptativeScaffold> {
                       ),
                     ],
                   )
-                : widget.body,
+                : _buildMobileBody(context),
           ),
         );
       },
