@@ -33,29 +33,6 @@ final directories = <_widgetbook.WidgetbookNode>[
               ),
             ],
           ),
-          _widgetbook.WidgetbookComponent(
-            name: 'EditorLayout',
-            useCases: [
-              _widgetbook.WidgetbookUseCase(
-                name: 'Default',
-                builder: _widget_catalog_main.editorLayout,
-              ),
-            ],
-          ),
-        ],
-      ),
-      _widgetbook.WidgetbookFolder(
-        name: 'widgets',
-        children: [
-          _widgetbook.WidgetbookComponent(
-            name: 'MyAppBar',
-            useCases: [
-              _widgetbook.WidgetbookUseCase(
-                name: 'Default',
-                builder: _widget_catalog_main.myAppBar,
-              ),
-            ],
-          ),
         ],
       ),
     ],

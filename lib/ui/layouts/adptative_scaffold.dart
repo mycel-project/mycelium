@@ -13,20 +13,23 @@ class ActivityAction {
   });
 }
 
-enum DesktopPosition { topBarLeft, topBarRight }
+enum DesktopPosition { topBarLeft, topBarRight } // add burger if need space
 
-enum MobilePosition { burger, appBarLeft, appBarRight, }
+enum MobilePosition { burger, appBarRight }
 
-class Element {
+class AdaptativeElement {
   final IconData icon;
-  final String tooltip;
+  final String tooltip; // label in burger
   final VoidCallback onTap;
-  final 
+  final DesktopPosition? desktopPosition; // null = not shown on desktop
+  final MobilePosition? mobilePosition; // null = not shown on mobile
 
-  ActivityAction({
+  AdaptativeElement({
     required this.icon,
     required this.tooltip,
     required this.onTap,
+    this.desktopPosition,
+    this.mobilePosition,
   });
 }
 
@@ -36,8 +39,9 @@ class AdaptativeScaffold extends StatefulWidget {
   final Widget? rightPannel;
 
   final List<ActivityAction>? activityActions; // for "activity bar"
-  final Widget? desktopTopBar;
-  final PreferredSizeWidget? mobileAppBar;
+  final List<AdaptativeElement>? adaptativeElements;
+
+  final Widget? topBarContent;
 
   final bool? overrideIsDesktop; // for testing
 
@@ -47,8 +51,8 @@ class AdaptativeScaffold extends StatefulWidget {
     this.leftPannel,
     this.rightPannel,
     this.activityActions,
-    this.desktopTopBar,
-    this.mobileAppBar,
+    this.adaptativeElements,
+    this.topBarContent,
     this.overrideIsDesktop,
   });
 
@@ -75,10 +79,6 @@ class AdaptativeScaffoldState extends State<AdaptativeScaffold> {
   @override
   void initState() {
     super.initState();
-    if (widget.desktopTopBar == null) {
-      _isLeftOpen = true;
-      _isRightOpen = true;
-    }
   }
 
   Widget _buildResizeHandle({
@@ -104,6 +104,22 @@ class AdaptativeScaffoldState extends State<AdaptativeScaffold> {
     );
   }
 
+  List<Widget> _buildAdaptativeButtons(
+    List<AdaptativeElement> elements,
+    DesktopPosition position,
+  ) {
+    return elements
+        .where((e) => e.desktopPosition == position)
+        .map(
+          (e) => IconButton(
+            icon: Icon(e.icon),
+            tooltip: e.tooltip,
+            onPressed: e.onTap,
+          ),
+        )
+        .toList();
+  }
+
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
@@ -113,7 +129,13 @@ class AdaptativeScaffoldState extends State<AdaptativeScaffold> {
 
         final useDrawerLayout = !isDesktop || width < 800;
 
-        Widget desktopTopBar = widget.desktopTopBar != null
+        final hasTopBar =
+            widget.topBarContent != null ||
+            (widget.adaptativeElements?.isNotEmpty ?? false) ||
+            widget.leftPannel != null ||
+            widget.rightPannel != null;
+
+        Widget desktopTopBar = hasTopBar
             ? Builder(
                 builder: (innerContext) => SizedBox(
                   height: 44,
@@ -130,7 +152,18 @@ class AdaptativeScaffoldState extends State<AdaptativeScaffold> {
                             }
                           },
                         ),
-                      Expanded(child: widget.desktopTopBar!),
+                      ..._buildAdaptativeButtons(
+                        widget.adaptativeElements ?? [],
+                        DesktopPosition.topBarLeft,
+                      ),
+                      if (widget.topBarContent != null)
+                        Expanded(child: widget.topBarContent!)
+                      else
+                        const Spacer(),
+                      ..._buildAdaptativeButtons(
+                        widget.adaptativeElements ?? [],
+                        DesktopPosition.topBarRight,
+                      ),
                       if (widget.rightPannel != null)
                         IconButton(
                           icon: const Icon(Icons.menu_open),
@@ -147,6 +180,7 @@ class AdaptativeScaffoldState extends State<AdaptativeScaffold> {
                 ),
               )
             : const SizedBox();
+
         Widget activityBar = widget.activityActions != null
             ? isDesktop
                   ? Builder(
@@ -195,11 +229,79 @@ class AdaptativeScaffoldState extends State<AdaptativeScaffold> {
                     )
             : const SizedBox();
 
-        // Et les boutons qui sont norlame,et dans la topbar sur pc sur mobile ils seront dans un menu en bas de la zone d'edit ou bien dans la appbar en haut dans un bouton menu burger, à la obsidian. Et juste à côté menu brurger y'aur juste le bouton + pour importer et le bouton apprendre, le reste sera dans menu burger. Et bouto nd'ouverture de left pannel en haut à gauche mais pas pour drawer de droite.
-        // Dans bouton du bas on aura gauche droite, pq pas rechercher. QUoique pas fou car y'aura en plus la barre de révision en bas. Peut etre juste barre de modif en bas quand on clique comme sur obsidian, mis optionnel (egenre avec undo/redo et pq pas des boutons de wysiwyg), et sinon par défaut rien à part le bouton dismiss pour les fragment ? quoique on faudra que ce bouton dismiss soit à côté du bouton next fragment, pareil sur pc, et sinon dans le burger sur mobile/top bar pc. Mais quid de cs boutons de nav..?
+        PreferredSizeWidget mobileAppBar = AppBar(
+          title: widget.topBarContent,
+          leading: widget.leftPannel != null
+              ? Builder(
+                  builder: (ctx) => IconButton(
+                    icon: const Icon(Icons.menu),
+                    onPressed: () => Scaffold.of(ctx).openDrawer(),
+                  ),
+                )
+              : null,
+          actions: [
+            ...?widget.adaptativeElements
+                ?.where((e) => e.mobilePosition == MobilePosition.appBarRight)
+                .map(
+                  (e) => IconButton(
+                    icon: Icon(e.icon),
+                    tooltip: e.tooltip,
+                    onPressed: e.onTap,
+                  ),
+                ),
+            if ((widget.adaptativeElements?.any(
+                      (e) => e.mobilePosition == MobilePosition.burger,
+                    ) ??
+                    false) ||
+                widget.rightPannel != null)
+              Builder(
+                builder: (ctx) {
+                  final hasBurgerItems = widget.adaptativeElements?.any(
+                        (e) => e.mobilePosition == MobilePosition.burger,
+                      ) ??
+                      false;
+                  return PopupMenuButton<void>(
+                    icon: const Icon(Icons.more_vert),
+                    itemBuilder: (_) {
+                      final items = <PopupMenuEntry<void>>[];
+                      for (final e in widget.adaptativeElements?.where(
+                            (e) => e.mobilePosition == MobilePosition.burger,
+                          ) ??
+                          <AdaptativeElement>[]) {
+                        items.add(PopupMenuItem<void>(
+                          onTap: e.onTap,
+                          child: Row(
+                            children: [
+                              Icon(e.icon),
+                              const SizedBox(width: 12),
+                              Text(e.tooltip),
+                            ],
+                          ),
+                        ));
+                      }
+                      if (widget.rightPannel != null) {
+                        if (hasBurgerItems) items.add(const PopupMenuDivider());
+                        items.add(PopupMenuItem<void>(
+                          onTap: () => Scaffold.of(ctx).openEndDrawer(),
+                          child: const Row(
+                            children: [
+                              Icon(Icons.menu_open),
+                              SizedBox(width: 12),
+                              Text('Open right panel'),
+                            ],
+                          ),
+                        ));
+                      }
+                      return items;
+                    },
+                  );
+                },
+              ),
+          ],
+        );
 
         return Scaffold(
-          appBar: !isDesktop ? widget.mobileAppBar : null,
+          appBar: !isDesktop ? mobileAppBar : null,
           drawer: useDrawerLayout && widget.leftPannel != null
               ? Drawer(
                   child: SafeArea(
@@ -247,8 +349,7 @@ class AdaptativeScaffoldState extends State<AdaptativeScaffold> {
                                 Expanded(
                                   child: Column(
                                     children: [
-                                      if (widget.desktopTopBar != null)
-                                        desktopTopBar,
+                                      desktopTopBar,
                                       Expanded(child: widget.body),
                                     ],
                                   ),
