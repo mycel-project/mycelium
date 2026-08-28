@@ -74,26 +74,13 @@ class AdaptativeScaffoldState extends State<AdaptativeScaffold> {
   bool _isDraggingLeft = false;
   bool _isDraggingRight = false;
 
-  bool _isHoveringLeft = false;
-  bool _isHoveringRight = false;
-
-  @override
-  void initState() {
-    super.initState();
-  }
-
   Widget _buildResizeHandle({
-    required bool isHovering,
-    required bool isDragging,
-    required ValueChanged<bool> onHoverChanged,
     required VoidCallback onDragStart,
     required VoidCallback onDragEnd,
     required ValueChanged<double> onDragUpdate,
   }) {
     return MouseRegion(
       cursor: SystemMouseCursors.resizeLeftRight,
-      onEnter: (_) => onHoverChanged(true),
-      onExit: (_) => onHoverChanged(false),
       child: GestureDetector(
         behavior: HitTestBehavior.translucent,
         onPanStart: (_) => onDragStart(),
@@ -206,7 +193,10 @@ class AdaptativeScaffoldState extends State<AdaptativeScaffold> {
 
         final hasTopBar =
             widget.topBarContent != null ||
-            (widget.adaptativeElements?.isNotEmpty ?? false) ||
+            (widget.adaptativeElements?.any(
+                  (e) => e.desktopPosition != null,
+                ) ??
+                false) ||
             widget.leftPannel != null ||
             widget.rightPannel != null;
 
@@ -455,10 +445,6 @@ class AdaptativeScaffoldState extends State<AdaptativeScaffold> {
                                 top: 0,
                                 bottom: 0,
                                 child: _buildResizeHandle(
-                                  isHovering: _isHoveringLeft,
-                                  isDragging: _isDraggingLeft,
-                                  onHoverChanged: (value) =>
-                                      setState(() => _isHoveringLeft = value),
                                   onDragStart: () {
                                     _rawLeftWidth = _leftWidth;
                                     setState(() => _isDraggingLeft = true);
@@ -484,10 +470,6 @@ class AdaptativeScaffoldState extends State<AdaptativeScaffold> {
                                 top: 0,
                                 bottom: 0,
                                 child: _buildResizeHandle(
-                                  isHovering: _isHoveringRight,
-                                  isDragging: _isDraggingRight,
-                                  onHoverChanged: (value) =>
-                                      setState(() => _isHoveringRight = value),
                                   onDragStart: () {
                                     _rawRightWidth = _rightWidth;
                                     setState(() => _isDraggingRight = true);
