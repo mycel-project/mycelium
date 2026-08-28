@@ -377,6 +377,7 @@ class AdaptativeScaffoldState extends State<AdaptativeScaffold> {
 
         return Scaffold(
           appBar: !isDesktop ? mobileAppBar : null,
+          drawerEdgeDragWidth: 40,
           drawer: useDrawerLayout && widget.leftPannel != null
               ? Drawer(
                   child: SafeArea(
